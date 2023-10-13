@@ -1,0 +1,13 @@
+xcopa: # causal commonsense reasoning
+  languages:
+    - et
+    - ht
+    - id
+    - it
+    - qu
+    - sw
+    - ta
+    - th
+    - tr
+    - vi
+    - zh

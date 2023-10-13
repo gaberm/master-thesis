@@ -1,0 +1,10 @@
+num_epochs: 2
+batch_size: 32
+optimizer: AdamW
+lr: 5e-5
+metric: f1
+average: micro
+source_language: en
+batched: True
+trunctation: True
+padding: True

@@ -1,0 +1,10 @@
+defaults:
+  - dataset:
+    - xcopa
+    - xnli
+  - model:
+    - mbert
+  - params:
+    - train
+    - test
+  
