@@ -5,6 +5,5 @@ defaults:
   - model:
     - mbert
   - params:
-    - train
-    - test
+    - params
   

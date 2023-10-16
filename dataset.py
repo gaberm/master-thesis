@@ -4,24 +4,26 @@ from datasets import load_dataset, DatasetDict
 from omegaconf import DictConfig
 
 def load_datasets(cfg: DictConfig) -> dict[str, DatasetDict]:
-    dataset = cfg.name
-    dataset_languages = list(cfg.dataset.languages)
-    train_datasets = {language : load_dataset(dataset, language) for language in dataset_languages}
-    return train_datasets
+    datasets_dict = {}
+    for dataset in cfg.dataset:
+        set_name = cfg._get_child("dataset").name
+        set_languages = list(cfg._get_child("dataset").languages)
+        dataset = {lang : load_dataset(set_name, lang) for lang in set_languages}
+        datasets_dict[set_name] = dataset
+    return datasets_dict
 
-def tokenize_function(cfg: DictConfig, tokenizer: AutoTokenizer, example: DatasetDict) -> AutoTokenizer:
-    return tokenizer(example["premise"], example["hypothesis"], truncation=cfg.params.truncation, padding=cfg.params.padding)
-
-def tokenize_dataset(cfg: DictConfig, dataset: dict[str, DatasetDict], tokenizer: AutoTokenizer) -> dict[str, DataLoader]:
-    source_language = cfg.train.source_language
-    dataset_languages = list(cfg.dataset.languages)
+def tokenize_for_crosslingual_transfer(cfg: DictConfig, dataset: dict[str, DatasetDict], tokenizer: AutoTokenizer) -> dict[str, DataLoader]:
+    source_language = cfg.params.source_language
+    languages_lst = list(cfg.dataset.languages)
     batched = cfg.params.batched
     batch_size = cfg.params.batch_size
-    tokenize_fct = tokenize_function
-    
-    dataloaders = {}
+
     data_collator = DataCollatorWithPadding(tokenizer=tokenizer)
-    for language in dataset_languages:
+    def tokenize_function(example):
+        return tokenizer(example["premise"], example["hypothesis"], truncation=cfg.params.truncation, padding=cfg.params.padding)
+    
+    target_language_dataloaders = []
+    for language in languages_lst:
         if language == source_language:
             tokenized_dataset = dataset[language].map(tokenize_function, batched=batched)
         else:
@@ -32,13 +34,14 @@ def tokenize_dataset(cfg: DictConfig, dataset: dict[str, DatasetDict], tokenizer
         tokenized_dataset.set_format("torch")
 
         if language == source_language:
-            en_train = tokenized_dataset["train"]
-            train_dataloader = DataLoader(en_train, shuffle=True, batch_size=batch_size, collate_fn=data_collator)
-            eval_dataloader = DataLoader(tokenized_dataset["validation"], batch_size=batch_size, collate_fn=data_collator)
-            dataloader = {"train" : train_dataloader, "validation" : eval_dataloader}
+            source_language_train = tokenized_dataset["train"]
+            source_language_eval = tokenized_dataset["validation"]
+            train_dataloader = DataLoader(source_language_train, shuffle=True, batch_size=batch_size, collate_fn=data_collator)
+            eval_dataloader = DataLoader(source_language_eval, batch_size=batch_size, collate_fn=data_collator)
+            source_language_dataloaders = [train_dataloader, eval_dataloader]
         else:
-            dataloader = DataLoader(tokenized_dataset, batch_size=cfg.train.batch_size, collate_fn=data_collator)
+            target_dataloader = DataLoader(tokenized_dataset, batch_size=batch_size, collate_fn=data_collator)
 
-        dataloaders[language] = dataloader
+        target_language_dataloaders.append(target_dataloader)
     
-    return dataloaders
+    return source_language_dataloaders, target_language_dataloaders, languages_lst

@@ -1,16 +1,16 @@
-xnli: 
-  languages:
-    - ar
-    - bg
-    - de
-    - en
-    - es
-    - fr
-    - hi
-    - ru
-    - sw
-    - th
-    - tr
-    - ur
-    - vi
-    - zh
+name: xnli # natural language inference
+languages:
+  - ar
+  - bg
+  - de
+  - en
+  - es
+  - fr
+  - hi
+  - ru
+  - sw
+  - th
+  - tr
+  - ur
+  - vi
+  - zh

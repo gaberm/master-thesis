@@ -1,3 +1,3 @@
+name: mBERT
 checkpoint: bert-base-multilingual-cased
 num_labels: 3
-
