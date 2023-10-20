@@ -1,13 +1,7 @@
-from typing import Any
-from lightning.pytorch.utilities.types import STEP_OUTPUT
-from torch.utils.data import DataLoader
+from transformers.adapters.composition import Stack
 import torch
-import evaluate
-import lang2vec.lang2vec as l2v
-import numpy as np
-import wandb
 import hydra
-from omegaconf import DictConfig, OmegaConf
+from omegaconf import DictConfig
 import lightning.pytorch as pl
 from pytorch_lightning.loggers import WandbLogger
 from optimizer import create_optimizer
@@ -22,6 +16,7 @@ class LightningModel(pl.LightningModule):
         self.metric = load_metric(cfg)
         self.cfg = cfg
         self.metric_name = cfg.params.metric
+        self.target_lang = []
     
     def forward(self, inputs, target):
         return self.model(inputs, target)
@@ -47,6 +42,12 @@ class LightningModel(pl.LightningModule):
         predictions = torch.argmax(logits, dim=-1)
         self.metric.add_batch(predictions=predictions, references=batch["labels"])
         return outputs
+    
+    def on_test_epoch_start(self):
+        self.model.active_adapters = Stack(
+            self.cfg.model.adapter.task_adapter_args.checkpoint,
+            self.target_languages
+        )
 
     def on_test_epoch_end(self):
         val_score = self.metric.compute()["f1"]
@@ -58,22 +59,54 @@ class LightningModel(pl.LightningModule):
 
 @hydra.main(config_path="conf", config_name="config", version_base="1.3")
 def main(cfg: DictConfig):
-    datasets = load_datasets(cfg)
-    model, tokenizer = load_model(cfg)
-    pl_model = LightningModel(model, cfg)
-    
-    source_language_loader, target_language_loader, languages = tokenize_for_crosslingual_transfer(cfg, xnli, tokenizer)
-    train_loader = source_language_loader[0]
-    val_loader = source_language_loader[1]
-    test_loader = target_language_loader
-    
-    wandb_logger = WandbLogger(project="master-thesis", log_model="all")
-    trainer = pl.Trainer(limit_train_batches=100, max_epochs=1, logger=wandb_logger)
+    if "xnli" in cfg.dataset.keys():
+        # load xnli dataset and model
+        datasets = load_datasets(cfg)
+        model, tokenizer = load_model(cfg)
+        tokenized_datasets = tokenize_for_crosslingual_transfer(cfg, datasets, tokenizer)
 
-    # log gradients and model topology
-    wandb_logger.watch(model)
-    trainer.fit(model=pl_model, train_dataloaders=train_loader, val_dataloaders=val_loader)
-    trainer.test(model=pl_model, test_dataloaders=test_loader)
+        # create dataloaders
+        train_loader = [loader for loader in tokenized_datasets if loader.name == "xnli" and loader.split == "train"]
+        val_loader = [loader for loader in tokenized_datasets if loader.name == "xnli" and loader.split == "validation"]
+        test_loader = [loader for loader in tokenized_datasets if loader.name == "xnli" and loader.split == "test"]
+
+        # create model
+        pl_model = LightningModel(model, cfg)
+        trainer = pl.Trainer(limit_train_batches=100, max_epochs=1, logger=wandb_logger)
+
+        # train and test
+        wandb_logger = WandbLogger(project="master-thesis", log_model="all")
+        wandb_logger.watch(pl_model)
+
+        trainer.fit(model=pl_model, train_dataloaders=train_loader, val_dataloaders=val_loader)
+        trainer.test(model=pl_model, dataloaders=test_loader)
+
+        
+    # xnli_model.target_lang = xnli_target_lang
+    # xcopa_model.target_lang = xcopa_target_lang
+    
+    # xcopa_trainer = pl.Trainer(limit_train_batches=100, max_epochs=1, logger=wandb_logger)
+        
+    # xcopa_model = LightningModel(model, cfg)
+
+    # # tokenize datasets and create dataloaders
+    # tokenized_datasets = tokenize_for_crosslingual_transfer(cfg, datasets, tokenizer)
+    
+    # xnli_target_lang = [loader.language for loader in tokenized_datasets if loader.name == "xnli" and loader.split == "test"]
+    # xcopa_train_loader = [loader for loader in tokenized_datasets if loader.name == "xcopa" and loader.split == "train"]
+    # xcopa_val_loader = [loader for loader in tokenized_datasets if loader.name == "xcopa" and loader.split == "validation"]
+    # xcopa_test_loader = [loader for loader in tokenized_datasets if loader.name == "xcopa" and loader.split == "test"]
+    # xcopa_target_lang = [loader.language for loader in tokenized_datasets if loader.name == "xcopa" and loader.split == "test"]
+    
+    
+
+    # # log gradients and model topology
+    
+    # # train and test
+    
+    # xcopa_trainer.fit(model=xcopa_model, train_dataloaders=xcopa_train_loader, val_dataloaders=xcopa_val_loader)
+    # xcopa_trainer.test(model=xcopa_model, dataloaders=xcopa_test_loader)
+
 
 if __name__ == "__main__":
     main()

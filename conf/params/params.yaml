@@ -4,7 +4,7 @@ optimizer: AdamW
 learning_rate: 0.00005
 metric: f1
 average: micro
-source_language: en
+source_lang: en
 batched: True
 truncation: True
 padding: True

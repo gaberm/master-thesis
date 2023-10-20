@@ -1,0 +1,7 @@
+social_i_qa:
+  languages:
+    - en
+  split:
+    scource_lang:
+      - train
+    target_lang:

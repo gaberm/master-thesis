@@ -1,13 +1,19 @@
-name: xcopa # causal commonsense reasoning
-languages:
-  - et
-  - ht
-  - id
-  - it
-  - qu
-  - sw
-  - ta
-  - th
-  - tr
-  - vi
-  - zh
+xcopa: # causal commonsense reasoning
+  languages:
+    - et
+    - ht
+    # - id
+    # - it
+    - qu
+    - sw
+    - ta
+    # - th
+    # - tr
+    - vi
+    - zh
+  split:
+    source_lang:
+      - validation
+      - test
+    target_lang:
+      - test

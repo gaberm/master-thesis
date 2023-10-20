@@ -1,7 +1,7 @@
-name: xnli # natural language inference
+name: XNLI
 languages:
   - ar
-  - bg
+  # - bg
   - de
   - en
   - es
@@ -9,8 +9,20 @@ languages:
   - hi
   - ru
   - sw
-  - th
+  # - th
   - tr
-  - ur
+  # - ur
   - vi
   - zh
+source_lang_split:
+  - train
+  - validation
+target_lang_split:
+  - validation
+columns_to_remove:
+  - premise
+  - hypothesis
+original_column_names:
+  - label
+new_column_names:
+  - labels

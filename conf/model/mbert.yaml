@@ -1,3 +1,27 @@
 name: mBERT
-checkpoint: bert-base-multilingual-cased
-num_labels: 3
+load_args:
+  checkpoint: bert-base-multilingual-cased
+  num_labels: 3
+adapter_active: True
+lang_adapter_args:
+  config: pfeiffer
+  reduction_factor: 2
+lang_checkpoints:
+  - en/wiki@ukp
+  - de/wiki@ukp
+  - ar/wiki@ukp
+  - es/wiki@ukp
+  - fr/wiki@ukp
+  - hi/wiki@ukp
+  - ru/wiki@ukp
+  - sw/wiki@ukp
+  - tr/wiki@ukp
+  - vi/wiki@ukp
+  - zh/wiki@ukp
+  - et/wiki@ukp
+  - ht/wiki@ukp
+  - id/wiki@ukp
+  - qu/wiki@ukp
+task_adapter_args:
+  head_name: copa
+  num_choices: 3
