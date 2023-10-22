@@ -76,12 +76,15 @@ for epoch in range(num_epochs):
     for batch_idx, batch in enumerate(train_dataloader):
         batch = {k: v.to(device) for k, v in batch.items()}
         outputs = model(**batch)
+        
+        # part that pytorch lightning does for us
         loss = outputs.loss
         loss.backward()
-
         optimizer.step()
         #lr_scheduler.step()
         optimizer.zero_grad()
+        
+        
         progress_bar.update(1)
         running_loss += loss.item()
         

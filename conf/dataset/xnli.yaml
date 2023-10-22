@@ -1,28 +1,28 @@
-name: XNLI
-languages:
-  - ar
-  # - bg
-  - de
-  - en
-  - es
-  - fr
-  - hi
-  - ru
-  - sw
-  # - th
-  - tr
-  # - ur
-  - vi
-  - zh
-source_lang_split:
-  - train
-  - validation
-target_lang_split:
-  - validation
-columns_to_remove:
-  - premise
-  - hypothesis
-original_column_names:
-  - label
-new_column_names:
-  - labels
+xnli:
+  languages:
+    - ar
+    # - bg
+    - de
+    - en
+    - es
+    - fr
+    - hi
+    - ru
+    - sw
+    # - th
+    - tr
+    # - ur
+    - vi
+    - zh
+  source_lang_split:
+    - train
+    - validation
+  target_lang_split:
+    - validation
+  columns_to_remove:
+    - premise
+    - hypothesis
+  original_column_names:
+    - label
+  new_column_names:
+    - labels

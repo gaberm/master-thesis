@@ -1,3 +1,4 @@
+from pyparsing import Any
 from transformers.adapters.composition import Stack
 import torch
 import hydra
@@ -8,26 +9,31 @@ from optimizer import create_optimizer
 from model import load_model
 from dataset import load_datasets, tokenize_for_crosslingual_transfer
 from metric import load_metric
+from dotenv import load_dotenv
+
+load_dotenv()
 
 class LightningModel(pl.LightningModule):
-    def __init__(self, model, cfg):
+    def __init__(self, model: Any, cfg: DictConfig):
         super().__init__()
         self.model = model
         self.metric = load_metric(cfg)
-        self.cfg = cfg
         self.metric_name = cfg.params.metric
-        self.target_lang = []
+        self.cfg = cfg
     
     def forward(self, inputs, target):
         return self.model(inputs, target)
 
     def training_step(self, batch, batch_idx):
+        batch = {k: v.to(self.device) for k, v in batch.items()}
         outputs = self.model(**batch)
-        loss = outputs[0]
+        loss = outputs.loss
         return loss
     
     def validation_step(self, batch, batch_idx):
-        outputs = self.model(**batch)
+        batch = {k: v.to(self.device) for k, v in batch.items()}
+        with torch.no_grad():
+            outputs = self.model(**batch)
         logits = outputs.logits
         predictions = torch.argmax(logits, dim=-1)
         self.metric.add_batch(predictions=predictions, references=batch["labels"])
@@ -50,8 +56,8 @@ class LightningModel(pl.LightningModule):
         )
 
     def on_test_epoch_end(self):
-        val_score = self.metric.compute()["f1"]
-        self.log('val_f1', val_score)
+        val_score = self.metric.compute()[self.metric_name]
+        self.log(f'val_{self.metric_name}', val_score)
 
     def configure_optimizers(self):
         optimizer = create_optimizer(self.model, self.cfg)
@@ -60,28 +66,32 @@ class LightningModel(pl.LightningModule):
 @hydra.main(config_path="conf", config_name="config", version_base="1.3")
 def main(cfg: DictConfig):
     if "xnli" in cfg.dataset.keys():
-        # load xnli dataset and model
         datasets = load_datasets(cfg)
         model, tokenizer = load_model(cfg)
         tokenized_datasets = tokenize_for_crosslingual_transfer(cfg, datasets, tokenizer)
 
-        # create dataloaders
-        train_loader = [loader for loader in tokenized_datasets if loader.name == "xnli" and loader.split == "train"]
-        val_loader = [loader for loader in tokenized_datasets if loader.name == "xnli" and loader.split == "validation"]
-        test_loader = [loader for loader in tokenized_datasets if loader.name == "xnli" and loader.split == "test"]
+        train_loader = [loader_container.loader for loader_container in tokenized_datasets 
+                        if loader_container.name == "xnli" 
+                        and loader_container.split == "train"][0]
+        val_loader = [loader_container.loader for loader_container in tokenized_datasets 
+                      if loader_container.name == "xnli" 
+                      and loader_container.split == "validation" 
+                      and loader_container.language == cfg.params.source_lang][0]
+        test_loader = [loader_container.loader for loader_container in tokenized_datasets 
+                       if loader_container.name == "xnli" 
+                       and loader_container.split == "test"]
 
-        # create model
         pl_model = LightningModel(model, cfg)
-        trainer = pl.Trainer(limit_train_batches=100, max_epochs=1, logger=wandb_logger)
-
-        # train and test
         wandb_logger = WandbLogger(project="master-thesis", log_model="all")
         wandb_logger.watch(pl_model)
-
+        
+        trainer = pl.Trainer(limit_train_batches=100, max_epochs=1, logger=wandb_logger)
         trainer.fit(model=pl_model, train_dataloaders=train_loader, val_dataloaders=val_loader)
         trainer.test(model=pl_model, dataloaders=test_loader)
 
-        
+if __name__ == "__main__":
+    main()
+
     # xnli_model.target_lang = xnli_target_lang
     # xcopa_model.target_lang = xcopa_target_lang
     
@@ -107,9 +117,6 @@ def main(cfg: DictConfig):
     # xcopa_trainer.fit(model=xcopa_model, train_dataloaders=xcopa_train_loader, val_dataloaders=xcopa_val_loader)
     # xcopa_trainer.test(model=xcopa_model, dataloaders=xcopa_test_loader)
 
-
-if __name__ == "__main__":
-    main()
 
 
 

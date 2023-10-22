@@ -1,9 +1,8 @@
 import evaluate
 from omegaconf import DictConfig
 
-def load_metric(cfg: DictConfig):
+def load_metric(cfg: DictConfig) -> evaluate.EvaluationModule:
     metric_name = cfg.params.metric
-    match metric_name:
-        case "f1":
-            f1 = evaluate.load("f1")
-            return f1
+    if metric_name == "f1":
+        metric = evaluate.load("f1")
+    return metric

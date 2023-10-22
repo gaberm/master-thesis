@@ -1,25 +1,19 @@
 from omegaconf import DictConfig
-from transformers import AutoModelForSequenceClassification, AutoTokenizer, AutoConfig, AutoAdapterModel, AdapterConfig
+from transformers import AutoModelForSequenceClassification, AutoTokenizer, AutoModelWithHeads
 
-def load_model(cfg: DictConfig):
-    checkpoint = cfg.model.load_args.checkpoint
-    print()
+def load_model(cfg: DictConfig) -> tuple[AutoModelForSequenceClassification | AutoModelWithHeads, AutoTokenizer]:
+    model_name = cfg.model.load_args.pretrained_model_name_or_path
     if cfg.model.adapter_active:
-        auto_config = AutoConfig.from_pretrained(checkpoint)
-        model = AutoAdapterModel.from_pretrained(checkpoint, config=auto_config)
-        tokenizer = AutoTokenizer.from_pretrained(checkpoint)
-        print(cfg)
-        lang_adapter_config = AdapterConfig.load(**cfg.model.lang_adapter_args)
-        for checkpoint in cfg.model.lang_checkpoints:
-            model.load_adapter(checkpoint, config=lang_adapter_config)
-        model.add_adapter(cfg.model.task_adapter_args.head_name)
-        model.add_multiple_choice_head(**cfg.model.task_adapter_args)
-        model.train_adapter(adapter_setup=[cfg.model.task_adapter_args.head_name])
-        model.set_active_adapters(cfg.model.task_adapter_args.head_name,
-                                  cfg.params.source_lang)
-
-        return model, tokenizer
+        model = AutoModelWithHeads.from_pretrained(model_name)
+        tokenizer = AutoTokenizer.from_pretrained(model_name)
+        for lang in cfg.model.lang_adapter_heads.keys():
+            adapter_name = model.load_adapter(cfg.model.lang_adapter_heads[lang])
+            if lang == cfg.params.source_lang:
+                model.set_active_adapters(adapter_name)
+        adapter_name = model.load_adapter(**cfg.model.task_adapter_args)
+        model.set_active_adapters(adapter_name)
+        model.train_adapter(adapter_setup=[adapter_name])
     else:
         model = AutoModelForSequenceClassification.from_pretrained(**cfg.model.load_args)
-        tokenizer = AutoTokenizer.from_pretrained(checkpoint)
-        return model, tokenizer
+        tokenizer = AutoTokenizer.from_pretrained(model_name)
+    return model, tokenizer
