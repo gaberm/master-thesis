@@ -1,29 +1,18 @@
-xcopa:
-  name: xcopa # causal commonsense reasoning
+balanced_copa:
+  name: pkavumba/balanced-copa
   languages:
-    - et
-    - ht
-    # - id
-    # - it
-    - qu
-    - sw
-    - ta
-    # - th
-    # - tr
-    - vi
-    - zh
+    - en
   columns_to_tokenize:
     - premise
     - choice1
     - choice2
   columns_to_remove:
+    - id
+    - question
     - premise
     - choice1
     - choice2
-    - question
-    - label
-    - idx
-    - changed
+    - mirrored
   original_column_names:
     - label
   new_column_names:

@@ -1,7 +1,10 @@
+# @package _global_
+
 defaults:
+  - adapter/lang_adapter: mbert.yaml
+  - adapter/task_adapter: mnli.yaml
   - dataset:
-    - xnli
-  - model:
-    - mbert
-  - params:
-    - params
+    - xnli.yaml
+  - experiment: null
+  - model: mbert.yaml
+  - params: params.yaml

@@ -1,25 +1,7 @@
 load_args:
-  pretrained_model_name_or_path: bert-base-multilingual-cased
+  name_or_path: bert-base-multilingual-cased
   num_labels: 3
 adapter_active: True
 adapter_config: pfeiffer
-lang_adapter_heads:
-  en: en/wiki@ukp
-  de: de/wiki@ukp
-  ar: ar/wiki@ukp
-  es: es/wiki@ukp
-  fr: fr/wiki@ukp
-  hi: hi/wiki@ukp
-  ru: ru/wiki@ukp
-  sw: sw/wiki@ukp
-  # tr: tr/wiki@ukp
-  # vi: vi/wiki@ukp
-  zh: zh/wiki@ukp
-  et: et/wiki@ukp
-  ht: ht/wiki@ukp
-  # id: id/wiki@ukp
-  qu: qu/wiki@ukp
-task_adapter_args:
-  adapter_name_or_path: AdapterHub/bert-base-uncased-pf-mnli
-  source: hf
+
 

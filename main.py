@@ -7,19 +7,19 @@ import lightning.pytorch as pl
 from pytorch_lightning.loggers import WandbLogger
 from optimizer import create_optimizer
 from model import load_model
-from dataset import load_datasets, tokenize_for_crosslingual_transfer
+from dataset import create_data_loaders
 from metric import load_metric
 from dotenv import load_dotenv
 
 load_dotenv()
 
 class LightningModel(pl.LightningModule):
-    def __init__(self, model: Any, cfg: DictConfig):
+    def __init__(self, model: Any, config: DictConfig):
         super().__init__()
         self.model = model
-        self.metric = load_metric(cfg)
-        self.metric_name = cfg.params.metric
-        self.cfg = cfg
+        self.metric = load_metric(config)
+        self.metric_name = config.params.metric
+        self.config = config
     
     def forward(self, inputs, target):
         return self.model(inputs, target)
@@ -51,7 +51,7 @@ class LightningModel(pl.LightningModule):
     
     def on_test_epoch_start(self):
         self.model.active_adapters = Stack(
-            self.cfg.model.adapter.task_adapter_args.checkpoint,
+            self.config.model.adapter.task_adapter_args.checkpoint,
             self.target_languages
         )
 
@@ -60,34 +60,55 @@ class LightningModel(pl.LightningModule):
         self.log(f'val_{self.metric_name}', val_score)
 
     def configure_optimizers(self):
-        optimizer = create_optimizer(self.model, self.cfg)
+        optimizer = create_optimizer(self.model, self.config)
         return optimizer
 
 @hydra.main(config_path="conf", config_name="config", version_base="1.3")
-def main(cfg: DictConfig):
-    if "xnli" in cfg.dataset.keys():
-        datasets = load_datasets(cfg)
-        model, tokenizer = load_model(cfg)
-        tokenized_datasets = tokenize_for_crosslingual_transfer(cfg, datasets, tokenizer)
+def main(config: DictConfig):
 
-        train_loader = [loader_container.loader for loader_container in tokenized_datasets 
-                        if loader_container.name == "xnli" 
-                        and loader_container.split == "train"][0]
-        val_loader = [loader_container.loader for loader_container in tokenized_datasets 
-                      if loader_container.name == "xnli" 
-                      and loader_container.split == "validation" 
-                      and loader_container.language == cfg.params.source_lang][0]
-        test_loader = [loader_container.loader for loader_container in tokenized_datasets 
-                       if loader_container.name == "xnli" 
-                       and loader_container.split == "test"]
+    model, tokenizer = load_model(config)
+    train_loader, val_loader, test_loader = create_data_loaders(config, tokenizer)
+    
+    datasets = [config.train_datasets] + [config.val_datasets] + [config.test_datasets]
 
-        pl_model = LightningModel(model, cfg)
-        wandb_logger = WandbLogger(project="master-thesis", log_model="all")
-        wandb_logger.watch(pl_model)
-        
-        trainer = pl.Trainer(limit_train_batches=100, max_epochs=1, logger=wandb_logger)
-        trainer.fit(model=pl_model, train_dataloaders=train_loader, val_dataloaders=val_loader)
-        trainer.test(model=pl_model, dataloaders=test_loader)
+    for dataset in config.datasets:
+        set = load_datasets(dataset)
+        tokenized_set = tokenize_for_crosslingual_transfer(config, set, tokenizer)
+        if set in config.train_datasets:
+            train_loader.append(tokenized_set)
+        elif set in config.val_datasets:
+            val_loader.append(tokenized_set)
+        else:
+            test_loader.append(tokenized_set)
+    
+    pl_model = LightningModel(model, config)
+    wandb_logger = WandbLogger(project=config.project, log_model="all")
+    wandb_logger.watch(pl_model)
+    
+    trainer = pl.Trainer(limit_train_batches=100, max_epochs=1, logger=wandb_logger)
+    trainer.fit(model=pl_model, train_dataloaders=train_loader, val_dataloaders=val_loader)
+
+    
+    model, tokenizer = load_model(config)
+    tokenized_datasets = tokenize_for_crosslingual_transfer(config, datasets, tokenizer)
+
+    train_loader = [loader_container.loader for loader_container in tokenized_datasets 
+                    if loader_container.name == "xnli" 
+                    and loader_container.split == "train"][0]
+    val_loader = [loader_container.loader for loader_container in tokenized_datasets 
+                    if loader_container.name == "xnli" 
+                    and loader_container.split == "validation" 
+                    and loader_container.language == config.params.source_lang][0]
+    test_loader = [loader_container.loader for loader_container in tokenized_datasets 
+                    if loader_container.name == "xnli" 
+                    and loader_container.split == "test"]
+
+    pl_model = LightningModel(model, config)
+    wandb_logger = WandbLogger(project="master-thesis", log_model="all")
+    wandb_logger.watch(pl_model)
+    
+
+    trainer.test(model=pl_model, dataloaders=test_loader)
 
 if __name__ == "__main__":
     main()
@@ -97,10 +118,10 @@ if __name__ == "__main__":
     
     # xcopa_trainer = pl.Trainer(limit_train_batches=100, max_epochs=1, logger=wandb_logger)
         
-    # xcopa_model = LightningModel(model, cfg)
+    # xcopa_model = LightningModel(model, config)
 
     # # tokenize datasets and create dataloaders
-    # tokenized_datasets = tokenize_for_crosslingual_transfer(cfg, datasets, tokenizer)
+    # tokenized_datasets = tokenize_for_crosslingual_transfer(config, datasets, tokenizer)
     
     # xnli_target_lang = [loader.language for loader in tokenized_datasets if loader.name == "xnli" and loader.split == "test"]
     # xcopa_train_loader = [loader for loader in tokenized_datasets if loader.name == "xcopa" and loader.split == "train"]
