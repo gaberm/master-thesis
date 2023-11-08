@@ -13,18 +13,5 @@ xcopa:
     - vi
     - zh
   columns_to_tokenize:
-    - premise
-    - choice1
-    - choice2
-  columns_to_remove:
-    - premise
-    - choice1
-    - choice2
     - question
-    - label
-    - idx
-    - changed
-  original_column_names:
-    - label
-  new_column_names:
-    - labels
+    - choice

@@ -74,6 +74,7 @@ model.train() # changing model to training mode
 for epoch in range(num_epochs):
     running_loss = 0.0
     for batch_idx, batch in enumerate(train_dataloader):
+        print(batch)
         batch = {k: v.to(device) for k, v in batch.items()}
         outputs = model(**batch)
         

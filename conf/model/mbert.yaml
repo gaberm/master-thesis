@@ -1,7 +1,4 @@
 load_args:
   name_or_path: bert-base-multilingual-cased
   num_labels: 3
-adapter_active: True
-adapter_config: pfeiffer
-
 

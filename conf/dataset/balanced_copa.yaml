@@ -3,17 +3,5 @@ balanced_copa:
   languages:
     - en
   columns_to_tokenize:
-    - premise
-    - choice1
-    - choice2
-  columns_to_remove:
-    - id
     - question
-    - premise
-    - choice1
-    - choice2
-    - mirrored
-  original_column_names:
-    - label
-  new_column_names:
-    - labels
+    - choice

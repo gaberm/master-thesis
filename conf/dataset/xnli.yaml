@@ -18,10 +18,3 @@ xnli:
   columns_to_tokenize:
     - premise
     - hypothesis
-  columns_to_remove:
-    - premise
-    - hypothesis
-  original_column_names:
-    - label
-  new_column_names:
-    - labels

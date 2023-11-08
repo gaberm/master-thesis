@@ -1,10 +1,12 @@
 # @package _global_
 
 defaults:
-  - adapter/lang_adapter: mbert.yaml
+  - adapter/lang_adapter: null
   - adapter/task_adapter: mnli.yaml
   - dataset:
     - xnli.yaml
-  - experiment: null
+  - experiment: xcopa_mbert.yaml
   - model: mbert.yaml
   - params: params.yaml
+
+project: "master-thesis"

@@ -3,19 +3,5 @@ social_i_qa:
   languages:
     - en
   columns_to_tokenize:
-    - context
     - question
-    - answerA
-    - answerB
-    - answerC
-  columns_to_remove:
-    - context
-    - question
-    - answerA
-    - answerB
-    - answerC
-    - correctAnswer
-  original_column_names:
-    - label
-  new_column_names:
-    - labels
+    - answer
