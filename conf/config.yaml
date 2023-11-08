@@ -1,12 +1,18 @@
 # @package _global_
 
 defaults:
-  - adapter/lang_adapter: null
+  - adapter/lang_adapter: pfeiffer.yaml
   - adapter/task_adapter: mnli.yaml
   - dataset:
     - xnli.yaml
   - experiment: xcopa_mbert.yaml
   - model: mbert.yaml
   - params: params.yaml
+  - load_pretrained: false
 
 project: "master-thesis"
+work_dir: ${hydra:runtime.cwd}
+
+# path to folder with data
+data_dir: ${work_dir}/data/
+checkpoint_dir: ${work_dir}/data/checkpoints/

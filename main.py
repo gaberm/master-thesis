@@ -98,8 +98,14 @@ def main(config: DictConfig):
     wandb_logger = WandbLogger(project=config.project, log_model="all")
     wandb_logger.watch(pl_model)
     
-    trainer = pl.Trainer(max_epochs=config.params.max_epochs, logger=wandb_logger)
-    trainer.fit(model=pl_model, train_dataloaders=train_loader, val_dataloaders=val_loader)
+    if config.load_pretrained:
+        pass # TODO: load pretrained model
+    else:
+        trainer = pl.Trainer(max_epochs=config.params.max_epochs,
+                             logger=wandb_logger, 
+                             default_root_dir=config.checkpoint_dir,
+                             deterministic=True)
+        trainer.fit(model=pl_model, train_dataloaders=train_loader, val_dataloaders=val_loader)
 
     for tgt_lang, test_loader in test_loaders.items():
         pl_model.activate_adapters(tgt_lang)

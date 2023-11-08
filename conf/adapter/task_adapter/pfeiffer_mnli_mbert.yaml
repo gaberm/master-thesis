@@ -1,3 +1,0 @@
-load_args:
-  name_or_path: AdapterHub/bert-base-uncased-pf-mnli
-  source: hf
