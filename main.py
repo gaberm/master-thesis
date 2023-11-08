@@ -22,6 +22,8 @@ class LightningModel(pl.LightningModule):
         self.metric_name = config.params.metric
         self.lang_adapters = self.set_lang_adapter(config)
         self.task_adapter = self.set_task_adapter(config)
+        self.source_lang = config.params.source_lang
+        target_langs = ""
     
     # setter method for language adapters
     def set_lang_adapter(self, config: DictConfig): 
@@ -81,7 +83,7 @@ class LightningModel(pl.LightningModule):
 
     def on_test_epoch_end(self):
         val_score = self.metric.compute()[self.metric_name]
-        self.log(f'val_{self.metric_name}', val_score)
+        self.log(f'{self.metric_name}_{tgt_lang}', val_score)
 
     def configure_optimizers(self):
         optimizer = create_optimizer(self.model, self.config)
