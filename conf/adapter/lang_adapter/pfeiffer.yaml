@@ -1,4 +1,4 @@
-bert-base-multilingual-cased:
+mbert:
   ar: ar/wiki@ukp
   de: de/wiki@ukp
   en: en/wiki@ukp
@@ -15,7 +15,7 @@ bert-base-multilingual-cased:
   # vi: vi/wiki@ukp
   zh: zh/wiki@ukp
   
-xlm-roberta-base:
+xmlr:
   ar: ar/wiki@ukp
   de: de/wiki@ukp
   en: en/wiki@ukp

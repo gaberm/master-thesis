@@ -1,18 +1,18 @@
 from omegaconf import DictConfig
 from transformers import AutoTokenizer, AutoModelForSequenceClassification, AutoModelWithHeads
 
-def load_model(config: DictConfig) -> tuple[AutoModelForSequenceClassification | AutoModelWithHeads, AutoTokenizer]:
+def load_model(config: DictConfig) -> (AutoModelForSequenceClassification | AutoModelWithHeads, AutoTokenizer):
     model_name = config.model.load_args.name
     lang_adapter = config.adapter.lang_adapter
     task_adapter = config.adapter.task_adapter
 
     # load model with adapters
     if (lang_adapter != None) or (task_adapter != None):
-        model = AutoModelWithHeads.from_pretrained(name_or_path)
-        tokenizer = AutoTokenizer.from_pretrained(name_or_path)
+        model = AutoModelWithHeads.from_pretrained(model_name)
+        tokenizer = AutoTokenizer.from_pretrained(model_name)
         # load language adapters
         if lang_adapter != None:
-            for lang, adapter in config.adapter.lang_adapter[model_name].items():
+            for lang, adapter in config.adapter.lang_adapter.items():
                 adapter_name = model.load_adapter(adapter)
                 # for training we only want to use the adapter for the source language
                 if lang == config.params.source_lang:

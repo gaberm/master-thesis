@@ -5,6 +5,7 @@ defaults:
     - balanced_copa.yaml
     - social_i_qa.yaml
     - xcopa.yaml
+  - override /task_adapter: copa.yaml
   - override /model: mbert.yaml
 
 dataset:
@@ -17,6 +18,7 @@ dataset:
   xcopa:
     category: test
     test_split: test
-  mbert:
-    load_args:
-      num_labels: 2
+
+model:
+  load_args:
+    num_labels: 2

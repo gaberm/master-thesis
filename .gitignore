@@ -3,6 +3,7 @@
 /__pycache__
 /wandb
 /~
-/env
+/.env
 /test.ipynb
 /src/__pycache__
+/.mypy_cache

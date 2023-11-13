@@ -1,5 +1,5 @@
 xcopa:
-  name: xcopa # causal commonsense reasoning
+  name: xcopa
   languages:
     - et
     - ht

@@ -1,5 +1,5 @@
 load_args:
-  bert-base-uncased:
+  bert-base-multilingual-uncased:
     name_or_path: AdapterHub/bert-base-uncased-pf-copa
     source: hf
   xml-roberta-base:
