@@ -1,0 +1,4 @@
+name: mt5
+path: google/mt5-base
+num_labels: 3
+load_pretrained: false

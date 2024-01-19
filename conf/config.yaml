@@ -1,11 +1,11 @@
 defaults:
   - _self_
-  - lang_adapter: pfeiffer.yaml
-  - task_adapter: mnli.yaml
   - dataset:
     - xnli.yaml
   - params: params.yaml
   - model: mbert.yaml
+  - lang_adapter: pfeiffer.yaml
+  - task_adapter: mnli.yaml
   - override hydra/hydra_logging: colorlog
   - override hydra/job_logging: colorlog
 

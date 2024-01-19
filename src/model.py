@@ -5,8 +5,14 @@ import adapters
 def load_model(config: DictConfig) -> (AutoModelForSequenceClassification, AutoTokenizer):
     model_name = config.model.name
     model_path = config.model.path
-    lang_adapter_paths = config.lang_adapter
-    task_adapter_paths = config.task_adapter
+    try:
+        lang_adapter_paths = config.lang_adapter
+    except:
+        lang_adapter_paths = None
+    try:
+        task_adapter_paths = config.task_adapter
+    except:
+        task_adapter_paths = None
     source_lang = config.params.source_lang
 
     # load model and tokenizer
