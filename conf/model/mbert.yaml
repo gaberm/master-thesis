@@ -1,5 +1,4 @@
-load_args:
-  name: bert-base-multilingual-uncased
-  num_labels: 3
+name: mbert
+path: bert-base-multilingual-cased
+num_labels: 3
 load_pretrained: false
-

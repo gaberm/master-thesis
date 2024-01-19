@@ -1,7 +1,0 @@
-load_args:
-  bert-base-multilingual-uncased:
-    name_or_path: AdapterHub/bert-base-uncased-pf-copa
-    source: hf
-  xml-roberta-base:
-    name_or_path: AdapterHub/roberta-base-pf-copa
-    source: hf

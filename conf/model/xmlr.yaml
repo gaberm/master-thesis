@@ -1,4 +1,4 @@
-load_args:
-  name: xlm-roberta-base
-  num_labels: 3
+name: xmlr
+path: xlm-roberta-base
+num_labels: 3
 load_pretrained: false

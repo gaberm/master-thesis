@@ -1,8 +1,7 @@
 import torch.optim as optim
-from omegaconf import DictConfig
 
-def create_optimizer(model, cfg: DictConfig) -> (optim.AdamW):
-    if cfg.params.optimizer == "AdamW":
-        return optim.AdamW(params=model.parameters(), lr=cfg.params.learning_rate)
+def load_optimizer(model, optimizer: str, lr: float) -> optim.AdamW:
+    if optimizer == "AdamW":
+        return optim.AdamW(model.parameters(), lr)
     else:
         raise ValueError("Unsupported optimizer")

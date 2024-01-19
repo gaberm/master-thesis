@@ -1,17 +1,13 @@
-# @package _global_
-
 defaults:
   - _self_
-  - adapter/lang_adapter: pfeiffer.yaml
-  - adapter/task_adapter: mnli.yaml
+  - lang_adapter: pfeiffer.yaml
+  - task_adapter: mnli.yaml
   - dataset:
     - xnli.yaml
-  - experiment: xnli_mbert.yaml
   - params: params.yaml
   - model: mbert.yaml
-  - override hydra/job_logging: colorlog
   - override hydra/hydra_logging: colorlog
-
+  - override hydra/job_logging: colorlog
 
 project: "master-thesis"
 work_dir: ${hydra:runtime.cwd}

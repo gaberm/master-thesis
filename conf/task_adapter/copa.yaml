@@ -1,0 +1,6 @@
+mbert:
+  path: AdapterHub/bert-base-uncased-pf-copa
+  source: hf
+xmlr:
+  path: AdapterHub/roberta-base-pf-copa
+  source: hf

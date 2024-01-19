@@ -1,13 +1,14 @@
 # @package _global_
+# @package _global_
 
 defaults:
   - override /dataset:
     - balanced_copa.yaml
     - social_i_qa.yaml
     - xcopa.yaml
-  - override /task_adapter: copa.yaml
   - override /model: mbert.yaml
-
+  - override /task_adapter: copa.yaml
+  
 dataset:
   balanced_copa:
     train_split: train
@@ -20,5 +21,4 @@ dataset:
     test_split: test
 
 model:
-  load_args:
-    num_labels: 2
+  num_labels: 2
