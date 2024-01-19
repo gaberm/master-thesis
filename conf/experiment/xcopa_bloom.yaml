@@ -1,0 +1,24 @@
+# @package _global_
+
+defaults:
+  - override /dataset:
+    - balanced_copa.yaml
+    - social_i_qa.yaml
+    - xcopa.yaml
+  - override /model: bloom.yaml
+  - override /lang_adapter: null
+  - override /task_adapter: null
+  
+dataset:
+  balanced_copa:
+    train_split: train
+    val_split: test
+  social_i_qa:
+    train_split: train
+    val_split: validation
+  xcopa:
+    category: test
+    test_split: test
+
+model:
+  num_labels: 2

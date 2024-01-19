@@ -65,7 +65,7 @@ def create_sentence_pairs(dataset: DatasetDict, cfg_set_name: str, lang: str, sp
         new_dataset = Dataset.from_dict({"question" : question_list,  
                                          "answer" : answer_list,
                                          "label" : label_list})
-    
+        
     else:
         new_dataset = dataset[split]
 
@@ -79,7 +79,7 @@ def tokenize_and_clean_dataset(dataset: DatasetDict, set_name: str, lang: str, s
     tokenized_set = new_dataset.map(tokenize_function, batched=True)
     # remove non-tokenized columns
     # model only expects "input_ids", "token_type_ids", "attention_mask" and "labels"
-    exclude_list = list(config.dataset[set_name].columns_to_tokenize)
+    exclude_list = list(config.dataset[set_name].columns_to_tokenize) + list(config.dataset[set_name].columns_to_remove)
     tokenized_set = tokenized_set.remove_columns(exclude_list)
     # rename "label" column to "labels" if necessary
     # model except the label column to be named "labels"

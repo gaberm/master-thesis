@@ -15,6 +15,12 @@ def load_metric(config: DictConfig) -> (F1Score | MulticlassCalibrationError | B
         else:
             metric = MulticlassCalibrationError(num_classes=num_labels, n_bins=10, norm="l1").to("mps:0")
 
+    elif metric_name == "mce":
+        if num_labels == 2:
+            metric = BinaryCalibrationError(n_bins=15, norm="max")
+        else:
+            metric = MulticlassCalibrationError(num_classes=num_labels, n_bins=15, norm="max")
+
     else:
         raise ValueError(f"Metric {metric_name} not supported.")
     

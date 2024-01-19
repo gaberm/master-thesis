@@ -2,7 +2,7 @@ num_epochs: 2
 batch_size: 32
 optimizer: AdamW
 lr: 0.00005
-metric: f1
+metric: mce
 average: micro
 source_lang: en
 seed: 42

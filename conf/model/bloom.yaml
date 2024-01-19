@@ -1,0 +1,4 @@
+name: bloom
+path: bigscience/bloom-3b
+num_labels: 3
+load_pretrained: false

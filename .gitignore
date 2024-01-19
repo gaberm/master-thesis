@@ -6,5 +6,4 @@
 /.env
 /test.ipynb
 /src/__pycache__
-/.mypy_cache
 /main.log

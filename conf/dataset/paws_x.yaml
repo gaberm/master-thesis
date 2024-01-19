@@ -1,0 +1,15 @@
+paws_x:
+  name: paws-x
+  languages:
+    - de
+    - en
+    - es
+    - fr
+    - ja
+    - ko
+    - zh
+  columns_to_tokenize:
+    - sentence1
+    - sentence2
+  columns_to_remove:
+    - id
