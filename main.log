@@ -5918,3 +5918,187 @@
 [2024-01-23 16:25:07,453][adapters.loading][INFO] - Loading module weights from /Users/maltegaber/.cache/huggingface/hub/models--AdapterHub--bert-base-uncased-pf-mnli/snapshots/186e8048a6617e7d083a76cb55bfe5ac97e07d2a/pytorch_adapter.bin
 [2024-01-23 16:25:07,463][adapters.loading][INFO] - Loading module configuration from /Users/maltegaber/.cache/huggingface/hub/models--AdapterHub--bert-base-uncased-pf-mnli/snapshots/186e8048a6617e7d083a76cb55bfe5ac97e07d2a/head_config.json
 [2024-01-23 16:25:07,463][adapters.loading][WARNING] - Model class 'BertModelWithHeads' of found prediction head does not match current model class.
+[2024-01-23 18:09:44,853][adapters.utils][INFO] - Attempting to load adapter from source 'ah'...
+[2024-01-23 18:09:45,205][adapters.utils][INFO] - No exactly matching adapter config found for this specifier, falling back to default.
+[2024-01-23 18:09:45,370][adapters.utils][INFO] - Resolved adapter files at https://public.ukp.informatik.tu-darmstadt.de/AdapterHub/text_lang/ar/bert-base-multilingual-cased/pfeiffer/ar_relu_2.zip.
+[2024-01-23 18:09:45,699][adapters.loading][INFO] - Loading module configuration from ~/.cache/torch/adapters/0b2a547243e82d816959cbe6c9a814aee3716c08d62584aebd7a9044229cc8a8-1ec0387460c90e04c5e70048e0981620ddf52d228c8f806eca3ce770b10ed331-extracted/adapter_config.json
+[2024-01-23 18:09:45,700][adapters.configuration.model_adapters_config][INFO] - Adding adapter 'ar'.
+[2024-01-23 18:09:45,806][adapters.loading][INFO] - Loading module weights from ~/.cache/torch/adapters/0b2a547243e82d816959cbe6c9a814aee3716c08d62584aebd7a9044229cc8a8-1ec0387460c90e04c5e70048e0981620ddf52d228c8f806eca3ce770b10ed331-extracted/pytorch_adapter.bin
+[2024-01-23 18:09:45,811][adapters.loading][INFO] - No matching prediction head found in '~/.cache/torch/adapters/0b2a547243e82d816959cbe6c9a814aee3716c08d62584aebd7a9044229cc8a8-1ec0387460c90e04c5e70048e0981620ddf52d228c8f806eca3ce770b10ed331-extracted'
+[2024-01-23 18:09:45,811][adapters.utils][INFO] - Attempting to load adapter from source 'ah'...
+[2024-01-23 18:09:45,979][adapters.utils][INFO] - No exactly matching adapter config found for this specifier, falling back to default.
+[2024-01-23 18:09:46,131][adapters.utils][INFO] - Resolved adapter files at https://public.ukp.informatik.tu-darmstadt.de/AdapterHub/text_lang/de/bert-base-multilingual-cased/pfeiffer/de_pfeiffer_gelu_nd.zip.
+[2024-01-23 18:09:46,329][adapters.loading][INFO] - Loading module configuration from ~/.cache/torch/adapters/08ef10ebc1fdaef8ab51afedb140cb376629ba3d6d003ebb84d671fc6c449137-323d2b3cb18cc775356074e7ae17939f1dbe46a8adb8d13e3929f68b0c67e907-extracted/adapter_config.json
+[2024-01-23 18:09:46,329][adapters.configuration.model_adapters_config][INFO] - Adding adapter 'de'.
+[2024-01-23 18:09:46,436][adapters.loading][INFO] - Loading module weights from ~/.cache/torch/adapters/08ef10ebc1fdaef8ab51afedb140cb376629ba3d6d003ebb84d671fc6c449137-323d2b3cb18cc775356074e7ae17939f1dbe46a8adb8d13e3929f68b0c67e907-extracted/pytorch_adapter.bin
+[2024-01-23 18:09:46,442][adapters.loading][INFO] - No matching prediction head found in '~/.cache/torch/adapters/08ef10ebc1fdaef8ab51afedb140cb376629ba3d6d003ebb84d671fc6c449137-323d2b3cb18cc775356074e7ae17939f1dbe46a8adb8d13e3929f68b0c67e907-extracted'
+[2024-01-23 18:09:46,442][adapters.utils][INFO] - Attempting to load adapter from source 'ah'...
+[2024-01-23 18:09:46,593][adapters.utils][INFO] - No exactly matching adapter config found for this specifier, falling back to default.
+[2024-01-23 18:09:46,777][adapters.utils][INFO] - Resolved adapter files at https://public.ukp.informatik.tu-darmstadt.de/AdapterHub/text_lang/en/bert-base-multilingual-cased/pfeiffer/en_relu_2.zip.
+[2024-01-23 18:09:46,999][adapters.loading][INFO] - Loading module configuration from ~/.cache/torch/adapters/209973079df3cb5d155df4e290ec86070f257721693ce7618ff84b89b4aae2cf-3bd7c13f02e43f33b6ab727158d366c50d676646774b1c975dea5f965352474a-extracted/adapter_config.json
+[2024-01-23 18:09:46,999][adapters.configuration.model_adapters_config][INFO] - Adding adapter 'en'.
+[2024-01-23 18:09:47,108][adapters.loading][INFO] - Loading module weights from ~/.cache/torch/adapters/209973079df3cb5d155df4e290ec86070f257721693ce7618ff84b89b4aae2cf-3bd7c13f02e43f33b6ab727158d366c50d676646774b1c975dea5f965352474a-extracted/pytorch_adapter.bin
+[2024-01-23 18:09:47,113][adapters.loading][INFO] - No matching prediction head found in '~/.cache/torch/adapters/209973079df3cb5d155df4e290ec86070f257721693ce7618ff84b89b4aae2cf-3bd7c13f02e43f33b6ab727158d366c50d676646774b1c975dea5f965352474a-extracted'
+[2024-01-23 18:09:47,113][adapters.utils][INFO] - Attempting to load adapter from source 'ah'...
+[2024-01-23 18:09:47,394][adapters.utils][INFO] - No exactly matching adapter config found for this specifier, falling back to default.
+[2024-01-23 18:09:47,574][adapters.utils][INFO] - Resolved adapter files at https://public.ukp.informatik.tu-darmstadt.de/AdapterHub/text_lang/es/bert-base-multilingual-cased/pfeiffer/es_pfeiffer_gelu_nd.zip.
+[2024-01-23 18:09:47,802][adapters.loading][INFO] - Loading module configuration from ~/.cache/torch/adapters/dd7f82adfc858ea8dac201406d816536ef8a9522e957986a7ab28979f97ea744-1aa6d86fde73736f6b030a0fc54c77da507159374be3610e78575fab4fef8d10-extracted/adapter_config.json
+[2024-01-23 18:09:47,802][adapters.configuration.model_adapters_config][INFO] - Adding adapter 'es'.
+[2024-01-23 18:09:47,914][adapters.loading][INFO] - Loading module weights from ~/.cache/torch/adapters/dd7f82adfc858ea8dac201406d816536ef8a9522e957986a7ab28979f97ea744-1aa6d86fde73736f6b030a0fc54c77da507159374be3610e78575fab4fef8d10-extracted/pytorch_adapter.bin
+[2024-01-23 18:09:47,920][adapters.loading][INFO] - No matching prediction head found in '~/.cache/torch/adapters/dd7f82adfc858ea8dac201406d816536ef8a9522e957986a7ab28979f97ea744-1aa6d86fde73736f6b030a0fc54c77da507159374be3610e78575fab4fef8d10-extracted'
+[2024-01-23 18:09:47,920][adapters.utils][INFO] - Attempting to load adapter from source 'ah'...
+[2024-01-23 18:09:48,075][adapters.utils][INFO] - No exactly matching adapter config found for this specifier, falling back to default.
+[2024-01-23 18:09:48,329][adapters.utils][INFO] - Resolved adapter files at https://public.ukp.informatik.tu-darmstadt.de/AdapterHub/text_lang/et/bert-base-multilingual-cased/pfeiffer/et_pfeiffer_gelu_nd.zip.
+[2024-01-23 18:09:48,533][adapters.loading][INFO] - Loading module configuration from ~/.cache/torch/adapters/4f88e982c0e00ec1f06e05482dff96f8bc1ee5ead9ab1aa14c4a2d22d51f2a1a-4bb11d80fb4c250d997f408fae4804fb835acc9cbb209095524e7915d8377259-extracted/adapter_config.json
+[2024-01-23 18:09:48,533][adapters.configuration.model_adapters_config][INFO] - Adding adapter 'et'.
+[2024-01-23 18:09:48,640][adapters.loading][INFO] - Loading module weights from ~/.cache/torch/adapters/4f88e982c0e00ec1f06e05482dff96f8bc1ee5ead9ab1aa14c4a2d22d51f2a1a-4bb11d80fb4c250d997f408fae4804fb835acc9cbb209095524e7915d8377259-extracted/pytorch_adapter.bin
+[2024-01-23 18:09:48,647][adapters.loading][INFO] - No matching prediction head found in '~/.cache/torch/adapters/4f88e982c0e00ec1f06e05482dff96f8bc1ee5ead9ab1aa14c4a2d22d51f2a1a-4bb11d80fb4c250d997f408fae4804fb835acc9cbb209095524e7915d8377259-extracted'
+[2024-01-23 18:09:48,647][adapters.utils][INFO] - Attempting to load adapter from source 'ah'...
+[2024-01-23 18:09:48,791][adapters.utils][INFO] - No exactly matching adapter config found for this specifier, falling back to default.
+[2024-01-23 18:09:49,138][adapters.utils][INFO] - Resolved adapter files at https://public.ukp.informatik.tu-darmstadt.de/AdapterHub/text_lang/fr/bert-base-multilingual-cased/pfeiffer/fr_pfeiffer_gelu_nd.zip.
+[2024-01-23 18:09:49,349][adapters.loading][INFO] - Loading module configuration from ~/.cache/torch/adapters/649821e7de439acb880a8e9d0322d00abd445c9de655cee124a4e03fef557a86-fc313c35adda41f0a19ce896c640341c8d3e4ed589cdb94a38da05472df87a8f-extracted/adapter_config.json
+[2024-01-23 18:09:49,349][adapters.configuration.model_adapters_config][INFO] - Adding adapter 'fr'.
+[2024-01-23 18:09:49,458][adapters.loading][INFO] - Loading module weights from ~/.cache/torch/adapters/649821e7de439acb880a8e9d0322d00abd445c9de655cee124a4e03fef557a86-fc313c35adda41f0a19ce896c640341c8d3e4ed589cdb94a38da05472df87a8f-extracted/pytorch_adapter.bin
+[2024-01-23 18:09:49,465][adapters.loading][INFO] - No matching prediction head found in '~/.cache/torch/adapters/649821e7de439acb880a8e9d0322d00abd445c9de655cee124a4e03fef557a86-fc313c35adda41f0a19ce896c640341c8d3e4ed589cdb94a38da05472df87a8f-extracted'
+[2024-01-23 18:09:49,465][adapters.utils][INFO] - Attempting to load adapter from source 'ah'...
+[2024-01-23 18:09:49,643][adapters.utils][INFO] - No exactly matching adapter config found for this specifier, falling back to default.
+[2024-01-23 18:09:49,876][adapters.utils][INFO] - Resolved adapter files at https://public.ukp.informatik.tu-darmstadt.de/AdapterHub/text_lang/hi/bert-base-multilingual-cased/pfeiffer/hi_pfeiffer_gelu_nd_200k.zip.
+[2024-01-23 18:09:50,090][adapters.loading][INFO] - Loading module configuration from ~/.cache/torch/adapters/074d5b7e47a2e35f3d06d1f3bcdba40b0709c9e5ce81b3c3533bc81cd8e35505-6d8198b7d99138cfc02cbf557a60122f7492f9ee1ed400529bf29c8180688fec-extracted/adapter_config.json
+[2024-01-23 18:09:50,091][adapters.configuration.model_adapters_config][INFO] - Adding adapter 'hi'.
+[2024-01-23 18:09:50,201][adapters.loading][INFO] - Loading module weights from ~/.cache/torch/adapters/074d5b7e47a2e35f3d06d1f3bcdba40b0709c9e5ce81b3c3533bc81cd8e35505-6d8198b7d99138cfc02cbf557a60122f7492f9ee1ed400529bf29c8180688fec-extracted/pytorch_adapter.bin
+[2024-01-23 18:09:50,208][adapters.loading][INFO] - No matching prediction head found in '~/.cache/torch/adapters/074d5b7e47a2e35f3d06d1f3bcdba40b0709c9e5ce81b3c3533bc81cd8e35505-6d8198b7d99138cfc02cbf557a60122f7492f9ee1ed400529bf29c8180688fec-extracted'
+[2024-01-23 18:09:50,209][adapters.utils][INFO] - Attempting to load adapter from source 'ah'...
+[2024-01-23 18:09:50,359][adapters.utils][INFO] - No exactly matching adapter config found for this specifier, falling back to default.
+[2024-01-23 18:09:50,849][adapters.utils][INFO] - Resolved adapter files at https://public.ukp.informatik.tu-darmstadt.de/AdapterHub/text_lang/ht/bert-base-multilingual-cased/pfeiffer/ht_pfeiffer_gelu_nd_50k.zip.
+[2024-01-23 18:09:51,089][adapters.loading][INFO] - Loading module configuration from ~/.cache/torch/adapters/ac35028d0da16c6db656d72b4f1758ef22286320e052f0ee99d46598d287b4a6-b0ecc35980bb85ceb37bd3120d31a24f61ec87107a2385a00e8cf102c2161939-extracted/adapter_config.json
+[2024-01-23 18:09:51,090][adapters.configuration.model_adapters_config][INFO] - Adding adapter 'ht'.
+[2024-01-23 18:09:51,200][adapters.loading][INFO] - Loading module weights from ~/.cache/torch/adapters/ac35028d0da16c6db656d72b4f1758ef22286320e052f0ee99d46598d287b4a6-b0ecc35980bb85ceb37bd3120d31a24f61ec87107a2385a00e8cf102c2161939-extracted/pytorch_adapter.bin
+[2024-01-23 18:09:51,207][adapters.loading][INFO] - No matching prediction head found in '~/.cache/torch/adapters/ac35028d0da16c6db656d72b4f1758ef22286320e052f0ee99d46598d287b4a6-b0ecc35980bb85ceb37bd3120d31a24f61ec87107a2385a00e8cf102c2161939-extracted'
+[2024-01-23 18:09:51,207][adapters.utils][INFO] - Attempting to load adapter from source 'ah'...
+[2024-01-23 18:09:51,354][adapters.utils][INFO] - No exactly matching adapter config found for this specifier, falling back to default.
+[2024-01-23 18:09:51,545][adapters.utils][INFO] - Resolved adapter files at https://public.ukp.informatik.tu-darmstadt.de/AdapterHub/text_lang/qu/bert-base-multilingual-cased/pfeiffer/qu_pfeiffer_gelu_nd.zip.
+[2024-01-23 18:09:51,765][adapters.loading][INFO] - Loading module configuration from ~/.cache/torch/adapters/1dcc4ff8eb752045bafab1b8b499413e72a936950e83465cbfe219f72273b3ca-af508eb36ab4c7abb503dda6ed8f4c39c2309733e473886c8d1c416316e254b7-extracted/adapter_config.json
+[2024-01-23 18:09:51,766][adapters.configuration.model_adapters_config][INFO] - Adding adapter 'qu'.
+[2024-01-23 18:09:51,873][adapters.loading][INFO] - Loading module weights from ~/.cache/torch/adapters/1dcc4ff8eb752045bafab1b8b499413e72a936950e83465cbfe219f72273b3ca-af508eb36ab4c7abb503dda6ed8f4c39c2309733e473886c8d1c416316e254b7-extracted/pytorch_adapter.bin
+[2024-01-23 18:09:51,881][adapters.loading][INFO] - No matching prediction head found in '~/.cache/torch/adapters/1dcc4ff8eb752045bafab1b8b499413e72a936950e83465cbfe219f72273b3ca-af508eb36ab4c7abb503dda6ed8f4c39c2309733e473886c8d1c416316e254b7-extracted'
+[2024-01-23 18:09:51,881][adapters.utils][INFO] - Attempting to load adapter from source 'ah'...
+[2024-01-23 18:09:52,014][adapters.utils][INFO] - No exactly matching adapter config found for this specifier, falling back to default.
+[2024-01-23 18:09:52,200][adapters.utils][INFO] - Resolved adapter files at https://public.ukp.informatik.tu-darmstadt.de/AdapterHub/text_lang/ru/bert-base-multilingual-cased/pfeiffer/ru_pfeiffer_gelu_nd.zip.
+[2024-01-23 18:09:52,433][adapters.loading][INFO] - Loading module configuration from ~/.cache/torch/adapters/c75dab93655d93c2bd93a15037950ab3afd6bbc79d9eb44a196c78db8d2d63e6-1575ecfe64066684ac57c97e4062f60b25b36bfea6113c644ba5181776da92fe-extracted/adapter_config.json
+[2024-01-23 18:09:52,434][adapters.configuration.model_adapters_config][INFO] - Adding adapter 'ru'.
+[2024-01-23 18:09:52,551][adapters.loading][INFO] - Loading module weights from ~/.cache/torch/adapters/c75dab93655d93c2bd93a15037950ab3afd6bbc79d9eb44a196c78db8d2d63e6-1575ecfe64066684ac57c97e4062f60b25b36bfea6113c644ba5181776da92fe-extracted/pytorch_adapter.bin
+[2024-01-23 18:09:52,560][adapters.loading][INFO] - No matching prediction head found in '~/.cache/torch/adapters/c75dab93655d93c2bd93a15037950ab3afd6bbc79d9eb44a196c78db8d2d63e6-1575ecfe64066684ac57c97e4062f60b25b36bfea6113c644ba5181776da92fe-extracted'
+[2024-01-23 18:09:52,560][adapters.utils][INFO] - Attempting to load adapter from source 'ah'...
+[2024-01-23 18:09:52,740][adapters.utils][INFO] - No exactly matching adapter config found for this specifier, falling back to default.
+[2024-01-23 18:09:52,938][adapters.utils][INFO] - Resolved adapter files at https://public.ukp.informatik.tu-darmstadt.de/AdapterHub/text_lang/sw/bert-base-multilingual-cased/pfeiffer/sw_relu_2.zip.
+[2024-01-23 18:09:53,155][adapters.loading][INFO] - Loading module configuration from ~/.cache/torch/adapters/3fc055d2cf2b0eb1e63d8b62b05f4344412058171a672acd1b3ad257f92a4ca9-a1bb97e377b1f79363524d8a9d97e0bbc308fcac17d34a0a659b3db008a36ce0-extracted/adapter_config.json
+[2024-01-23 18:09:53,156][adapters.configuration.model_adapters_config][INFO] - Adding adapter 'sw'.
+[2024-01-23 18:09:53,264][adapters.loading][INFO] - Loading module weights from ~/.cache/torch/adapters/3fc055d2cf2b0eb1e63d8b62b05f4344412058171a672acd1b3ad257f92a4ca9-a1bb97e377b1f79363524d8a9d97e0bbc308fcac17d34a0a659b3db008a36ce0-extracted/pytorch_adapter.bin
+[2024-01-23 18:09:53,274][adapters.loading][INFO] - No matching prediction head found in '~/.cache/torch/adapters/3fc055d2cf2b0eb1e63d8b62b05f4344412058171a672acd1b3ad257f92a4ca9-a1bb97e377b1f79363524d8a9d97e0bbc308fcac17d34a0a659b3db008a36ce0-extracted'
+[2024-01-23 18:09:53,274][adapters.utils][INFO] - Attempting to load adapter from source 'ah'...
+[2024-01-23 18:09:53,449][adapters.utils][INFO] - No exactly matching adapter config found for this specifier, falling back to default.
+[2024-01-23 18:09:53,674][adapters.utils][INFO] - Resolved adapter files at https://public.ukp.informatik.tu-darmstadt.de/AdapterHub/text_lang/zh/bert-base-multilingual-cased/pfeiffer/zh_pfeiffer_gelu_nd.zip.
+[2024-01-23 18:09:53,914][adapters.loading][INFO] - Loading module configuration from ~/.cache/torch/adapters/6f2564c361bc79c3ea57846eaf144dcc612ca7882a3013f211ca168a6b3ee081-fe0c0730695790561f8ea222ddccd7cf7d222dd35f0b266559f463e9656eab36-extracted/adapter_config.json
+[2024-01-23 18:09:53,914][adapters.configuration.model_adapters_config][INFO] - Adding adapter 'zh'.
+[2024-01-23 18:09:54,024][adapters.loading][INFO] - Loading module weights from ~/.cache/torch/adapters/6f2564c361bc79c3ea57846eaf144dcc612ca7882a3013f211ca168a6b3ee081-fe0c0730695790561f8ea222ddccd7cf7d222dd35f0b266559f463e9656eab36-extracted/pytorch_adapter.bin
+[2024-01-23 18:09:54,033][adapters.loading][INFO] - No matching prediction head found in '~/.cache/torch/adapters/6f2564c361bc79c3ea57846eaf144dcc612ca7882a3013f211ca168a6b3ee081-fe0c0730695790561f8ea222ddccd7cf7d222dd35f0b266559f463e9656eab36-extracted'
+[2024-01-23 18:09:54,033][adapters.utils][INFO] - Attempting to load adapter from source 'ah'...
+[2024-01-23 18:09:54,236][adapters.utils][INFO] - No adapter with name 'AdapterHub/bert-base-uncased-pf-mnli' was found in the adapter index.
+[2024-01-23 18:09:54,236][adapters.utils][INFO] - Attempting to load adapter from source 'hf'...
+[2024-01-23 18:09:54,473][adapters.loading][INFO] - Loading module configuration from /Users/maltegaber/.cache/huggingface/hub/models--AdapterHub--bert-base-uncased-pf-mnli/snapshots/186e8048a6617e7d083a76cb55bfe5ac97e07d2a/adapter_config.json
+[2024-01-23 18:09:54,474][adapters.configuration.model_adapters_config][INFO] - Adding adapter 'glue_mnli'.
+[2024-01-23 18:09:54,499][adapters.loading][INFO] - Loading module weights from /Users/maltegaber/.cache/huggingface/hub/models--AdapterHub--bert-base-uncased-pf-mnli/snapshots/186e8048a6617e7d083a76cb55bfe5ac97e07d2a/pytorch_adapter.bin
+[2024-01-23 18:09:54,506][adapters.loading][INFO] - Loading module configuration from /Users/maltegaber/.cache/huggingface/hub/models--AdapterHub--bert-base-uncased-pf-mnli/snapshots/186e8048a6617e7d083a76cb55bfe5ac97e07d2a/head_config.json
+[2024-01-23 18:09:54,506][adapters.loading][WARNING] - Model class 'BertModelWithHeads' of found prediction head does not match current model class.
+[2024-01-23 18:20:19,421][adapters.utils][INFO] - Attempting to load adapter from source 'ah'...
+[2024-01-23 18:20:19,695][adapters.utils][INFO] - No exactly matching adapter config found for this specifier, falling back to default.
+[2024-01-23 18:20:20,033][adapters.utils][INFO] - Resolved adapter files at https://public.ukp.informatik.tu-darmstadt.de/AdapterHub/text_lang/ar/bert-base-multilingual-cased/pfeiffer/ar_relu_2.zip.
+[2024-01-23 18:20:20,295][adapters.loading][INFO] - Loading module configuration from ~/.cache/torch/adapters/0b2a547243e82d816959cbe6c9a814aee3716c08d62584aebd7a9044229cc8a8-1ec0387460c90e04c5e70048e0981620ddf52d228c8f806eca3ce770b10ed331-extracted/adapter_config.json
+[2024-01-23 18:20:20,296][adapters.configuration.model_adapters_config][INFO] - Adding adapter 'ar'.
+[2024-01-23 18:20:20,404][adapters.loading][INFO] - Loading module weights from ~/.cache/torch/adapters/0b2a547243e82d816959cbe6c9a814aee3716c08d62584aebd7a9044229cc8a8-1ec0387460c90e04c5e70048e0981620ddf52d228c8f806eca3ce770b10ed331-extracted/pytorch_adapter.bin
+[2024-01-23 18:20:20,409][adapters.loading][INFO] - No matching prediction head found in '~/.cache/torch/adapters/0b2a547243e82d816959cbe6c9a814aee3716c08d62584aebd7a9044229cc8a8-1ec0387460c90e04c5e70048e0981620ddf52d228c8f806eca3ce770b10ed331-extracted'
+[2024-01-23 18:20:20,409][adapters.utils][INFO] - Attempting to load adapter from source 'ah'...
+[2024-01-23 18:20:20,565][adapters.utils][INFO] - No exactly matching adapter config found for this specifier, falling back to default.
+[2024-01-23 18:20:20,972][adapters.utils][INFO] - Resolved adapter files at https://public.ukp.informatik.tu-darmstadt.de/AdapterHub/text_lang/de/bert-base-multilingual-cased/pfeiffer/de_pfeiffer_gelu_nd.zip.
+[2024-01-23 18:20:21,187][adapters.loading][INFO] - Loading module configuration from ~/.cache/torch/adapters/08ef10ebc1fdaef8ab51afedb140cb376629ba3d6d003ebb84d671fc6c449137-323d2b3cb18cc775356074e7ae17939f1dbe46a8adb8d13e3929f68b0c67e907-extracted/adapter_config.json
+[2024-01-23 18:20:21,188][adapters.configuration.model_adapters_config][INFO] - Adding adapter 'de'.
+[2024-01-23 18:20:21,296][adapters.loading][INFO] - Loading module weights from ~/.cache/torch/adapters/08ef10ebc1fdaef8ab51afedb140cb376629ba3d6d003ebb84d671fc6c449137-323d2b3cb18cc775356074e7ae17939f1dbe46a8adb8d13e3929f68b0c67e907-extracted/pytorch_adapter.bin
+[2024-01-23 18:20:21,300][adapters.loading][INFO] - No matching prediction head found in '~/.cache/torch/adapters/08ef10ebc1fdaef8ab51afedb140cb376629ba3d6d003ebb84d671fc6c449137-323d2b3cb18cc775356074e7ae17939f1dbe46a8adb8d13e3929f68b0c67e907-extracted'
+[2024-01-23 18:20:21,301][adapters.utils][INFO] - Attempting to load adapter from source 'ah'...
+[2024-01-23 18:20:21,487][adapters.utils][INFO] - No exactly matching adapter config found for this specifier, falling back to default.
+[2024-01-23 18:20:21,893][adapters.utils][INFO] - Resolved adapter files at https://public.ukp.informatik.tu-darmstadt.de/AdapterHub/text_lang/en/bert-base-multilingual-cased/pfeiffer/en_relu_2.zip.
+[2024-01-23 18:20:22,184][adapters.loading][INFO] - Loading module configuration from ~/.cache/torch/adapters/209973079df3cb5d155df4e290ec86070f257721693ce7618ff84b89b4aae2cf-3bd7c13f02e43f33b6ab727158d366c50d676646774b1c975dea5f965352474a-extracted/adapter_config.json
+[2024-01-23 18:20:22,184][adapters.configuration.model_adapters_config][INFO] - Adding adapter 'en'.
+[2024-01-23 18:20:22,285][adapters.loading][INFO] - Loading module weights from ~/.cache/torch/adapters/209973079df3cb5d155df4e290ec86070f257721693ce7618ff84b89b4aae2cf-3bd7c13f02e43f33b6ab727158d366c50d676646774b1c975dea5f965352474a-extracted/pytorch_adapter.bin
+[2024-01-23 18:20:22,290][adapters.loading][INFO] - No matching prediction head found in '~/.cache/torch/adapters/209973079df3cb5d155df4e290ec86070f257721693ce7618ff84b89b4aae2cf-3bd7c13f02e43f33b6ab727158d366c50d676646774b1c975dea5f965352474a-extracted'
+[2024-01-23 18:20:22,291][adapters.utils][INFO] - Attempting to load adapter from source 'ah'...
+[2024-01-23 18:20:22,491][adapters.utils][INFO] - No exactly matching adapter config found for this specifier, falling back to default.
+[2024-01-23 18:20:22,837][adapters.utils][INFO] - Resolved adapter files at https://public.ukp.informatik.tu-darmstadt.de/AdapterHub/text_lang/es/bert-base-multilingual-cased/pfeiffer/es_pfeiffer_gelu_nd.zip.
+[2024-01-23 18:20:23,117][adapters.loading][INFO] - Loading module configuration from ~/.cache/torch/adapters/dd7f82adfc858ea8dac201406d816536ef8a9522e957986a7ab28979f97ea744-1aa6d86fde73736f6b030a0fc54c77da507159374be3610e78575fab4fef8d10-extracted/adapter_config.json
+[2024-01-23 18:20:23,117][adapters.configuration.model_adapters_config][INFO] - Adding adapter 'es'.
+[2024-01-23 18:20:23,225][adapters.loading][INFO] - Loading module weights from ~/.cache/torch/adapters/dd7f82adfc858ea8dac201406d816536ef8a9522e957986a7ab28979f97ea744-1aa6d86fde73736f6b030a0fc54c77da507159374be3610e78575fab4fef8d10-extracted/pytorch_adapter.bin
+[2024-01-23 18:20:23,231][adapters.loading][INFO] - No matching prediction head found in '~/.cache/torch/adapters/dd7f82adfc858ea8dac201406d816536ef8a9522e957986a7ab28979f97ea744-1aa6d86fde73736f6b030a0fc54c77da507159374be3610e78575fab4fef8d10-extracted'
+[2024-01-23 18:20:23,231][adapters.utils][INFO] - Attempting to load adapter from source 'ah'...
+[2024-01-23 18:20:23,421][adapters.utils][INFO] - No exactly matching adapter config found for this specifier, falling back to default.
+[2024-01-23 18:20:23,801][adapters.utils][INFO] - Resolved adapter files at https://public.ukp.informatik.tu-darmstadt.de/AdapterHub/text_lang/et/bert-base-multilingual-cased/pfeiffer/et_pfeiffer_gelu_nd.zip.
+[2024-01-23 18:20:24,094][adapters.loading][INFO] - Loading module configuration from ~/.cache/torch/adapters/4f88e982c0e00ec1f06e05482dff96f8bc1ee5ead9ab1aa14c4a2d22d51f2a1a-4bb11d80fb4c250d997f408fae4804fb835acc9cbb209095524e7915d8377259-extracted/adapter_config.json
+[2024-01-23 18:20:24,095][adapters.configuration.model_adapters_config][INFO] - Adding adapter 'et'.
+[2024-01-23 18:20:24,200][adapters.loading][INFO] - Loading module weights from ~/.cache/torch/adapters/4f88e982c0e00ec1f06e05482dff96f8bc1ee5ead9ab1aa14c4a2d22d51f2a1a-4bb11d80fb4c250d997f408fae4804fb835acc9cbb209095524e7915d8377259-extracted/pytorch_adapter.bin
+[2024-01-23 18:20:24,206][adapters.loading][INFO] - No matching prediction head found in '~/.cache/torch/adapters/4f88e982c0e00ec1f06e05482dff96f8bc1ee5ead9ab1aa14c4a2d22d51f2a1a-4bb11d80fb4c250d997f408fae4804fb835acc9cbb209095524e7915d8377259-extracted'
+[2024-01-23 18:20:24,207][adapters.utils][INFO] - Attempting to load adapter from source 'ah'...
+[2024-01-23 18:20:24,402][adapters.utils][INFO] - No exactly matching adapter config found for this specifier, falling back to default.
+[2024-01-23 18:20:24,779][adapters.utils][INFO] - Resolved adapter files at https://public.ukp.informatik.tu-darmstadt.de/AdapterHub/text_lang/fr/bert-base-multilingual-cased/pfeiffer/fr_pfeiffer_gelu_nd.zip.
+[2024-01-23 18:20:25,010][adapters.loading][INFO] - Loading module configuration from ~/.cache/torch/adapters/649821e7de439acb880a8e9d0322d00abd445c9de655cee124a4e03fef557a86-fc313c35adda41f0a19ce896c640341c8d3e4ed589cdb94a38da05472df87a8f-extracted/adapter_config.json
+[2024-01-23 18:20:25,011][adapters.configuration.model_adapters_config][INFO] - Adding adapter 'fr'.
+[2024-01-23 18:20:25,117][adapters.loading][INFO] - Loading module weights from ~/.cache/torch/adapters/649821e7de439acb880a8e9d0322d00abd445c9de655cee124a4e03fef557a86-fc313c35adda41f0a19ce896c640341c8d3e4ed589cdb94a38da05472df87a8f-extracted/pytorch_adapter.bin
+[2024-01-23 18:20:25,124][adapters.loading][INFO] - No matching prediction head found in '~/.cache/torch/adapters/649821e7de439acb880a8e9d0322d00abd445c9de655cee124a4e03fef557a86-fc313c35adda41f0a19ce896c640341c8d3e4ed589cdb94a38da05472df87a8f-extracted'
+[2024-01-23 18:20:25,124][adapters.utils][INFO] - Attempting to load adapter from source 'ah'...
+[2024-01-23 18:20:25,270][adapters.utils][INFO] - No exactly matching adapter config found for this specifier, falling back to default.
+[2024-01-23 18:20:25,635][adapters.utils][INFO] - Resolved adapter files at https://public.ukp.informatik.tu-darmstadt.de/AdapterHub/text_lang/hi/bert-base-multilingual-cased/pfeiffer/hi_pfeiffer_gelu_nd_200k.zip.
+[2024-01-23 18:20:25,908][adapters.loading][INFO] - Loading module configuration from ~/.cache/torch/adapters/074d5b7e47a2e35f3d06d1f3bcdba40b0709c9e5ce81b3c3533bc81cd8e35505-6d8198b7d99138cfc02cbf557a60122f7492f9ee1ed400529bf29c8180688fec-extracted/adapter_config.json
+[2024-01-23 18:20:25,909][adapters.configuration.model_adapters_config][INFO] - Adding adapter 'hi'.
+[2024-01-23 18:20:26,015][adapters.loading][INFO] - Loading module weights from ~/.cache/torch/adapters/074d5b7e47a2e35f3d06d1f3bcdba40b0709c9e5ce81b3c3533bc81cd8e35505-6d8198b7d99138cfc02cbf557a60122f7492f9ee1ed400529bf29c8180688fec-extracted/pytorch_adapter.bin
+[2024-01-23 18:20:26,022][adapters.loading][INFO] - No matching prediction head found in '~/.cache/torch/adapters/074d5b7e47a2e35f3d06d1f3bcdba40b0709c9e5ce81b3c3533bc81cd8e35505-6d8198b7d99138cfc02cbf557a60122f7492f9ee1ed400529bf29c8180688fec-extracted'
+[2024-01-23 18:20:26,022][adapters.utils][INFO] - Attempting to load adapter from source 'ah'...
+[2024-01-23 18:20:26,218][adapters.utils][INFO] - No exactly matching adapter config found for this specifier, falling back to default.
+[2024-01-23 18:20:26,592][adapters.utils][INFO] - Resolved adapter files at https://public.ukp.informatik.tu-darmstadt.de/AdapterHub/text_lang/ht/bert-base-multilingual-cased/pfeiffer/ht_pfeiffer_gelu_nd_50k.zip.
+[2024-01-23 18:20:26,845][adapters.loading][INFO] - Loading module configuration from ~/.cache/torch/adapters/ac35028d0da16c6db656d72b4f1758ef22286320e052f0ee99d46598d287b4a6-b0ecc35980bb85ceb37bd3120d31a24f61ec87107a2385a00e8cf102c2161939-extracted/adapter_config.json
+[2024-01-23 18:20:26,846][adapters.configuration.model_adapters_config][INFO] - Adding adapter 'ht'.
+[2024-01-23 18:20:26,959][adapters.loading][INFO] - Loading module weights from ~/.cache/torch/adapters/ac35028d0da16c6db656d72b4f1758ef22286320e052f0ee99d46598d287b4a6-b0ecc35980bb85ceb37bd3120d31a24f61ec87107a2385a00e8cf102c2161939-extracted/pytorch_adapter.bin
+[2024-01-23 18:20:26,967][adapters.loading][INFO] - No matching prediction head found in '~/.cache/torch/adapters/ac35028d0da16c6db656d72b4f1758ef22286320e052f0ee99d46598d287b4a6-b0ecc35980bb85ceb37bd3120d31a24f61ec87107a2385a00e8cf102c2161939-extracted'
+[2024-01-23 18:20:26,967][adapters.utils][INFO] - Attempting to load adapter from source 'ah'...
+[2024-01-23 18:20:27,128][adapters.utils][INFO] - No exactly matching adapter config found for this specifier, falling back to default.
+[2024-01-23 18:20:27,471][adapters.utils][INFO] - Resolved adapter files at https://public.ukp.informatik.tu-darmstadt.de/AdapterHub/text_lang/qu/bert-base-multilingual-cased/pfeiffer/qu_pfeiffer_gelu_nd.zip.
+[2024-01-23 18:20:27,716][adapters.loading][INFO] - Loading module configuration from ~/.cache/torch/adapters/1dcc4ff8eb752045bafab1b8b499413e72a936950e83465cbfe219f72273b3ca-af508eb36ab4c7abb503dda6ed8f4c39c2309733e473886c8d1c416316e254b7-extracted/adapter_config.json
+[2024-01-23 18:20:27,717][adapters.configuration.model_adapters_config][INFO] - Adding adapter 'qu'.
+[2024-01-23 18:20:27,826][adapters.loading][INFO] - Loading module weights from ~/.cache/torch/adapters/1dcc4ff8eb752045bafab1b8b499413e72a936950e83465cbfe219f72273b3ca-af508eb36ab4c7abb503dda6ed8f4c39c2309733e473886c8d1c416316e254b7-extracted/pytorch_adapter.bin
+[2024-01-23 18:20:27,834][adapters.loading][INFO] - No matching prediction head found in '~/.cache/torch/adapters/1dcc4ff8eb752045bafab1b8b499413e72a936950e83465cbfe219f72273b3ca-af508eb36ab4c7abb503dda6ed8f4c39c2309733e473886c8d1c416316e254b7-extracted'
+[2024-01-23 18:20:27,834][adapters.utils][INFO] - Attempting to load adapter from source 'ah'...
+[2024-01-23 18:20:27,990][adapters.utils][INFO] - No exactly matching adapter config found for this specifier, falling back to default.
+[2024-01-23 18:20:28,445][adapters.utils][INFO] - Resolved adapter files at https://public.ukp.informatik.tu-darmstadt.de/AdapterHub/text_lang/ru/bert-base-multilingual-cased/pfeiffer/ru_pfeiffer_gelu_nd.zip.
+[2024-01-23 18:20:28,700][adapters.loading][INFO] - Loading module configuration from ~/.cache/torch/adapters/c75dab93655d93c2bd93a15037950ab3afd6bbc79d9eb44a196c78db8d2d63e6-1575ecfe64066684ac57c97e4062f60b25b36bfea6113c644ba5181776da92fe-extracted/adapter_config.json
+[2024-01-23 18:20:28,700][adapters.configuration.model_adapters_config][INFO] - Adding adapter 'ru'.
+[2024-01-23 18:20:28,808][adapters.loading][INFO] - Loading module weights from ~/.cache/torch/adapters/c75dab93655d93c2bd93a15037950ab3afd6bbc79d9eb44a196c78db8d2d63e6-1575ecfe64066684ac57c97e4062f60b25b36bfea6113c644ba5181776da92fe-extracted/pytorch_adapter.bin
+[2024-01-23 18:20:28,816][adapters.loading][INFO] - No matching prediction head found in '~/.cache/torch/adapters/c75dab93655d93c2bd93a15037950ab3afd6bbc79d9eb44a196c78db8d2d63e6-1575ecfe64066684ac57c97e4062f60b25b36bfea6113c644ba5181776da92fe-extracted'
+[2024-01-23 18:20:28,816][adapters.utils][INFO] - Attempting to load adapter from source 'ah'...
+[2024-01-23 18:20:28,993][adapters.utils][INFO] - No exactly matching adapter config found for this specifier, falling back to default.
+[2024-01-23 18:20:29,328][adapters.utils][INFO] - Resolved adapter files at https://public.ukp.informatik.tu-darmstadt.de/AdapterHub/text_lang/sw/bert-base-multilingual-cased/pfeiffer/sw_relu_2.zip.
+[2024-01-23 18:20:29,584][adapters.loading][INFO] - Loading module configuration from ~/.cache/torch/adapters/3fc055d2cf2b0eb1e63d8b62b05f4344412058171a672acd1b3ad257f92a4ca9-a1bb97e377b1f79363524d8a9d97e0bbc308fcac17d34a0a659b3db008a36ce0-extracted/adapter_config.json
+[2024-01-23 18:20:29,584][adapters.configuration.model_adapters_config][INFO] - Adding adapter 'sw'.
+[2024-01-23 18:20:29,694][adapters.loading][INFO] - Loading module weights from ~/.cache/torch/adapters/3fc055d2cf2b0eb1e63d8b62b05f4344412058171a672acd1b3ad257f92a4ca9-a1bb97e377b1f79363524d8a9d97e0bbc308fcac17d34a0a659b3db008a36ce0-extracted/pytorch_adapter.bin
+[2024-01-23 18:20:29,702][adapters.loading][INFO] - No matching prediction head found in '~/.cache/torch/adapters/3fc055d2cf2b0eb1e63d8b62b05f4344412058171a672acd1b3ad257f92a4ca9-a1bb97e377b1f79363524d8a9d97e0bbc308fcac17d34a0a659b3db008a36ce0-extracted'
+[2024-01-23 18:20:29,702][adapters.utils][INFO] - Attempting to load adapter from source 'ah'...
+[2024-01-23 18:20:29,885][adapters.utils][INFO] - No exactly matching adapter config found for this specifier, falling back to default.
+[2024-01-23 18:20:30,233][adapters.utils][INFO] - Resolved adapter files at https://public.ukp.informatik.tu-darmstadt.de/AdapterHub/text_lang/zh/bert-base-multilingual-cased/pfeiffer/zh_pfeiffer_gelu_nd.zip.
+[2024-01-23 18:20:30,440][adapters.loading][INFO] - Loading module configuration from ~/.cache/torch/adapters/6f2564c361bc79c3ea57846eaf144dcc612ca7882a3013f211ca168a6b3ee081-fe0c0730695790561f8ea222ddccd7cf7d222dd35f0b266559f463e9656eab36-extracted/adapter_config.json
+[2024-01-23 18:20:30,441][adapters.configuration.model_adapters_config][INFO] - Adding adapter 'zh'.
+[2024-01-23 18:20:30,545][adapters.loading][INFO] - Loading module weights from ~/.cache/torch/adapters/6f2564c361bc79c3ea57846eaf144dcc612ca7882a3013f211ca168a6b3ee081-fe0c0730695790561f8ea222ddccd7cf7d222dd35f0b266559f463e9656eab36-extracted/pytorch_adapter.bin
+[2024-01-23 18:20:30,554][adapters.loading][INFO] - No matching prediction head found in '~/.cache/torch/adapters/6f2564c361bc79c3ea57846eaf144dcc612ca7882a3013f211ca168a6b3ee081-fe0c0730695790561f8ea222ddccd7cf7d222dd35f0b266559f463e9656eab36-extracted'
+[2024-01-23 18:20:30,554][adapters.utils][INFO] - Attempting to load adapter from source 'ah'...
+[2024-01-23 18:20:30,707][adapters.utils][INFO] - No adapter with name 'AdapterHub/bert-base-uncased-pf-mnli' was found in the adapter index.
+[2024-01-23 18:20:30,707][adapters.utils][INFO] - Attempting to load adapter from source 'hf'...
+[2024-01-23 18:20:30,921][adapters.loading][INFO] - Loading module configuration from /Users/maltegaber/.cache/huggingface/hub/models--AdapterHub--bert-base-uncased-pf-mnli/snapshots/186e8048a6617e7d083a76cb55bfe5ac97e07d2a/adapter_config.json
+[2024-01-23 18:20:30,922][adapters.configuration.model_adapters_config][INFO] - Adding adapter 'glue_mnli'.
+[2024-01-23 18:20:30,949][adapters.loading][INFO] - Loading module weights from /Users/maltegaber/.cache/huggingface/hub/models--AdapterHub--bert-base-uncased-pf-mnli/snapshots/186e8048a6617e7d083a76cb55bfe5ac97e07d2a/pytorch_adapter.bin
+[2024-01-23 18:20:30,958][adapters.loading][INFO] - Loading module configuration from /Users/maltegaber/.cache/huggingface/hub/models--AdapterHub--bert-base-uncased-pf-mnli/snapshots/186e8048a6617e7d083a76cb55bfe5ac97e07d2a/head_config.json
+[2024-01-23 18:20:30,959][adapters.loading][WARNING] - Model class 'BertModelWithHeads' of found prediction head does not match current model class.
