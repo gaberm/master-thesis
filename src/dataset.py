@@ -77,12 +77,15 @@ def tokenize_and_clean_dataset(dataset: DatasetDict, set_name: str, lang: str, s
     new_dataset = create_sentence_pairs(dataset, set_name, lang, split)
     # tokenize dataset
     tokenized_set = new_dataset.map(tokenize_function, batched=True)
-    # remove non-tokenized columns
-    # model only expects "input_ids", "token_type_ids", "attention_mask" and "labels"
-    exclude_list = list(config.dataset[set_name].columns_to_tokenize) + list(config.dataset[set_name].columns_to_remove)
+    # remove non-tokenized columns and all other remaining columns, 
+    # because model only expects "input_ids", "token_type_ids", "attention_mask" and "labels"
+    remaining_columns = []
+    if config.dataset[set_name].remaining_columns is not None:
+        remaining_columns = config.dataset[set_name].remaining_columns
+    exclude_list = config.dataset[set_name].columns_to_tokenize + remaining_columns
     tokenized_set = tokenized_set.remove_columns(exclude_list)
-    # rename "label" column to "labels" if necessary
-    # model except the label column to be named "labels"
+    # rename "label" column to "labels" if necessary,
+    # because model except the label column to be named "labels"
     if "labels" in tokenized_set.column_names:
         tokenized_set = tokenized_set.rename_column("label", "labels")
     # set format

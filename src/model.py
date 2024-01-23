@@ -1,10 +1,13 @@
 from omegaconf import DictConfig
 from transformers import AutoTokenizer, AutoModelForSequenceClassification
 import adapters
+from peft import get_peft_model, LoraConfig
 
 def load_model(config: DictConfig) -> (AutoModelForSequenceClassification, AutoTokenizer):
+    source_lang = config.params.source_lang
     model_name = config.model.name
     model_path = config.model.path
+    # check if adapters or lora are specified
     try:
         lang_adapter_paths = config.lang_adapter
     except:
@@ -13,7 +16,10 @@ def load_model(config: DictConfig) -> (AutoModelForSequenceClassification, AutoT
         task_adapter_paths = config.task_adapter
     except:
         task_adapter_paths = None
-    source_lang = config.params.source_lang
+    try:
+        lora_config = config.lora
+    except:
+        lora_config = None
 
     # load model and tokenizer
     model = AutoModelForSequenceClassification.from_pretrained(model_path, num_labels=config.model.num_labels)
@@ -42,5 +48,10 @@ def load_model(config: DictConfig) -> (AutoModelForSequenceClassification, AutoT
             model.set_active_adapters(adapter_name_dict[source_lang])
         else:
             model.set_active_adapters(adapter_name_dict["task_adapter"])
+
+    # if lora is specified, load it
+    if lora_config is not None:
+        cfg = LoraConfig(**lora_config)
+        model = get_peft_model(model, cfg)
 
     return model, tokenizer, adapter_name_dict

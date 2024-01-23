@@ -17,6 +17,7 @@ class LModel(LightningModule):
         self.optimizer = config.params.optimizer
         self.lr = config.params.lr
         self.adapter_names_dict = adapter_names
+        self.label_smoothing = config.params.label_smoothing
 
     def forward(self, inputs, target):
         return self.model(inputs, target)
@@ -25,6 +26,8 @@ class LModel(LightningModule):
         batch_data = {k: v.to(self.device) for k, v in batch.items()}
         outputs = self.model(**batch_data)
         loss = outputs.loss
+        if self.label_smoothing > 0:
+            loss = torch.CrossEntropyLoss(outputs.logits, batch_data["labels"], smoothing=self.label_smoothing)
         return loss
     
     def validation_step(self, batch, batch_idx):

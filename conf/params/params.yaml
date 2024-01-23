@@ -7,3 +7,4 @@ average: micro
 source_lang: en
 seed: 42
 max_epochs: 2
+label_smoothing: 0.1

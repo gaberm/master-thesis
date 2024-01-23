@@ -6,6 +6,7 @@ defaults:
   - model: mbert.yaml
   - lang_adapter: pfeiffer.yaml
   - task_adapter: mnli.yaml
+  - lora: null
   - override hydra/hydra_logging: colorlog
   - override hydra/job_logging: colorlog
 

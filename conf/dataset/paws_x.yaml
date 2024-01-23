@@ -11,5 +11,5 @@ paws_x:
   columns_to_tokenize:
     - sentence1
     - sentence2
-  columns_to_remove:
+  remaining_columns:
     - id

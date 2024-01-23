@@ -18,6 +18,7 @@ xnli:
   columns_to_tokenize:
     - premise
     - hypothesis
+  remaining_columns: null
   train_split: train
   val_split: validation
   test_split: validation
