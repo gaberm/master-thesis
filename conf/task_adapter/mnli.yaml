@@ -1,6 +1,0 @@
-mbert:
-  path: AdapterHub/bert-base-uncased-pf-mnli
-  source: hf
-xmlr:
-  path: AdapterHub/roberta-base-pf-mnli
-  source: hf

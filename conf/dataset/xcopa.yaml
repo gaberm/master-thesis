@@ -1,5 +1,5 @@
 xcopa:
-  name: xcopa
+  hf_name: xcopa
   languages:
     - et
     - ht
@@ -12,6 +12,4 @@ xcopa:
     # - tr
     - vi
     - zh
-  columns_to_tokenize:
-    - question
-    - choice
+  train: false

@@ -3,9 +3,7 @@
 defaults:
   - override /dataset: 
     - xnli.yaml
-  - override /model: bloom.yaml
-  - override /lang_adapter: null
-  - override /task_adapter: null
+  - override /model: xmlr.yaml
 
 dataset:
   xnli:

@@ -3,9 +3,8 @@
 defaults:
   - override /dataset: 
     - xnli.yaml
-  - override /model: mt5.yaml
-  - override /lang_adapter: null
-  - override /task_adapter: null
+  - override /madx: null
+  - override /model: xmlr.yaml
 
 dataset:
   xnli:

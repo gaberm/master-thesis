@@ -1,26 +1,38 @@
 from omegaconf import DictConfig
-from torchmetrics.classification import F1Score, MulticlassCalibrationError, BinaryCalibrationError
+from torchmetrics.classification import F1Score, Accuracy, MulticlassCalibrationError, BinaryCalibrationError
+import platform
                             
 
-def load_metric(config: DictConfig) -> (F1Score | MulticlassCalibrationError | BinaryCalibrationError):
-    metric_name = config.params.metric
-    num_labels = config.model.num_labels
+def load_metric(metric_name, num_labels):
+    # set device based on OS
+    # mps:0 is the GPU device on MacOS
+    # cuda is the GPU device on Linux
+    op_system = platform.system()
+    if op_system == "Darwin":
+        device = "mps:0"
+    else:
+        device = "cuda"
 
     if metric_name == "f1":
-        metric = F1Score(task="multiclass", num_classes=num_labels, average="micro").to("mps:0")
-
-    elif metric_name == "ece":
         if num_labels == 2:
-            metric = BinaryCalibrationError(n_bins=10, norm="l1").to("mps:0")
+            metric = F1Score(task="binary").to(device)
         else:
-            metric = MulticlassCalibrationError(num_classes=num_labels, n_bins=10, norm="l1").to("mps:0")
-
-    elif metric_name == "mce":
+            metric = F1Score(task="multiclass", num_classes=num_labels, average="micro").to(device)
+    if metric_name == "accuracy":
+        if num_labels == 2:
+            metric = Accuracy(task="binary").to(device)
+        else:
+            metric = Accuracy(task="multiclass", num_classes=num_labels, average="micro").to(device)
+    elif metric_name == "expected_calibration_error":
+        if num_labels == 2:
+            metric = BinaryCalibrationError(n_bins=10, norm="l1").to(device)
+        else:
+            metric = MulticlassCalibrationError(num_classes=num_labels, n_bins=10, norm="l1").to(device)
+    elif metric_name == "maximum_calibration_error":
         if num_labels == 2:
             metric = BinaryCalibrationError(n_bins=15, norm="max")
         else:
-            metric = MulticlassCalibrationError(num_classes=num_labels, n_bins=15, norm="max")
-
+            metric = MulticlassCalibrationError(num_classes=num_labels, n_bins=10, norm="max")
     else:
         raise ValueError(f"Metric {metric_name} not supported.")
     

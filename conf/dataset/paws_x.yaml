@@ -1,5 +1,5 @@
 paws_x:
-  name: paws-x
+  hf_name: paws-x
   languages:
     - de
     - en
@@ -8,8 +8,7 @@ paws_x:
     - ja
     - ko
     - zh
-  columns_to_tokenize:
-    - sentence1
-    - sentence2
-  remaining_columns:
-    - id
+  train: true
+  train_split: train
+  val_split: validation
+  test_split: test

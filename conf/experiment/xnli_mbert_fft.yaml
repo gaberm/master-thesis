@@ -3,6 +3,7 @@
 defaults:
   - override /dataset: 
     - xnli.yaml
+  - override /madx: null
 
 dataset:
   xnli:

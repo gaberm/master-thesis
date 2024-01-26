@@ -1,7 +1,5 @@
 balanced_copa:
-  name: pkavumba/balanced-copa
+  hf_name: pkavumba/balanced-copa
   languages:
     - en
-  columns_to_tokenize:
-    - question
-    - choice
+  train: true

@@ -10,12 +10,12 @@ from src.lightning import LModel
 dotenv.load_dotenv(override=True)
 
 @hydra.main(config_path="conf", config_name="config", version_base="1.3")
-def main(config: DictConfig):
+def main(config):
     print(config)
-    model, tokenizer, adapter_names = load_model(config)
+    model, tokenizer = load_model(config)
     train_loader, val_loader, test_loaders = create_data_loaders(config, tokenizer)
     
-    pl_model = LModel(model, config, adapter_names)
+    pl_model = LModel(model, config)
     wandb_logger = WandbLogger(project=config.project, log_model="all")
     wandb_logger.watch(pl_model)
     

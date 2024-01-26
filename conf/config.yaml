@@ -2,11 +2,10 @@ defaults:
   - _self_
   - dataset:
     - xnli.yaml
-  - params: params.yaml
-  - model: mbert.yaml
-  - lang_adapter: pfeiffer.yaml
-  - task_adapter: mnli.yaml
   - lora: null
+  - madx: madx.yaml
+  - model: mbert.yaml
+  - params: params.yaml
   - override hydra/hydra_logging: colorlog
   - override hydra/job_logging: colorlog
 
