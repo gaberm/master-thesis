@@ -26,7 +26,7 @@ def main(config):
         # depending on the OS, we use a different trainer
         # for Linux, we have access to multiple GPUs
         op_system = platform.system()
-        if op_system = "Darwin"
+        if op_system == "Darwin"
             trainer = pl.Trainer(max_epochs=config.params.max_epochs,
                                 logger=wandb_logger, 
                                 default_root_dir=config.checkpoint_dir,
