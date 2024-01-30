@@ -164,7 +164,7 @@ def create_data_loaders(config, tokenizer):
                 # we only create dataloaders for the target languages
                 test_split = config.dataset[dataset_name].test_split
                 test_loader = tokenize_and_clean_dataset(dataset_in_lang, dataset_name, lang, test_split, tokenize_function)
-                loader = DataLoader(test_loader, shuffle=True, batch_size=config.params.batch_size, collate_fn=data_collator, num_workers=7)
+                loader = DataLoader(test_loader, shuffle=True, batch_size=config.params.batch_size, collate_fn=data_collator)
                 test_loader_dict[lang] = loader
 
     # merge training and validation datasets and create dataloaders

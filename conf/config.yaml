@@ -2,14 +2,16 @@ defaults:
   - _self_
   - dataset:
     - xnli.yaml
+  - experiment: null
   - lora: null
   - madx: madx.yaml
   - model: mbert.yaml
   - params: params.yaml
+  - wandb: wandb.yaml
   - override hydra/hydra_logging: colorlog
   - override hydra/job_logging: colorlog
 
-project: "master-thesis"
+project: master-thesis
 work_dir: ${hydra:runtime.cwd}
 
 # path to folder with data

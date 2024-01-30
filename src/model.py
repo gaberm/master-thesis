@@ -5,7 +5,6 @@ from peft import get_peft_model, LoraConfig
 
 def load_model(config):
     source_lang = config.params.source_lang
-    model_name = config.model.name
     model_path = config.model.path
 
     # load model and tokenizer
@@ -16,11 +15,12 @@ def load_model(config):
     if "madx" in config.keys():
         adapters.init(model)
         # load pretrained language adapters
-        for path in config.madx.lang_adapter[model_name].values():
+        for path in config.madx.lang_adapter[config.model.name].values():
             _ = model.load_adapter(path)
         # create task adapter for training
-        task_adapter_name = config.madx.task_adapter.name    
-        model.add_adapter(task_adapter_name, config="seq_bn")
+        task_adapter_name = config.madx.task_adapter.name
+        madx_config = adapters.SeqBnConfig(reduction_factor=config.madx.task_adapter.reduction_factor)    
+        model.add_adapter(task_adapter_name, madx_config)
         model.train_adapter([task_adapter_name])
         model.active_adapters = adapters.Stack(source_lang, task_adapter_name)
 

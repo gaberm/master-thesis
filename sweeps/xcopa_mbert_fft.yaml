@@ -1,0 +1,12 @@
+program: main.py
+method: grid
+project: master-thesis
+entity: 3hobbits
+metric:
+  goal: maximize
+  name: f1
+parameters:
+  params.learning_rate:
+    values: [2e-5, 3e-5, 5e-5]
+  experiment:
+    values: [xcopa_mbert_fft]

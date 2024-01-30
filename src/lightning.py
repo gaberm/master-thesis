@@ -5,6 +5,7 @@ from .optimizer import load_optimizer
 from .metric import load_metric
 from transformers import AutoModelForSequenceClassification, AutoTokenizer
 import adapters
+import wandb
 
 class LModel(LightningModule):
     def __init__(self, model, config):
@@ -31,6 +32,7 @@ class LModel(LightningModule):
         loss = outputs.loss
         if self.label_smoothing > 0:
             loss = self.ce_loss(outputs.logits, batch_data["labels"])
+        # wandb.log({"loss": loss})
         return loss
     
     def validation_step(self, batch, batch_idx):
@@ -41,7 +43,7 @@ class LModel(LightningModule):
     
     def on_validation_epoch_end(self):
         val_score = self.val_metric.compute()
-        self.log(f"{self.val_metric} Score: ", val_score, prog_bar=True)
+        self.log(f"{self.val_metric}: ", val_score, prog_bar=True)
 
     def on_test_epoch_start(self):
         # activate target_lang adapter for zero-shot cross lingual transfer
@@ -59,7 +61,7 @@ class LModel(LightningModule):
 
     def on_test_epoch_end(self):
         test_score = self.uncertainty_metric.compute()
-        self.log(f"{self.uncertainty_metric} score for {self.target_lang}: ", test_score, prog_bar=True)
+        self.log(f"{self.uncertainty_metric} {self.target_lang}: ", test_score, prog_bar=True)
 
     def configure_optimizers(self):
         optimizer = load_optimizer(self.model, self.optimizer, self.lr)
