@@ -6,7 +6,7 @@ metric:
   goal: maximize
   name: f1
 parameters:
-  params.learning_rate:
+  params.lr:
     values: [1e-4, 2e-5, 3e-5, 5e-5]
   madx.ask_adapter.reduction_factor:
     values: [4, 16]

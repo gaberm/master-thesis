@@ -6,7 +6,7 @@ metric:
   goal: maximize
   name: f1
 parameters:
-  params.learning_rate:
+  params.lr:
     values: [2e-5, 3e-5, 5e-5]
   experiment:
     values: [xcopa_mbert_fft]
