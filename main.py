@@ -1,5 +1,6 @@
 import hydra
 import dotenv
+import platform
 from omegaconf import DictConfig
 import lightning.pytorch as pl
 from lightning.pytorch.loggers import WandbLogger
@@ -22,10 +23,21 @@ def main(config):
     if config.model.load_pretrained:
         pass # TODO: load pretrained model
     else:
-        trainer = pl.Trainer(max_epochs=config.params.max_epochs,
-                             logger=wandb_logger, 
-                             default_root_dir=config.checkpoint_dir,
-                             deterministic=True)
+        # depending on the OS, we use a different trainer
+        # for Linux, we have access to multiple GPUs
+        op_system = platform.system()
+        if op_system = "Darwin"
+            trainer = pl.Trainer(max_epochs=config.params.max_epochs,
+                                logger=wandb_logger, 
+                                default_root_dir=config.checkpoint_dir,
+                                deterministic=True)
+        else:
+            trainer = pl.Trainer(max_epochs=config.params.max_epochs,
+                                logger=wandb_logger, 
+                                default_root_dir=config.checkpoint_dir,
+                                deterministic=True,
+                                strategy="ddp",
+                                devices=3)
         trainer.fit(model=pl_model, train_dataloaders=train_loader, val_dataloaders=val_loader)
 
     for target_lang, test_loader in test_loaders.items():
