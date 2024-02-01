@@ -17,26 +17,25 @@ def main(config):
     print(config)
 
     model, tokenizer = load_model(config)
-    train_loader, val_loader, test_loaders = create_data_loaders(config, tokenizer)
+    _, _, test_loaders = create_data_loaders(config, tokenizer)
     
     pl_model = LModel(model, config)
     wandb_logger = WandbLogger(project=config.project, log_model="all")
     wandb_logger.watch(pl_model)
     
-    # op_system = platform.system()
-    # if op_system == "Darwin":
-    #     trainer = pl.Trainer(max_epochs=config.params.max_epochs,
-    #                         logger=wandb_logger, 
-    #                         default_root_dir=config.checkpoint_dir,
-    #                         deterministic=True)
-    # else:
-    #     trainer = pl.Trainer(max_epochs=config.params.max_epochs,
-    #                         logger=wandb_logger, 
-    #                         default_root_dir=config.checkpoint_dir,
-    #                         deterministic=True,
-    #                         strategy="ddp",
-    #                         devices=3)
-    # trainer.fit(model=pl_model, train_dataloaders=train_loader, val_dataloaders=val_loader)
+    op_system = platform.system()
+    if op_system == "Darwin":
+        trainer = pl.Trainer(max_epochs=config.params.max_epochs,
+                            logger=wandb_logger, 
+                            default_root_dir=config.checkpoint_dir,
+                            deterministic=True)
+    else:
+        trainer = pl.Trainer(max_epochs=config.params.max_epochs,
+                            logger=wandb_logger, 
+                            default_root_dir=config.checkpoint_dir,
+                            deterministic=True,
+                            strategy="ddp",
+                            devices=3)
 
     for target_lang, test_loader in test_loaders.items():
         pl_model.target_lang = target_lang
