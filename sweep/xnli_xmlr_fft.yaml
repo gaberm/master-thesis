@@ -8,5 +8,9 @@ metric:
 parameters:
   params.lr:
     values: [2e-5, 3e-5, 5e-5]
-  experiment:
-    values: [paws_x_xmlr_fft]
+command:
+- ${env}
+- ${interpreter}
+- ${program}
+- ${args_no_hyphens}
+- +experiment=xnli_xmlr_fft 

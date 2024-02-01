@@ -7,8 +7,11 @@ metric:
   name: f1
 parameters:
   params.lr:
-    values: [1e-4, 2e-5, 3e-5, 5e-5]
-  madx.ask_adapter.reduction_factor:
+    values: [2e-5, 3e-5, 5e-5, 1e-4]
+  madx.task_adapter.reduction_factor:
     values: [4, 16]
-  experiment:
-    values: [paws_x_mbert_madx]
+command:
+- ${env}
+- ${interpreter}
+- ${program}
+- ${args_no_hyphens}

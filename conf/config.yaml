@@ -2,7 +2,6 @@ defaults:
   - _self_
   - dataset:
     - xnli.yaml
-  - experiment: null
   - lora: null
   - madx: madx.yaml
   - model: mbert.yaml
@@ -15,6 +14,6 @@ project: master-thesis
 work_dir: ${hydra:runtime.cwd}
 
 # path to folder with data
-data_dir: ${work_dir}/data/
+data_dir: ${work_dir}/data/s
 # path to folder to model checkpoints
 checkpoint_dir: ${work_dir}/data/checkpoints/

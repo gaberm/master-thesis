@@ -1,8 +1,6 @@
 # @package _global_
 
 defaults:
-  - override /dataset: 
-    - xnli.yaml
   - override /model: xmlr.yaml
 
 dataset:
