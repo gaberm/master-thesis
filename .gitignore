@@ -8,3 +8,7 @@
 /src/__pycache__
 /main.log
 /data/datasets
+/.DS_Store
+/sweep/.DS_Store
+/src/.DS_Store
+/data/.DS_Store
