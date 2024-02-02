@@ -3,6 +3,7 @@ import torch
 from omegaconf import DictConfig
 from .optimizer import load_optimizer
 from .metric import load_metric
+from .model import set_task_adapter_name
 from transformers import AutoModelForSequenceClassification, AutoTokenizer
 import adapters
 
@@ -14,7 +15,7 @@ class LModel(LightningModule):
         self.uncertainty_metric = load_metric(config.params.uncertainty_metric, config.model.num_labels)
         self.source_lang = config.params.source_lang
         self.target_lang = ""
-        self.task_adapter_name = getattr(config.madx.task_adapter, "name", None)
+        self.task_adapter_name = set_task_adapter_name(config)
         self.optimizer = config.params.optimizer
         self.lr = config.params.lr
         self.num_labels = config.model.num_labels

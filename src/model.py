@@ -30,3 +30,10 @@ def load_model(config):
         model = get_peft_model(model, cfg)
 
     return model, tokenizer
+
+
+def set_task_adapter_name(config): 
+        try: 
+            return config.madx.task_adapter.name 
+        except: 
+            return None
