@@ -16,3 +16,5 @@ work_dir: ${hydra:runtime.cwd}
 # path to folder to model checkpoints
 data_dir_mac: data
 data_dir_linux: ../../../ceph/mgaber/data
+
+devices: 3

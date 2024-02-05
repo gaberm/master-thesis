@@ -35,7 +35,7 @@ def main(config):
                             default_root_dir=config.data_dir_linux,
                             deterministic=True,
                             strategy="ddp",
-                            devices=3)
+                            devices=config.devices)
     
     # train the model
     trainer.fit(model=pl_model, train_dataloaders=train_loader, val_dataloaders=val_loader)
