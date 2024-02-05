@@ -19,7 +19,12 @@ def main(config):
     
     # create lightning model and initialize wandb logger
     pl_model = LModel(model, config)
-    wandb_logger = WandbLogger(project=config.project, log_model="all")
+
+    if platform.system() == "Darwin":
+        wandb_dir = config.output_dir_mac + "/wandb"
+    else:
+        wandb_dir = config.output_dir_linux + "/wandb"
+    wandb_logger = WandbLogger(project=config.project, log_model="all", save_dir=wandb_dir)
     wandb_logger.watch(pl_model)
     
     # create trainer depending on the OS
@@ -27,12 +32,12 @@ def main(config):
     if platform.system() == "Darwin":
         trainer = pl.Trainer(max_epochs=config.params.max_epochs,
                             logger=wandb_logger, 
-                            default_root_dir=config.data_dir_mac,
+                            default_root_dir=config.output_dir_mac,
                             deterministic=True)
     else:
         trainer = pl.Trainer(max_epochs=config.params.max_epochs,
                             logger=wandb_logger, 
-                            default_root_dir=config.data_dir_linux,
+                            default_root_dir=config.output_dir_linux,
                             deterministic=True,
                             strategy="ddp",
                             devices=config.devices)
