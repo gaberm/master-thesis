@@ -118,6 +118,9 @@ def create_data_loaders(config, tokenizer):
     else:
         data_dir = config.data_dir_linux
 
+    if not os.path.exists(data_dir + "/datasets"):
+        os.makedirs(data_dir + "/datasets")
+
     # load datasets from HuggingFace Hub or locally
     datasets_dict = {}
     for dataset_name in config.dataset:

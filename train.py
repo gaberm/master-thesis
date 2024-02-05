@@ -27,12 +27,12 @@ def main(config):
     if platform.system() == "Darwin":
         trainer = pl.Trainer(max_epochs=config.params.max_epochs,
                             logger=wandb_logger, 
-                            default_root_dir=config.data_dir_mac + "/checkpoints",
+                            default_root_dir=config.data_dir_mac,
                             deterministic=True)
     else:
         trainer = pl.Trainer(max_epochs=config.params.max_epochs,
                             logger=wandb_logger, 
-                            default_root_dir=config.data_dir_linux + "/checkpoints",
+                            default_root_dir=config.data_dir_linux,
                             deterministic=True,
                             strategy="ddp",
                             devices=3)
