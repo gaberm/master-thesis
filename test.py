@@ -1,14 +1,11 @@
 import hydra
 import dotenv
 import platform
-import os
-import omegaconf
 import lightning.pytorch as pl
 from lightning.pytorch.loggers import WandbLogger
 from src.model import load_model
 from src.dataset import create_data_loaders
 from src.lightning import LModel
-import wandb
 
 dotenv.load_dotenv(override=True)
 
@@ -23,8 +20,7 @@ def main(config):
     wandb_logger = WandbLogger(project=config.project, log_model="all")
     wandb_logger.watch(pl_model)
     
-    op_system = platform.system()
-    if op_system == "Darwin":
+    if config.os == "Darwin":
         trainer = pl.Trainer(max_epochs=config.params.max_epochs,
                             logger=wandb_logger, 
                             default_root_dir=config.checkpoint_dir,

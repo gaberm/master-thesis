@@ -4,6 +4,7 @@ from torch.utils.data import DataLoader
 from datasets import load_dataset, load_from_disk, DatasetDict, Dataset, concatenate_datasets
 from omegaconf import DictConfig, OmegaConf
 import pandas as pd
+import platform
 
 def create_sentence_pairs(dataset, dataset_name, lang, split):
     # for some datasets we need to combine columns to create sentence pairs
@@ -29,7 +30,7 @@ def create_sentence_pairs(dataset, dataset_name, lang, split):
         
     elif dataset_name == "xcopa":
         # load translation for creating the questions
-        translated_question = pd.read_csv("data/translation.csv")
+        translated_question = pd.read_csv("rsc/translation.csv")
         for premise, question in zip(dataset[split]["premise"], dataset[split]["question"]):
             if question == "cause":
                 sentence = premise + translated_question[translated_question["lang"] == lang]["cause"].tolist()[0]
@@ -101,16 +102,22 @@ def tokenize_and_clean_dataset(dataset, dataset_name, lang, split, tokenize_func
     return tokenized_set
 
 
-def find_local_dataset(dataset_name, lang=None):
+def find_local_dataset(dataset_name, data_dir, lang=None):
     # check if dataset is saved locally
     # some datasets only have one language, so we need to check if the language is None
     if lang is None:
-        return os.path.exists(f"data/datasets/{dataset_name}")
+        return os.path.exists(data_dir + f"/datasets/{dataset_name}")
     else:
-        return os.path.exists(f"data/datasets/{dataset_name}/{lang}")
+        return os.path.exists(data_dir + f"/datasets/{dataset_name}/{lang}")
     
 
 def create_data_loaders(config, tokenizer):
+    # set data directory depending on the OS
+    if platform.system() == "Darwin":
+        data_dir = config.data_dir_mac
+    else:
+        data_dir = config.data_dir_linux
+
     # load datasets from HuggingFace Hub or locally
     datasets_dict = {}
     for dataset_name in config.dataset:
@@ -118,21 +125,21 @@ def create_data_loaders(config, tokenizer):
         set_languages = config.dataset[dataset_name].languages
         hf_name = config.dataset[dataset_name].hf_name
         if len(set_languages) == 1:
-            saved_locally = find_local_dataset(dataset_name)
+            saved_locally = find_local_dataset(dataset_name, data_dir)
             if saved_locally:
-                set = load_from_disk(f"data/datasets/{dataset_name}")
+                set = load_from_disk(data_dir + f"/datasets/{dataset_name}")
             else:
                 set = load_dataset(hf_name)
-                set.save_to_disk(f"data/datasets/{dataset_name}")
+                set.save_to_disk(data_dir + f"/datasets/{dataset_name}")
             datasets_dict[dataset_name] = {set_languages[0] : set}
         else:
             for lang in set_languages:
-                saved_locally = find_local_dataset(dataset_name, lang)
+                saved_locally = find_local_dataset(dataset_name, data_dir, lang)
                 if saved_locally:
-                    set = load_from_disk(f"data/datasets/{dataset_name}/{lang}")
+                    set = load_from_disk(data_dir + f"/datasets/{dataset_name}/{lang}")
                 else:
                     set = load_dataset(hf_name, lang)
-                    set.save_to_disk(f"data/datasets/{dataset_name}/{lang}")
+                    set.save_to_disk(data_dir + f"/datasets/{dataset_name}/{lang}")
                 dataset[lang] = set
             datasets_dict[dataset_name] = dataset
 

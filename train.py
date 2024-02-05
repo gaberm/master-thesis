@@ -1,16 +1,13 @@
 import hydra
 import dotenv
 import platform
-import os
-import omegaconf
 import lightning.pytorch as pl
 from lightning.pytorch.loggers import WandbLogger
 from src.model import load_model
 from src.dataset import create_data_loaders
 from src.lightning import LModel
-import wandb
 
-dotenv.load_dotenv(override=True)
+dotenv.load_dotenv(".env")
 
 @hydra.main(config_path="conf", config_name="config", version_base="1.3")
 def main(config):
@@ -27,16 +24,15 @@ def main(config):
     
     # create trainer depending on the OS
     # on the Linux server, we can use multiple GPUs
-    op_system = platform.system()
-    if op_system == "Darwin":
+    if platform.system() == "Darwin":
         trainer = pl.Trainer(max_epochs=config.params.max_epochs,
                             logger=wandb_logger, 
-                            default_root_dir=config.checkpoint_dir,
+                            default_root_dir=config.data_dir_mac + "/checkpoints",
                             deterministic=True)
     else:
         trainer = pl.Trainer(max_epochs=config.params.max_epochs,
                             logger=wandb_logger, 
-                            default_root_dir=config.checkpoint_dir,
+                            default_root_dir=config.data_dir_linux + "/checkpoints",
                             deterministic=True,
                             strategy="ddp",
                             devices=3)

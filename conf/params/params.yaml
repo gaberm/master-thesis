@@ -1,7 +1,7 @@
 num_epochs: 2
 batch_size: 32
 optimizer: AdamW
-lr: 0.00005
+lr: 5e-5
 val_metric: accuracy
 uncertainty_metric: expected_calibration_error
 average: micro

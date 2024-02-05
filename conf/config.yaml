@@ -13,7 +13,6 @@ defaults:
 project: master-thesis
 work_dir: ${hydra:runtime.cwd}
 
-# path to folder with data
-data_dir: ${work_dir}/data/s
 # path to folder to model checkpoints
-checkpoint_dir: ${work_dir}/data/checkpoints/
+data_dir_mac: data
+data_dir_linux: ../../../ceph/mgaber/data/checkpoints

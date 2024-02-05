@@ -11,8 +11,8 @@ class LModel(LightningModule):
     def __init__(self, model, config):
         super().__init__()
         self.model = model
-        self.val_metric = load_metric(config.params.val_metric, config.model.num_labels)
-        self.uncertainty_metric = load_metric(config.params.uncertainty_metric, config.model.num_labels)
+        self.val_metric = load_metric(config, "val")
+        self.uncertainty_metric = load_metric(config, "uncertainty")
         self.source_lang = config.params.source_lang
         self.target_lang = ""
         self.task_adapter_name = set_task_adapter_name(config)
@@ -21,7 +21,6 @@ class LModel(LightningModule):
         self.num_labels = config.model.num_labels
         self.label_smoothing = config.params.label_smoothing
         self.ce_loss = torch.nn.CrossEntropyLoss(label_smoothing=self.label_smoothing)
-        self.checkpoint_dir = config.checkpoint_dir
 
     def forward(self, inputs, target):
         return self.model(inputs, target)
