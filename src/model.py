@@ -21,8 +21,10 @@ def load_model(config):
         task_adapter_name = config.madx.task_adapter.name
         madx_config = adapters.SeqBnConfig(reduction_factor=config.madx.task_adapter.reduction_factor)    
         model.add_adapter(task_adapter_name, madx_config)
-        model.train_adapter([task_adapter_name])
         model.active_adapters = adapters.Stack(source_lang, task_adapter_name)
+        # train_adapter freezes the weights of the model and the language adapters to prevent them from further finetuning
+        # however the language adapter is active and is used in the forward pass
+        model.train_adapter([task_adapter_name])
 
     # if lora is specified, load it
     if "lora" in config.keys():
