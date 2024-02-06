@@ -5,6 +5,7 @@ defaults:
     - paws_x.yaml
   - override /madx: null
   - override /model: mbert.yaml
+  - override /params: params.yaml
   
 dataset:
   paws_x:
@@ -13,3 +14,5 @@ dataset:
     test_split: validation
 model:
   num_labels: 2
+params:
+  lr: 3e-5
