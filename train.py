@@ -16,7 +16,7 @@ def main(config):
     # load model, tokenizer and create data loaders
     model = load_model(config)
     tokenizer = load_tokenizer(config)
-    train_loader, val_loader, _ = create_data_loaders(config, tokenizer)
+    train_loader, val_loader = create_data_loaders(config, tokenizer)
     
     # create lightning model and initialize wandb logger
     l_model = LModel(model, config)
