@@ -21,6 +21,7 @@ class LModel(LightningModule):
         self.num_labels = config.model.num_labels
         self.label_smoothing = config.params.label_smoothing
         self.ce_loss = torch.nn.CrossEntropyLoss(label_smoothing=self.label_smoothing)
+        self.save_hyperparameters()
 
     def forward(self, inputs, target):
         return self.model(inputs, target)

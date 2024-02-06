@@ -2,4 +2,4 @@ balanced_copa:
   hf_name: pkavumba/balanced-copa
   languages:
     - en
-  train: true
+  state: train

@@ -29,7 +29,7 @@ def create_sentence_pairs(dataset, dataset_name, lang, split):
         
     elif dataset_name == "xcopa":
         # load translation for creating the questions
-        translated_question = pd.read_csv("rsc/translation.csv")
+        translated_question = pd.read_csv("res/translation.csv")
         for premise, question in zip(dataset[split]["premise"], dataset[split]["question"]):
             if question == "cause":
                 sentence = premise + translated_question[translated_question["lang"] == lang]["cause"].tolist()[0]
@@ -112,10 +112,7 @@ def find_local_dataset(dataset_name, output_dir, lang=None):
 
 def create_data_loaders(config, tokenizer):
     # set data directory depending on the OS
-    if platform.system() == "Darwin":
-        output_dir = config.output_dir_mac
-    else:
-        output_dir = config.output_dir_linux
+    output_dir = config.output_dir_mac if platform.system() == "Darwin" else config.output_dir_linux
 
     if not os.path.exists(output_dir + "/datasets"):
         os.makedirs(output_dir + "/datasets")
@@ -158,29 +155,28 @@ def create_data_loaders(config, tokenizer):
             return tokenizer(example["sentence1"], example["sentence2"], truncation=True, padding=True)
         
         for lang, dataset_in_lang in dataset.items():
-            # check if dataset is used for training
-            train = config.dataset[dataset_name].train
-            if lang == source_lang and train:
-                # zero-shot cross lingual transfer
-                # we only create train and val sets for the source language
+            state = config.dataset[dataset_name].state
+            # when state is train, we create train and val loaders for the source language
+            if lang == source_lang and state == "train":
                 train_split = config.dataset[dataset_name].train_split
                 val_split = config.dataset[dataset_name].val_split
                 train_set = tokenize_and_clean_dataset(dataset_in_lang, dataset_name, lang, train_split, tokenize_function)
                 val_set = tokenize_and_clean_dataset(dataset_in_lang, dataset_name, lang, val_split, tokenize_function)
                 train_set_list.append(train_set)
                 val_set_list.append(val_set)
-            else:
-                # we only create dataloaders for the target languages
+            # when state is test, we create test loaders for target languages
+            if lang != source_lang and state == "test":
                 test_split = config.dataset[dataset_name].test_split
                 test_loader = tokenize_and_clean_dataset(dataset_in_lang, dataset_name, lang, test_split, tokenize_function)
                 loader = DataLoader(test_loader, shuffle=True, batch_size=config.params.batch_size, collate_fn=data_collator)
                 test_loader_dict[lang] = loader
+                return [test_loader_dict]
 
-    # merge training and validation datasets and create dataloaders
+    # because we can have multiple datasets for training, we must concatenate the val and train sets
+    # we want to have one concatenated dataloader for training and one for validation
     train_val_loaders = []
     for list in [train_set_list, val_set_list]:
         merged_dataset = concatenate_datasets(list)
         loader = DataLoader(merged_dataset, batch_size=config.params.batch_size, collate_fn=data_collator, num_workers=7)
         train_val_loaders.append(loader)
-
-    return train_val_loaders[0], train_val_loaders[1], test_loader_dict
+    return [train_val_loaders[0], train_val_loaders[1]]

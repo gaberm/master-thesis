@@ -3,7 +3,7 @@ import dotenv
 import platform
 import lightning.pytorch as pl
 from lightning.pytorch.loggers import WandbLogger
-from src.model import load_model
+from src.model import load_model, load_tokenizer
 from src.dataset import create_data_loaders
 from src.lightning import LModel
 
@@ -13,29 +13,32 @@ dotenv.load_dotenv(override=True)
 def main(config):
     print(config)
 
-    model, tokenizer = load_model(config)
-    _, _, test_loaders = create_data_loaders(config, tokenizer)
+    # load model
+    l_model = LModel.load_from_checkpoint(config.model.checkpoint_path)
+
+    # create test data loaders
+    tokenizer = load_tokenizer(config)
+    test_loaders = create_data_loaders(config, tokenizer)
     
-    pl_model = LModel(model, config)
     wandb_logger = WandbLogger(project=config.project, log_model="all")
-    wandb_logger.watch(pl_model)
+    wandb_logger.watch(l_model)
     
-    if config.os == "Darwin":
+    if platform.system() == "Darwin":
         trainer = pl.Trainer(max_epochs=config.params.max_epochs,
                             logger=wandb_logger, 
-                            default_root_dir=config.checkpoint_dir,
+                            default_root_dir=config.output_dir_mac,
                             deterministic=True)
     else:
         trainer = pl.Trainer(max_epochs=config.params.max_epochs,
                             logger=wandb_logger, 
-                            default_root_dir=config.checkpoint_dir,
+                            default_root_dir=config.output_dir_linux,
                             deterministic=True,
                             strategy="ddp",
-                            devices=3)
+                            devices=config.devices)
 
     for target_lang, test_loader in test_loaders.items():
-        pl_model.target_lang = target_lang
-        trainer.test(model=pl_model, test_dataloaders=test_loader)
+        l_model.target_lang = target_lang
+        trainer.test(model=l_model, dataloaders=test_loader)
 
 if __name__ == "__main__":
     main()

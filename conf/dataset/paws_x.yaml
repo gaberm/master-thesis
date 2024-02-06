@@ -8,7 +8,7 @@ paws_x:
     - ja
     - ko
     - zh
-  train: true
+  state: train
   train_split: train
   val_split: validation
   test_split: test

@@ -1,22 +1,19 @@
-from omegaconf import DictConfig
 from transformers import AutoTokenizer, AutoModelForSequenceClassification
 import adapters
 from peft import get_peft_model, LoraConfig
 
 def load_model(config):
     source_lang = config.params.source_lang
-    model_path = config.model.path
 
-    # load model and tokenizer
-    model = AutoModelForSequenceClassification.from_pretrained(model_path, num_labels=config.model.num_labels)
-    tokenizer = AutoTokenizer.from_pretrained(model_path)
+    # load model
+    model = AutoModelForSequenceClassification.from_pretrained(config.model.hf_path, num_labels=config.model.num_labels)
 
     # if madx is specified, load it
     if "madx" in config.keys():
         adapters.init(model)
         # load pretrained language adapters
-        for path in config.madx.lang_adapter[config.model.name].values():
-            _ = model.load_adapter(path)
+        for hf_path in config.madx.lang_adapter[config.model.name].values():
+            _ = model.load_adapter(hf_path)
         # create task adapter for training
         task_adapter_name = config.madx.task_adapter.name
         madx_config = adapters.SeqBnConfig(reduction_factor=config.madx.task_adapter.reduction_factor)    
@@ -31,11 +28,15 @@ def load_model(config):
         cfg = LoraConfig(**config.lora)
         model = get_peft_model(model, cfg)
 
-    return model, tokenizer
+    return model
+
+
+def load_tokenizer(config):
+    return AutoTokenizer.from_pretrained(config.model.hf_path)
 
 
 def set_task_adapter_name(config): 
-        try: 
-            return config.madx.task_adapter.name 
-        except: 
-            return None
+    try: 
+        return config.madx.task_adapter.name 
+    except: 
+        return None

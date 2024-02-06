@@ -1,4 +1,3 @@
 name: xmlr
-path: xlm-roberta-base
+hf_path: xlm-roberta-base
 num_labels: 3
-load_pretrained: false
