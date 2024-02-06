@@ -21,9 +21,9 @@ def main(config):
     pl_model = LModel(model, config)
 
     if platform.system() == "Darwin":
-        wandb_dir = config.output_dir_mac + "/wandb"
+        wandb_dir = config.output_dir_mac
     else:
-        wandb_dir = config.output_dir_linux + "/wandb"
+        wandb_dir = config.output_dir_linux
     wandb_logger = WandbLogger(project=config.project, log_model="all", save_dir=wandb_dir)
     wandb_logger.watch(pl_model)
     
