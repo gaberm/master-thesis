@@ -31,6 +31,7 @@ class LModel(LightningModule):
         loss = outputs.loss
         if self.label_smoothing > 0:
             loss = self.ce_loss(outputs.logits, batch_data["labels"])
+        self.log("train_loss", loss)
         return loss
     
     def validation_step(self, batch, batch_idx):
