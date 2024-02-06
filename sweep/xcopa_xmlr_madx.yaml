@@ -17,4 +17,4 @@ command:
 - ${interpreter}
 - ${program}
 - ${args_no_hyphens}
-- +experiment=xcopa_mmlr_madx
+- +experiment=xcopa_mmlr_madx_train

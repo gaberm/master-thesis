@@ -15,4 +15,4 @@ command:
 - ${interpreter}
 - ${program}
 - ${args_no_hyphens}
-- +experiment=paws_x_mbert_fft
+- +experiment=paws_x_mbert_fft_train

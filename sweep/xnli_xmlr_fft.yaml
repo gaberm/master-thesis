@@ -15,4 +15,4 @@ command:
 - ${interpreter}
 - ${program}
 - ${args_no_hyphens}
-- +experiment=xnli_xmlr_fft 
+- +experiment=xnli_xmlr_fft_train

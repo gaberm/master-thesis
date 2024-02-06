@@ -21,7 +21,7 @@ def main(config):
     # create lightning model and initialize wandb logger
     l_model = LModel(model, config)
 
-    wandb_dir = config.output_dir_mac if platform.system() == "Darwin" else config.output_dir_linux
+    wandb_dir = config.data_dir_mac if platform.system() == "Darwin" else config.data_dir_linux
     wandb_logger = WandbLogger(project=config.project, log_model="all", save_dir=wandb_dir)
     wandb_logger.watch(l_model)
     
