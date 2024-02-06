@@ -9,77 +9,72 @@ def create_sentence_pairs(dataset, dataset_name, lang, split):
     # for some datasets we need to combine columns to create sentence pairs
     # the reason for this is that the datasets have a different number of classes
     sentence_list = []
-    if dataset_name == "balanced_copa":
-        for premise, question in zip(dataset[split]["premise"], dataset[split]["question"]):
-            if question == "cause":
-                sentence = premise + " " + "What is the cause?"
-            elif question == "effect":
-                sentence = premise + " " + "What is the effect?"
-            sentence_list.append(sentence)
+    match dataset_name:
+        case "balanced_copa":
+            for premise, question in zip(dataset[split]["premise"], dataset[split]["question"]):
+                if question == "cause":
+                    sentence = premise + " " + "What is the cause?"
+                elif question == "effect":
+                    sentence = premise + " " + "What is the effect?"
+                sentence_list.append(sentence)
+            question_list = sentence_list + sentence_list 
+            choice1_list = [choice1 for choice1 in dataset[split]["choice1"]]
+            choice2_list = [choice2 for choice2 in dataset[split]["choice2"]]
+            choice_list = choice1_list + choice2_list
+            label_list = dataset[split]["label"] + dataset[split]["label"]
+            new_dataset = Dataset.from_dict({"sentence1" : question_list, 
+                                            "sentence2" : choice_list,
+                                            "labels" : label_list})
         
-        question_list = sentence_list + sentence_list 
-        choice1_list = [choice1 for choice1 in dataset[split]["choice1"]]
-        choice2_list = [choice2 for choice2 in dataset[split]["choice2"]]
-        choice_list = choice1_list + choice2_list
-        label_list = dataset[split]["label"] + dataset[split]["label"]
- 
-        new_dataset = Dataset.from_dict({"sentence1" : question_list, 
-                                         "sentence2" : choice_list,
-                                         "labels" : label_list})
+        case "xcopa":
+            # load translation for creating the questions
+            translated_question = pd.read_csv("res/translation.csv")
+            for premise, question in zip(dataset[split]["premise"], dataset[split]["question"]):
+                if question == "cause":
+                    sentence = premise + translated_question[translated_question["lang"] == lang]["cause"].tolist()[0]
+                elif question == "effect":
+                    sentence = premise + translated_question[translated_question["lang"] == lang]["effect"].tolist()[0]
+                sentence_list.append(sentence)
+            question_list = sentence_list + sentence_list 
+            choice1_list = [choice1 for choice1 in dataset[split]["choice1"]]
+            choice2_list = [choice2 for choice2 in dataset[split]["choice2"]]
+            choice_list = choice1_list + choice2_list
+            label_list = dataset[split]["label"] + dataset[split]["label"]
+            new_dataset = Dataset.from_dict({"sentence1" : question_list, 
+                                            "sentence2" : choice_list,
+                                            "labels" : label_list})
         
-    elif dataset_name == "xcopa":
-        # load translation for creating the questions
-        translated_question = pd.read_csv("res/translation.csv")
-        for premise, question in zip(dataset[split]["premise"], dataset[split]["question"]):
-            if question == "cause":
-                sentence = premise + translated_question[translated_question["lang"] == lang]["cause"].tolist()[0]
-            elif question == "effect":
-                sentence = premise + translated_question[translated_question["lang"] == lang]["effect"].tolist()[0]
-            sentence_list.append(sentence)
-
-        question_list = sentence_list + sentence_list 
-        choice1_list = [choice1 for choice1 in dataset[split]["choice1"]]
-        choice2_list = [choice2 for choice2 in dataset[split]["choice2"]]
-        choice_list = choice1_list + choice2_list
-        label_list = dataset[split]["label"] + dataset[split]["label"]
-
-        new_dataset = Dataset.from_dict({"sentence1" : question_list, 
-                                         "sentence2" : choice_list,
-                                         "labels" : label_list})
+        case "social_i_qa":
+            for context, question in zip(dataset[split]["context"], dataset[split]["question"]):
+                sentence = context + " " + question
+                sentence_list.append(sentence)
+            question_list = sentence_list + sentence_list + sentence_list
+            answer_list = []
+            for answer in ["answerA", "answerB", "answerC"]:
+                lst = [answer for answer in dataset[split][answer]]
+                answer_list += lst
+            label_list = []
+            for old_label in [1, 2, 3]:
+                lst = [1 if label == old_label else 0 for label in dataset[split]["label"]]
+                label_list += lst
+            new_dataset = Dataset.from_dict({"sentence1" : question_list,  
+                                            "sentence2" : answer_list,
+                                            "labels" : label_list})
         
-    elif dataset_name == "social_i_qa":
-        for context, question in zip(dataset[split]["context"], dataset[split]["question"]):
-            sentence = context + " " + question
-            sentence_list.append(sentence)
+        case "xnli":
+            new_dataset = dataset[split]
+            old_columns = ["premise", "hypothesis", "label"]
+            new_columns = ["sentence1", "sentence2", "labels"]
+            for old_column, new_column in zip(old_columns, new_columns):
+                new_dataset = new_dataset.rename_column(old_column, new_column)
 
-        question_list = sentence_list + sentence_list + sentence_list
-        answer_list = []
-        for answer in ["answerA", "answerB", "answerC"]:
-            lst = [answer for answer in dataset[split][answer]]
-            answer_list += lst
-        label_list = []
-        for old_label in [1, 2, 3]:
-            lst = [1 if label == old_label else 0 for label in dataset[split]["label"]]
-            label_list += lst
-
-        new_dataset = Dataset.from_dict({"sentence1" : question_list,  
-                                         "sentence2" : answer_list,
-                                         "labels" : label_list})
+        case "paws_x":
+            new_dataset = dataset[split]
+            new_dataset= new_dataset.rename_column("label", "labels")
+            new_dataset = new_dataset.remove_columns(["id"])
         
-    elif dataset_name == "xnli":
-        new_dataset = dataset[split]
-        old_columns = ["premise", "hypothesis", "label"]
-        new_columns = ["sentence1", "sentence2", "labels"]
-        for old_column, new_column in zip(old_columns, new_columns):
-            new_dataset = new_dataset.rename_column(old_column, new_column)
-
-    elif dataset_name == "paws_x":
-        new_dataset = dataset[split]
-        new_dataset= new_dataset.rename_column("label", "labels")
-        new_dataset = new_dataset.remove_columns(["id"])
-        
-    else:
-        ValueError(f"Dataset {dataset_name} not supported.")
+        case _:
+            ValueError(f"Dataset {dataset_name} not supported.")
 
     return new_dataset
 
@@ -101,21 +96,21 @@ def tokenize_and_clean_dataset(dataset, dataset_name, lang, split, tokenize_func
     return tokenized_set
 
 
-def find_local_dataset(dataset_name, output_dir, lang=None):
+def find_local_dataset(dataset_name, data_dir, lang=None):
     # check if dataset is saved locally
     # some datasets only have one language, so we need to check if the language is None
     if lang is None:
-        return os.path.exists(output_dir + f"/datasets/{dataset_name}")
+        return os.path.exists(data_dir + f"/datasets/{dataset_name}")
     else:
-        return os.path.exists(output_dir + f"/datasets/{dataset_name}/{lang}")
+        return os.path.exists(data_dir + f"/datasets/{dataset_name}/{lang}")
     
 
 def create_data_loaders(config, tokenizer):
     # set data directory depending on the OS
-    output_dir = config.output_dir_mac if platform.system() == "Darwin" else config.output_dir_linux
+    data_dir = config.data_dir_mac if platform.system() == "Darwin" else config.data_dir_linux
 
-    if not os.path.exists(output_dir + "/datasets"):
-        os.makedirs(output_dir + "/datasets")
+    if not os.path.exists(data_dir + "/datasets"):
+        os.makedirs(data_dir + "/datasets")
 
     # load datasets from HuggingFace Hub or locally
     datasets_dict = {}
@@ -124,21 +119,21 @@ def create_data_loaders(config, tokenizer):
         set_languages = config.dataset[dataset_name].languages
         hf_name = config.dataset[dataset_name].hf_name
         if len(set_languages) == 1:
-            saved_locally = find_local_dataset(dataset_name, output_dir)
+            saved_locally = find_local_dataset(dataset_name, data_dir)
             if saved_locally:
-                set = load_from_disk(output_dir + f"/datasets/{dataset_name}")
+                set = load_from_disk(data_dir + f"/datasets/{dataset_name}")
             else:
                 set = load_dataset(hf_name)
-                set.save_to_disk(output_dir + f"/datasets/{dataset_name}")
+                set.save_to_disk(data_dir + f"/datasets/{dataset_name}")
             datasets_dict[dataset_name] = {set_languages[0] : set}
         else:
             for lang in set_languages:
-                saved_locally = find_local_dataset(dataset_name, output_dir, lang)
+                saved_locally = find_local_dataset(dataset_name, data_dir, lang)
                 if saved_locally:
-                    set = load_from_disk(output_dir + f"/datasets/{dataset_name}/{lang}")
+                    set = load_from_disk(data_dir + f"/datasets/{dataset_name}/{lang}")
                 else:
                     set = load_dataset(hf_name, lang)
-                    set.save_to_disk(output_dir + f"/datasets/{dataset_name}/{lang}")
+                    set.save_to_disk(data_dir + f"/datasets/{dataset_name}/{lang}")
                 dataset[lang] = set
             datasets_dict[dataset_name] = dataset
 
@@ -170,7 +165,7 @@ def create_data_loaders(config, tokenizer):
                 test_loader = tokenize_and_clean_dataset(dataset_in_lang, dataset_name, lang, test_split, tokenize_function)
                 loader = DataLoader(test_loader, shuffle=True, batch_size=config.params.batch_size, collate_fn=data_collator)
                 test_loader_dict[lang] = loader
-                return [test_loader_dict]
+                return (test_loader_dict)
 
     # because we can have multiple datasets for training, we must concatenate the val and train sets
     # we want to have one concatenated dataloader for training and one for validation
@@ -179,4 +174,4 @@ def create_data_loaders(config, tokenizer):
         merged_dataset = concatenate_datasets(list)
         loader = DataLoader(merged_dataset, batch_size=config.params.batch_size, collate_fn=data_collator, num_workers=7)
         train_val_loaders.append(loader)
-    return [train_val_loaders[0], train_val_loaders[1]]
+    return (train_val_loaders[0], train_val_loaders[1])
