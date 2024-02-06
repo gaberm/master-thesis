@@ -4,10 +4,12 @@ project: master-thesis
 entity: 3hobbits
 metric:
   goal: maximize
-  name: f1
+  name: accuracy
 parameters:
   params.lr:
     values: [2e-5, 3e-5, 5e-5]
+  params.max_epochs:
+    values: [2]
 command:
 - ${env}
 - ${interpreter}
