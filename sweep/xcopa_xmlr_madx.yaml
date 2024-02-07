@@ -15,4 +15,4 @@ command:
 - ${interpreter}
 - ${program}
 - ${args_no_hyphens}
-- +experiment=sweep/xcopa_mmlr_madx
+- +experiment=sweep/xcopa_xmlr_madx
