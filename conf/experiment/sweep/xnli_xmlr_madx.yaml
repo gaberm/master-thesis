@@ -2,9 +2,12 @@
 
 defaults:
   - override /model: xmlr.yaml
+  - override /params: params.yaml
 
 dataset:
   xnli:
     train_split: train
     val_split: validation
     test_split: validation
+params:
+  max_epochs: 2

@@ -5,6 +5,7 @@ defaults:
     - paws_x.yaml
   - override /madx: madx.yaml
   - override /model: mbert.yaml
+  - override /params: params.yaml
 
 dataset:
   paws_x:
@@ -16,4 +17,6 @@ madx:
       name: paws-x
 model:
   num_labels: 2
+params:
+  max_epochs: 2
 

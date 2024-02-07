@@ -12,7 +12,9 @@ class LModel(LightningModule):
         super().__init__()
         self.model = model
         self.val_metric = load_metric(config, "val")
+        self.val_metric_name = config.params.val_metric
         self.uncertainty_metric = load_metric(config, "uncertainty")
+        self.uncertainty_metric_name = config.params.uncertainty_metric
         self.source_lang = config.params.source_lang
         self.target_lang = ""
         self.task_adapter_name = set_task_adapter_name(config)
@@ -43,7 +45,7 @@ class LModel(LightningModule):
     
     def on_validation_epoch_end(self):
         val_score = self.val_metric.compute()
-        self.log(f"{self.val_metric}: ", val_score, prog_bar=True)
+        self.log(f"{self.val_metric_name}: ", val_score, prog_bar=True)
 
     def on_test_epoch_start(self):
         # activate target_lang adapter for zero-shot cross lingual transfer
@@ -61,7 +63,7 @@ class LModel(LightningModule):
 
     def on_test_epoch_end(self):
         test_score = self.uncertainty_metric.compute()
-        self.log(f"{self.uncertainty_metric} {self.target_lang}: ", test_score, prog_bar=True)
+        self.log(f"{self.uncertainty_metric_name} {self.target_lang}: ", test_score, prog_bar=True)
 
     def configure_optimizers(self):
         optimizer = load_optimizer(self.model, self.optimizer, self.lr)

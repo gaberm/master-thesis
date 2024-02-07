@@ -5,7 +5,8 @@ defaults:
     - paws_x.yaml
   - override /madx: madx.yaml
   - override /model: xmlr.yaml
-
+  - override /params: params.yaml
+  
 dataset:
   paws_x:
     train_split: train
@@ -16,3 +17,5 @@ madx:
     name: paws-x
 model:
   num_labels: 2
+params:
+  max_epochs: 2

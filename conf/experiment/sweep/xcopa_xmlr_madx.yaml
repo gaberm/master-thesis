@@ -6,6 +6,7 @@ defaults:
     - social_i_qa.yaml
   - override /madx: madx.yaml
   - override /model: xmlr.yaml
+  - override /params: params.yaml
  
 dataset:
   balanced_copa:
@@ -19,3 +20,5 @@ madx:
       name: copa
 model:
   num_labels: 2
+params:
+  max_epochs: 2

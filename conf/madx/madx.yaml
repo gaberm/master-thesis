@@ -33,5 +33,5 @@ lang_adapter:
     zh: zh/wiki@ukp
 
 task_adapter:
-  name: "xnli"
+  name: xnli
   reduction_factor: 16

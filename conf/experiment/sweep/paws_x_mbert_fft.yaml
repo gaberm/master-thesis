@@ -15,4 +15,4 @@ dataset:
 model:
   num_labels: 2
 params:
-  lr: 3e-5
+  max_epochs: 2

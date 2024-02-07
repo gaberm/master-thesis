@@ -8,8 +8,6 @@ metric:
 parameters:
   params.lr:
     values: [2e-5, 3e-5, 5e-5, 1e-4]
-  params.max_epochs:
-    values: [2]
   madx.task_adapter.reduction_factor:
     values: [4, 16]
 command:
@@ -17,3 +15,4 @@ command:
 - ${interpreter}
 - ${program}
 - ${args_no_hyphens}
+- +experiment=sweep/xnli_mbert_madx
