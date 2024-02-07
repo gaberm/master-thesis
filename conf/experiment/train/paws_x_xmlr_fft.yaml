@@ -3,15 +3,13 @@
 defaults:
   - override /dataset:
     - paws_x.yaml
-  - override /madx: madx.yaml
+  - override /madx: null
   - override /model: xmlr.yaml
-
+  
 dataset:
   paws_x:
     train_split: train
     val_split: validation
     test_split: validation
-madx:
-  task_adapter_name: paws-x
 model:
   num_labels: 2

@@ -1,0 +1,23 @@
+# @package _global_
+
+defaults:
+  - override /dataset:
+    - paws_x.yaml
+  - override /madx: madx.yaml
+  - override /model: mbert.yaml
+  - override /params: params.yaml
+
+dataset:
+  paws_x:
+    train_split: train
+    val_split: validation
+    test_split: validation
+madx:
+  task_adapter:
+    name: paws-x
+    reduction_factor: 4
+model:
+  num_labels: 2
+params:
+  lr: 1e-4
+

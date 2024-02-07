@@ -17,4 +17,4 @@ command:
 - ${interpreter}
 - ${program}
 - ${args_no_hyphens}
-- +experiment=paws_x_mbert_madx_train
+- +experiment=sweep/paws_x_mbert_madx

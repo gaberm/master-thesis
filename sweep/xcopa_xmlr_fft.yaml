@@ -15,4 +15,4 @@ command:
 - ${interpreter}
 - ${program}
 - ${args_no_hyphens}
-- +experiment=xcopa_xmlr_fft_train
+- +experiment=sweep/xcopa_xmlr_fft

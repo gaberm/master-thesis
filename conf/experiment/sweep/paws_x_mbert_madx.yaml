@@ -12,7 +12,8 @@ dataset:
     val_split: validation
     test_split: validation
 madx:
-  task_adapter_name: paws-x
+    task_adapter:
+      name: paws-x
 model:
   num_labels: 2
 

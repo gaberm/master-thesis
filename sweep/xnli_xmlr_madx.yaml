@@ -17,4 +17,4 @@ command:
 - ${interpreter}
 - ${program}
 - ${args_no_hyphens}
-- +experiment=xnli_xmlr_madx_train
+- +experiment=sweep/xnli_xmlr_madx

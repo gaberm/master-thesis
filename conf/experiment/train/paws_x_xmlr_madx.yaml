@@ -2,19 +2,17 @@
 
 defaults:
   - override /dataset:
-    - balanced_copa.yaml
-    - social_i_qa.yaml
+    - paws_x.yaml
   - override /madx: madx.yaml
   - override /model: xmlr.yaml
- 
+
 dataset:
-  balanced_copa:
-    train_split: train
-    val_split: test
-  social_i_qa:
+  paws_x:
     train_split: train
     val_split: validation
+    test_split: validation
 madx:
-  task_adapter_name: copa
+    task_adapter:
+      name: paws-x
 model:
   num_labels: 2

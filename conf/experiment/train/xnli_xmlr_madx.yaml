@@ -1,0 +1,10 @@
+# @package _global_
+
+defaults:
+  - override /model: xmlr.yaml
+
+dataset:
+  xnli:
+    train_split: train
+    val_split: validation
+    test_split: validation
