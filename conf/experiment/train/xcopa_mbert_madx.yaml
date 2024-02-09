@@ -6,6 +6,7 @@ defaults:
     - social_i_qa.yaml
   - override /model: mbert.yaml
   - override /madx: madx.yaml
+  - override /params: params.yaml
 
 dataset:
   balanced_copa:
@@ -17,5 +18,8 @@ dataset:
 madx:
     task_adapter:
       name: copa
+      reduction_factor: 16
 model:
   num_labels: 2
+params:
+  lr: 1e-4
