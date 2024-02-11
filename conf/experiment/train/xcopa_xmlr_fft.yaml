@@ -6,6 +6,7 @@ defaults:
     - social_i_qa.yaml
   - override /madx: null
   - override /model: xmlr.yaml
+  - override /params: params.yaml
   
 dataset:
   balanced_copa:
@@ -16,3 +17,5 @@ dataset:
     val_split: validation
 model:
   num_labels: 2
+params:
+  lr: 2e-5
