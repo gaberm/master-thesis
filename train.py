@@ -26,7 +26,7 @@ def main(config):
     wandb_logger = WandbLogger(project=config.project, log_model="all", save_dir=config.data_dir[sys])
 
     checkpoint_callback = ModelCheckpoint(
-        dirpath=f"{config.data_dir[sys]}/checkpoints/{config.exp_name}",
+        dirpath=f"{config.data_dir[sys]}/checkpoints/{config.trainer.exp_name}",
         monitor=config.params.val_metric,
         mode="max",
         filename=f"{{epoch}}-{{step}}-{{{config.params.val_metric}:.3f}}",
