@@ -2,10 +2,10 @@
 
 defaults:
   - override /dataset: 
-    - xnli
-  - override /exp_name: train_xnli_mbert_fft
+    - xnli 
   - override /madx: null
   - override /params: params
+  - override /trainer: trainer
 
 dataset:
   xnli:
@@ -14,3 +14,5 @@ dataset:
     test_split: validation
 params:
   lr: 2e-5
+trainer:
+  exp_name: train_xnli_mbert_fft

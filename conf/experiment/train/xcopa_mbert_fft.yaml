@@ -4,9 +4,9 @@ defaults:
   - override /dataset:
     - balanced_copa
     - social_i_qa
-  - override /exp_name: train_xcopa_mbert_fft
   - override /madx: null
   - override /params: params
+  - override /trainer: trainer
   
 dataset:
   balanced_copa:
@@ -19,3 +19,5 @@ model:
   num_labels: 2
 params:
   lr: 3e-5
+trainer:
+  exp_name: train_xcopa_mbert_fft

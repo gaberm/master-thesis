@@ -1,10 +1,10 @@
 # @package _global_
 
 defaults:
-  - override /exp_name: train_xnli_xlmr_madx
   - override /model: xmlr
   - override /madx: madx
   - override /params: params
+  - override /trainer: trainer
 
 dataset:
   xnli:
@@ -16,3 +16,5 @@ madx:
     reduction_factor: 4
 params:
   lr: 1e-4
+trainer:
+  exp_name: train_xnli_xlmr_madx

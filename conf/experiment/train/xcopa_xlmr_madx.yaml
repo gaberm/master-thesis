@@ -4,10 +4,10 @@ defaults:
   - override /dataset:
     - balanced_copa
     - social_i_qa
-  - override /exp_name: train_xcopa_xlmr_madx
   - override /madx: madx
   - override /model: xmlr
   - override /params: params
+  - override /trainer: trainer
  
 dataset:
   balanced_copa:
@@ -24,3 +24,5 @@ model:
   num_labels: 2
 params:
   lr: 2e-5
+trainer:
+  exp_name: train_xcopa_xlmr_madx

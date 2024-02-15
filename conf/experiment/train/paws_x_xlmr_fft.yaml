@@ -3,10 +3,10 @@
 defaults:
   - override /dataset:
     - paws_x
-  - override /exp_name: train_paws_x_xlmr_fft
   - override /madx: null
   - override /model: xmlr
   - override /params: params
+  - override /trainer: trainer
   
 dataset:
   paws_x:
@@ -17,3 +17,5 @@ model:
   num_labels: 2
 params:
   lr: 2e-5
+trainer:
+  exp_name: train_paaws_x_xlmr_fft
