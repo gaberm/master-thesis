@@ -1,4 +1,4 @@
 name: mbert
 hf_path: bert-base-multilingual-cased
 num_labels: 3
-checkpoint_path: data/models/paws_x_mbert_fft
+ckpt_path:

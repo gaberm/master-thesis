@@ -1,3 +1,3 @@
-name: xmlr
+name: xlmr
 hf_path: xlm-roberta-base
 num_labels: 3

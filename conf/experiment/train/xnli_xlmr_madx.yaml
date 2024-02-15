@@ -1,0 +1,17 @@
+# @package _global_
+
+defaults:
+  - override /model: xmlr.yaml
+  - override /madx: madx.yaml
+  - override /params: params.yaml
+
+dataset:
+  xnli:
+    train_split: train
+    val_split: validation
+    test_split: validation
+madx:
+  task_adapter:
+    reduction_factor: 4
+params:
+  lr: 1e-4

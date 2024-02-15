@@ -15,4 +15,4 @@ command:
 - ${interpreter}
 - ${program}
 - ${args_no_hyphens}
-- +experiment=sweep/xnli_xmlr_madx
+- +experiment=sweep/paws_x_xlmr_madx
