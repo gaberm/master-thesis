@@ -4,7 +4,7 @@ defaults:
   - override /dataset:
     - balanced_copa
     - social_i_qa
-  - override /exp_name: train/xcopa_mbert_madx
+  - override /exp_name: train_xcopa_mbert_madx
   - override /model: mbert
   - override /madx: madx
   - override /params: params

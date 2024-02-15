@@ -2,7 +2,7 @@ defaults:
   - _self_
   - dataset:
     - xnli
-  - exp_name: train/xnli_mbert_madx
+  - exp_name: train_xnli_mbert_madx
   - lora: null
   - madx: madx
   - model: mbert

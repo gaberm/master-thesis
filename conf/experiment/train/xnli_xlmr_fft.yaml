@@ -3,7 +3,7 @@
 defaults:
   - override /dataset: 
     - xnli
-  - override /exp_name: train/xnli_xlmr_fft
+  - override /exp_name: train_xnli_xlmr_fft
   - override /madx: null
   - override /model: xmlr
   - override /params: params

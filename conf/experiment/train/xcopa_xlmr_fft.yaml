@@ -4,7 +4,7 @@ defaults:
   - override /dataset:
     - balanced_copa
     - social_i_qa
-  - override /exp_name: train/xcopa_xlmr_fft
+  - override /exp_name: train_xcopa_xlmr_fft
   - override /madx: null
   - override /model: xmlr
   - override /params: params
