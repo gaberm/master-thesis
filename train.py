@@ -28,10 +28,8 @@ def main(config):
     checkpoint_callback = ModelCheckpoint(
         dirpath=f"{config.data_dir[sys]}/checkpoints",
         monitor=config.params.val_metric,
-        filename=f"epoch_{{epoch}}-step_{{step}}" + f"_{{{config.params.val_metric}:.3f}}",
         mode="max",
-        save_top_k=config.trainer.save_top_k
-    )
+        save_top_k=config.trainer.save_top_k)
 
     trainer = pl.Trainer(max_epochs=config.trainer.max_epochs,
                         logger=wandb_logger, 
