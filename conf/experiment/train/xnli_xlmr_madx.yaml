@@ -1,9 +1,9 @@
 # @package _global_
 
 defaults:
-  - override /model: xmlr.yaml
-  - override /madx: madx.yaml
-  - override /params: params.yaml
+  - override /model: xmlr
+  - override /madx: madx
+  - override /params: params
 
 dataset:
   xnli:

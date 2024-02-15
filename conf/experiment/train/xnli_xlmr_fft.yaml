@@ -2,9 +2,9 @@
 
 defaults:
   - override /dataset: 
-    - xnli.yaml
+    - xnli
   - override /madx: null
-  - override /model: xmlr.yaml
+  - override /model: xmlr
 
 dataset:
   xnli:

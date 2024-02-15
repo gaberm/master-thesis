@@ -2,11 +2,11 @@
 
 defaults:
   - override /dataset:
-    - balanced_copa.yaml
-    - social_i_qa.yaml
-  - override /model: mbert.yaml
-  - override /madx: madx.yaml
-  - override /params: params.yaml
+    - balanced_copa
+    - social_i_qa
+  - override /model: mbert
+  - override /madx: madx
+  - override /params: params
 
 dataset:
   balanced_copa:

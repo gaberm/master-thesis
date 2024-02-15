@@ -2,9 +2,9 @@
 
 defaults:
   - override /dataset: 
-    - xnli.yaml
+    - xnli
   - override /madx: null
-  - override /params: params.yaml
+  - override /params: params
 
 dataset:
   xnli:

@@ -2,10 +2,10 @@
 
 defaults:
   - override /dataset:
-    - paws_x.yaml
-  - override /madx: madx.yaml
-  - override /model: xmlr.yaml
-  - override /params: params.yaml
+    - paws_x
+  - override /madx: madx
+  - override /model: xmlr
+  - override /params: params
   
 dataset:
   paws_x:

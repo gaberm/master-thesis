@@ -1,12 +1,13 @@
 defaults:
   - _self_
   - dataset:
-    - xnli.yaml
+    - xnli
   - lora: null
-  - madx: madx.yaml
-  - model: mbert.yaml
-  - params: params.yaml
-  - wandb: wandb.yaml
+  - madx: madx
+  - model: mbert
+  - params: params
+  - trainer: trainer
+  - wandb: wandb
   - override hydra/hydra_logging: colorlog
   - override hydra/job_logging: colorlog
 
@@ -14,5 +15,6 @@ project: master-thesis
 work_dir: ${hydra:runtime.cwd}
 
 # path to folder to model checkpoints
-data_dir_mac: "data"
-data_dir_linux: "../../../ceph/mgaber/data"
+data_dir:
+  Darwin: "data"
+  Linux: "/ceph/mgaber/data"
