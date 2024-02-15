@@ -7,6 +7,4 @@ uncertainty_metric: expected_calibration_error
 average: micro
 source_lang: en
 seed: 42
-max_epochs: 5
 label_smoothing: 0
-devices: 3

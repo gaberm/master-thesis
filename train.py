@@ -3,6 +3,7 @@ import dotenv
 import platform
 import lightning.pytorch as pl
 from lightning.pytorch.loggers import WandbLogger
+from lightning.pytorch.callbacks import ModelCheckpoint
 from src.model import load_model, load_tokenizer
 from src.dataset import create_data_loaders
 from src.lightning import LModel
@@ -13,6 +14,8 @@ dotenv.load_dotenv(".env")
 def main(config):
     print(config)
 
+    sys = platform.system()
+
     # load model, tokenizer and create data loaders
     model = load_model(config)
     tokenizer = load_tokenizer(config)
@@ -20,25 +23,23 @@ def main(config):
     
     # create lightning model and initialize wandb logger
     l_model = LModel(model, config)
+    wandb_logger = WandbLogger(project=config.project, log_model="all", save_dir=config.data_dir[sys])
 
-    wandb_dir = config.data_dir_mac if platform.system() == "Darwin" else config.data_dir_linux
-    wandb_logger = WandbLogger(project=config.project, log_model="all", save_dir=wandb_dir)
-    wandb_logger.watch(l_model)
-    
-    # create trainer depending on the OS
-    # on the Linux server, we can use multiple GPUs
-    if platform.system() == "Darwin":
-        trainer = pl.Trainer(max_epochs=config.params.max_epochs,
-                            logger=wandb_logger, 
-                            default_root_dir=config.data_dir_mac,
-                            deterministic=True)
-    else:
-        trainer = pl.Trainer(max_epochs=config.params.max_epochs,
-                            logger=wandb_logger, 
-                            default_root_dir=config.data_dir_linux,
-                            deterministic=True,
-                            strategy="ddp",
-                            devices=config.params.devices)
+    checkpoint_callback = ModelCheckpoint(
+        dirpath=f"{config.data_dir[sys]}/checkpoints",
+        monitor=config.params.val_metric,
+        filename=f"epoch_{{epoch}}-step_{{step}}" + f"_{{{config.params.val_metric}:.3f}}",
+        mode="max",
+        save_top_k=config.trainer.save_top_k
+    )
+
+    trainer = pl.Trainer(max_epochs=config.trainer.max_epochs,
+                        logger=wandb_logger, 
+                        default_root_dir=config.data_dir[sys],
+                        deterministic=True,
+                        strategy=config.trainer.strategy[sys],
+                        devices=config.trainer.devices[sys],
+                        callbacks=[checkpoint_callback])
     
     # train the model
     trainer.fit(model=l_model, train_dataloaders=train_loader, val_dataloaders=val_loader)

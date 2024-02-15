@@ -1,10 +1,8 @@
 from lightning import LightningModule
 import torch
-from omegaconf import DictConfig
 from .optimizer import load_optimizer
 from .metric import load_metric
 from .model import set_task_adapter_name
-from transformers import AutoModelForSequenceClassification, AutoTokenizer
 import adapters
 
 class LModel(LightningModule):
@@ -23,7 +21,6 @@ class LModel(LightningModule):
         self.num_labels = config.model.num_labels
         self.label_smoothing = config.params.label_smoothing
         self.ce_loss = torch.nn.CrossEntropyLoss(label_smoothing=self.label_smoothing)
-        self.save_hyperparameters()
 
     def forward(self, inputs, target):
         return self.model(inputs, target)

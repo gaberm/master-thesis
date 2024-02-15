@@ -15,7 +15,7 @@ def load_metric(config, metric_type):
             raise ValueError(f"Metric type {metric_type} not supported.")
     
     # device is set to "mps:0" for Mac OS and "cuda" for Linux
-    device = "mps:0" if platform.system() == "Darwin" else "cuda"
+    device = config.trainer.gpu_name[platform.system()]
 
     match (metric_type, metric_name, num_labels):
         case ("val", "f1", 2):

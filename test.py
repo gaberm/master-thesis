@@ -14,7 +14,7 @@ def main(config):
     print(config)
 
     # load model
-    l_model = LModel.load_from_checkpoint(config.model.checkpoint_path)
+    l_model = LModel.load_from_checkpoint(config.model.ckpt_path)
 
     # create test data loaders
     tokenizer = load_tokenizer(config)

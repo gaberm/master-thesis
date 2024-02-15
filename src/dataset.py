@@ -107,7 +107,7 @@ def find_local_dataset(dataset_name, data_dir, lang=None):
 
 def create_data_loaders(config, tokenizer):
     # set data directory depending on the OS
-    data_dir = config.data_dir_mac if platform.system() == "Darwin" else config.data_dir_linux
+    data_dir = config.data_dir[platform.system()]
 
     if not os.path.exists(data_dir + "/datasets"):
         os.makedirs(data_dir + "/datasets")

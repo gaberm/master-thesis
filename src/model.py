@@ -1,6 +1,5 @@
 from transformers import AutoTokenizer, AutoModelForSequenceClassification
 import adapters
-import platform
 from peft import get_peft_model, LoraConfig
 
 def load_model(config):

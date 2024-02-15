@@ -1,0 +1,11 @@
+max_epochs: 5
+gpu_name:
+  Darwin: mps:0 # Mac GPU
+  Linux: cuda
+devices:
+  Darwin: auto
+  Linux: 2
+strategy:
+  Darwin: auto
+  Linux: ddp
+save_top_k: 1
