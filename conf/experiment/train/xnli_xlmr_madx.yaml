@@ -1,6 +1,7 @@
 # @package _global_
 
 defaults:
+  - override /exp_name: train/xnli_xlmr_madx
   - override /model: xmlr
   - override /madx: madx
   - override /params: params

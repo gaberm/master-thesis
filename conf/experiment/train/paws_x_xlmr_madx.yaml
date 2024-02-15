@@ -3,6 +3,7 @@
 defaults:
   - override /dataset:
     - paws_x
+  - override /exp_name: train/paws_x_xlmr_fft
   - override /madx: madx
   - override /model: xmlr
   - override /params: params
