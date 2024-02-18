@@ -8,3 +8,4 @@ average: micro
 source_lang: en
 seed: 42
 label_smoothing: 0
+mode: mad-x

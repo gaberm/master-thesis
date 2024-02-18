@@ -9,4 +9,4 @@ strategy:
   Darwin: auto
   Linux: ddp
 save_top_k: 1
-exp_name: train_xnli_mbert_madx
+exp_name: xnli_mbert_madx

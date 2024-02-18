@@ -1,9 +1,10 @@
 from lightning import LightningModule
+import adapters
 import torch
+import os
+import platform
 from .optimizer import load_optimizer
 from .metric import load_metric
-from .model import set_task_adapter_name
-import adapters
 
 class LModel(LightningModule):
     def __init__(self, model, config):
@@ -15,13 +16,15 @@ class LModel(LightningModule):
         self.uncertainty_metric_name = config.params.uncertainty_metric
         self.source_lang = config.params.source_lang
         self.target_lang = ""
-        self.task_adapter_name = set_task_adapter_name(config)
+        self.task_adapter_name = config.madx.task_adapter.name if config.params.mode == "mad-x" else None
         self.optimizer = config.params.optimizer
         self.lr = config.params.lr
         self.num_labels = config.model.num_labels
         self.label_smoothing = config.params.label_smoothing
         self.ce_loss = torch.nn.CrossEntropyLoss(label_smoothing=self.label_smoothing)
-        self.save_hyperparameters()
+        self.best_val_score = 0
+        self.mode = config.params.mode
+        self.ckpt_path = config.data_dir[platform.system()] + f"checkpoints/train/{config.trainer.exp_name}"
 
     def forward(self, inputs, target):
         return self.model(inputs, target)
@@ -43,10 +46,24 @@ class LModel(LightningModule):
     
     def on_validation_epoch_end(self):
         val_score = self.val_metric.compute()
-        self.log(f"{self.val_metric_name}", val_score, prog_bar=True)
+        self.log(f"{self.val_metric_name}", val_score, prog_bar=True) 
+        # save the best checkpoint
+        # we must save checkpoints manually, 
+        # because Lightning's checkpointing doesn't work for self-trained task adapters
+        if not os.path.isdir(self.ckpt_path):
+            os.mkdir(self.ckpt_path)
+        if val_score > self.best_val_score:
+            # The weights of the base-model are freezed during (adapter) training
+            # Therefore, we only save the adapter weights
+            if self.mode == "mad-x":
+                self.model.save_adapter(self.ckpt_path+f"{{epoch}}-{self.val_metric_name}:{{{self.val_score}:.3f}}",
+                                        self.set_task_adapter_name)
+            if self.mode == "full_finetuning":
+                torch.save(self.model.state_dict(), 
+                           self.ckpt_path+f"{{epoch}}-{self.val_metric_name}:{{{self.val_score}:.3f}}")
 
     def on_test_epoch_start(self):
-        # activate target_lang adapter for zero-shot cross lingual transfer
+        # activate target_lang adapter for zero-shot cross-lingual transfer
         if self.task_adapter_name is not None:
             self.model.active_adapters = adapters.Stack(self.target_lang, self.task_adapter_name)
     
