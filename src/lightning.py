@@ -55,12 +55,9 @@ class LModel(LightningModule):
         if val_score > self.best_val_score:
             # The weights of the base-model are freezed during (adapter) training
             # Therefore, we only save the adapter weights
-            if self.mode == "mad-x":
+            if self.task_adapter_name is not None:
                 self.model.save_adapter(self.ckpt_path+f"{{epoch}}-{self.val_metric_name}:{{{self.val_score}:.3f}}",
                                         self.set_task_adapter_name)
-            if self.mode == "full_finetuning":
-                torch.save(self.model.state_dict(), 
-                           self.ckpt_path+f"{{epoch}}-{self.val_metric_name}:{{{self.val_score}:.3f}}")
 
     def on_test_epoch_start(self):
         # activate target_lang adapter for zero-shot cross-lingual transfer
