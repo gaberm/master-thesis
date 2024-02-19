@@ -1,5 +1,6 @@
 from transformers import AutoTokenizer, AutoModelForSequenceClassification
 import adapters
+import torch
 from peft import get_peft_model, LoraConfig
 
 def load_model(config):
@@ -7,10 +8,10 @@ def load_model(config):
 
     # load model from checkpoint for testing or from huggingface for training
     if config.model.load_ckpt:
-        load_path = config.model.ckpt_path["state_dict"]
+        ckpt = torch.load(f"{config.data_dir}checkpoints/{config.trainer.exp_name}/{config.model.ckpt_path}")["state_dict"]
+        model = AutoModelForSequenceClassification.from_pretrained(ckpt)
     else:
-        load_path = config.model.hf_path
-    model = AutoModelForSequenceClassification.from_pretrained(load_path, num_labels=config.model.num_labels)
+        model = AutoModelForSequenceClassification.from_pretrained(config.model.hf_path, num_labels=config.model.num_labels)
 
     if "madx" in config.keys():
         adapters.init(model)
@@ -30,6 +31,7 @@ def load_model(config):
 
         # active_adapters are the adapters that are used in the forward pass
         # for mad-x, we stack the task adapter on top of the language adapter
+        # https://colab.research.google.com/github/Adapter-Hub/adapter-transformers/blob/master/notebooks/01_Adapter_Training.ipynb
         model.active_adapters = adapters.Stack(source_lang, task_adapter_name)
 
     # if lora is specified, load it
