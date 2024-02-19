@@ -16,15 +16,15 @@ class LModel(LightningModule):
         self.uncertainty_metric_name = config.params.uncertainty_metric
         self.source_lang = config.params.source_lang
         self.target_lang = ""
-        self.task_adapter_name = config.madx.task_adapter.name if config.params.mode == "mad-x" else None
+        self.task_adapter_name = config.madx.task_adapter.name if "madx" in config.keys() else None
         self.optimizer = config.params.optimizer
         self.lr = config.params.lr
         self.num_labels = config.model.num_labels
         self.label_smoothing = config.params.label_smoothing
         self.ce_loss = torch.nn.CrossEntropyLoss(label_smoothing=self.label_smoothing)
         self.best_val_score = 0
-        self.mode = config.params.mode
-        self.ckpt_path = config.data_dir[platform.system()] + f"checkpoints/train/{config.trainer.exp_name}"
+        self.ckpt_path = config.data_dir[platform.system()] + f"checkpoints/{config.trainer.exp_name}"
+        self.save_hyperparameters()
 
     def forward(self, inputs, target):
         return self.model(inputs, target)

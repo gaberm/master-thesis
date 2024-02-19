@@ -16,6 +16,6 @@ dataset:
 model:
   num_labels: 2
 params:
-  lr: 3e-5
+  lr: 2e-5
 trainer:
-  exp_name: train_paws_x_mbert_fft
+  exp_name: paws_x_mbert_fft

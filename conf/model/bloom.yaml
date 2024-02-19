@@ -1,3 +1,4 @@
 name: bloom
 hf_path: bigscience/bloom-3b
 num_labels: 3
+load_ckpt: false

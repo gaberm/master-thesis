@@ -14,7 +14,8 @@ dotenv.load_dotenv(".env")
 def main(config):
     print(config)
 
-    sys = platform.system()
+    # trainer hyperparameters differ between systems
+    system = platform.system()
 
     # load model, tokenizer and create data loaders
     model = load_model(config)
@@ -23,21 +24,24 @@ def main(config):
     
     # create lightning model and initialize wandb logger
     l_model = LModel(model, config)
-    wandb_logger = WandbLogger(project=config.wandb.project, log_model="all", save_dir=config.data_dir[sys])
+    wandb_logger = WandbLogger(project=config.wandb.project, log_model="all", save_dir=config.data_dir[system])
 
-    checkpoint_callback = ModelCheckpoint(
-        dirpath=f"{config.data_dir[sys]}/checkpoints/{config.trainer.exp_name}",
-        monitor=config.params.val_metric,
-        mode="max",
-        filename=f"{{epoch}}-{{step}}-{{{config.params.val_metric}:.3f}}",
-        save_top_k=config.trainer.save_top_k)
+    if "madx" in config.keys():
+        checkpoint_callback = None
+    else: 
+        checkpoint_callback = ModelCheckpoint(
+            dirpath=f"{config.data_dir[system]}/checkpoints/{config.trainer.exp_name}",
+            monitor=config.params.val_metric,
+            mode="max",
+            filename=f"{{epoch}}-{{{config.params.val_metric}:.3f}}",
+            save_top_k=config.trainer.save_top_k)
 
     trainer = pl.Trainer(max_epochs=config.trainer.max_epochs,
                         logger=wandb_logger, 
-                        default_root_dir=config.data_dir[sys],
+                        default_root_dir=config.data_dir[system],
                         deterministic=True,
-                        strategy=config.trainer.strategy[sys],
-                        devices=config.trainer.devices[sys],
+                        strategy=config.trainer.strategy[system],
+                        devices=config.trainer.devices[system],
                         callbacks=[checkpoint_callback])
     
     # train the model

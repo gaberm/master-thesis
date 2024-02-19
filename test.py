@@ -14,27 +14,24 @@ def main(config):
     print(config)
 
     # load model
-    l_model = LModel.load_from_checkpoint(config.model.ckpt_path)
+    ckpt_path = config.model.ckpt_path
+    model = load_model(config)
+    l_model = LModel.load_from_checkpoint(ckpt_path, model=model)
 
     # create test data loaders
     tokenizer = load_tokenizer(config)
     test_loaders = create_data_loaders(config, tokenizer)
     
-    wandb_logger = WandbLogger(project=config.project, log_model="all")
+    wandb_logger = WandbLogger(project=config.wandb.project, log_model="all")
     wandb_logger.watch(l_model)
     
-    if platform.system() == "Darwin":
-        trainer = pl.Trainer(max_epochs=config.params.max_epochs,
-                            logger=wandb_logger, 
-                            default_root_dir=config.output_dir_mac,
-                            deterministic=True)
-    else:
-        trainer = pl.Trainer(max_epochs=config.params.max_epochs,
-                            logger=wandb_logger, 
-                            default_root_dir=config.output_dir_linux,
-                            deterministic=True,
-                            strategy="ddp",
-                            devices=config.devices)
+    system = platform.system()
+    trainer = pl.Trainer(max_epochs=config.trainer.max_epochs,
+                        logger=wandb_logger, 
+                        default_root_dir=config.data_dir[system],
+                        deterministic=True,
+                        strategy=config.trainer.strategy[system],
+                        devices=config.trainer.devices[system])
 
     for target_lang, test_loader in test_loaders.items():
         l_model.target_lang = target_lang

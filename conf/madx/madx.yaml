@@ -34,4 +34,4 @@ lang_adapter:
 
 task_adapter:
   name: xnli
-  reduction_factor: 16
+  reduction_factor: 4

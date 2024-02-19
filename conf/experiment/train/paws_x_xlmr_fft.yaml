@@ -18,4 +18,4 @@ model:
 params:
   lr: 2e-5
 trainer:
-  exp_name: train_paaws_x_xlmr_fft
+  exp_name: paws_x_xlmr_fft

@@ -22,5 +22,5 @@ model:
 params:
   lr: 1e-4
 trainer:
-  exp_name: train_paws_x_mbert_madx
+  exp_name: paws_x_mbert_madx
 

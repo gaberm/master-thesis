@@ -19,10 +19,10 @@ dataset:
 madx:
     task_adapter:
       name: copa
-      reduction_factor: 16
+      reduction_factor: 4
 model:
   num_labels: 2
 params:
   lr: 1e-4
 trainer:
-  exp_name: train_xcopa_mbert_madx
+  exp_name: xcopa_mbert_madx
