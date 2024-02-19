@@ -1,6 +1,7 @@
 from transformers import AutoTokenizer, AutoModelForSequenceClassification
 import adapters
 import torch
+import platform
 from peft import get_peft_model, LoraConfig
 
 def load_model(config):
@@ -8,7 +9,8 @@ def load_model(config):
 
     # load model from checkpoint for testing or from huggingface for training
     if config.model.load_ckpt:
-        ckpt = torch.load(f"{config.data_dir}checkpoints/{config.trainer.exp_name}/{config.model.ckpt_path}")["state_dict"]
+        ckpt_path = f"{config.data_dir[platform.system()]}checkpoints/{config.trainer.exp_name}/{config.model.ckpt}"
+        ckpt = torch.load(ckpt_path)["state_dict"]
         model = AutoModelForSequenceClassification.from_pretrained(ckpt)
     else:
         model = AutoModelForSequenceClassification.from_pretrained(config.model.hf_path, num_labels=config.model.num_labels)

@@ -14,7 +14,7 @@ def main(config):
     print(config)
 
     # load model
-    ckpt_path = config.model.ckpt_path
+    ckpt_path = config.model.ckpt
     model = load_model(config)
     l_model = LModel.load_from_checkpoint(ckpt_path, model=model)
 

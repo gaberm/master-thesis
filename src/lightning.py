@@ -23,7 +23,7 @@ class LModel(LightningModule):
         self.label_smoothing = config.params.label_smoothing
         self.ce_loss = torch.nn.CrossEntropyLoss(label_smoothing=self.label_smoothing)
         self.best_val_score = 0
-        self.ckpt_path = config.data_dir[platform.system()] + f"checkpoints/{config.trainer.exp_name}"
+        self.ckpt_path = f"{config.data_dir[platform.system()]}checkpoints/{config.trainer.exp_name}/{config.model.ckpt}"
         self.save_hyperparameters()
 
     def forward(self, inputs, target):
