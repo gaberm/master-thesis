@@ -2,7 +2,7 @@
 
 defaults:
   - override /madx: null
-  - override /model: xmlr
+  - override /model: xlmr
   - override /params: params
   - override /trainer: trainer
 
