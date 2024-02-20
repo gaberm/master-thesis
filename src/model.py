@@ -7,13 +7,13 @@ from peft import get_peft_model, LoraConfig
 def load_model(config):
     source_lang = config.params.source_lang
 
-    # load model from checkpoint for testing or from huggingface for training
+    model = AutoModelForSequenceClassification.from_pretrained(config.model.hf_path, num_labels=config.model.num_labels)
+    # load model checkpoint for testing
     if config.model.load_ckpt:
         ckpt_path = f"{config.data_dir[platform.system()]}checkpoints/{config.trainer.exp_name}/{config.model.ckpt}"
-        ckpt = torch.load(ckpt_path)["state_dict"]
-        model = AutoModelForSequenceClassification.from_pretrained(ckpt)
-    else:
-        model = AutoModelForSequenceClassification.from_pretrained(config.model.hf_path, num_labels=config.model.num_labels)
+        # replace model. with an empty string to match the keys of the model
+        ckpt = {k.replace("model.", ""): v for k, v in torch.load(ckpt_path)["state_dict"].items()}
+        model.load_state_dict(ckpt)
 
     if "madx" in config.keys():
         adapters.init(model)
