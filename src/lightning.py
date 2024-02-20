@@ -1,8 +1,6 @@
 from lightning import LightningModule
 import adapters
 import torch
-import os
-import platform
 from .optimizer import load_optimizer
 from .metric import load_metric
 
@@ -22,9 +20,7 @@ class LModel(LightningModule):
         self.num_labels = config.model.num_labels
         self.label_smoothing = config.params.label_smoothing
         self.ce_loss = torch.nn.CrossEntropyLoss(label_smoothing=self.label_smoothing)
-        self.best_val_score = 0
-        self.ckpt_path = f"{config.data_dir[platform.system()]}checkpoints/{config.trainer.exp_name}/{config.model.ckpt}"
-        self.save_hyperparameters()
+        self.save_hyperparameters(ignore=["model"])
 
     def forward(self, inputs, target):
         return self.model(inputs, target)
@@ -47,17 +43,6 @@ class LModel(LightningModule):
     def on_validation_epoch_end(self):
         val_score = self.val_metric.compute()
         self.log(f"{self.val_metric_name}", val_score, prog_bar=True) 
-        # save the best checkpoint
-        # we must save checkpoints manually, 
-        # because Lightning's checkpointing doesn't work for self-trained task adapters
-        if not os.path.isdir(self.ckpt_path):
-            os.mkdir(self.ckpt_path)
-        if val_score > self.best_val_score:
-            # The weights of the base-model are freezed during (adapter) training
-            # Therefore, we only save the adapter weights
-            if self.task_adapter_name is not None:
-                self.model.save_adapter(self.ckpt_path+f"{{epoch}}-{self.val_metric_name}:{{{self.val_score}:.3f}}",
-                                        self.set_task_adapter_name)
 
     def on_test_epoch_start(self):
         # activate target_lang adapter for zero-shot cross-lingual transfer
