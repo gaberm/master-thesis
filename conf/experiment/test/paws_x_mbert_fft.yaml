@@ -16,7 +16,7 @@ dataset:
 model:
   num_labels: 2
   load_ckpt: true
-  ckpt: epoch=4-accuracy=0.910.ckpt
+  ckpt: /ceph/mgaber/data/checkpoints/paws_x_mbert_fft/epoch=4-accuracy=0.910.ckpt
 params:
   mode: full_finetuning
 trainer:
