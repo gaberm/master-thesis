@@ -12,4 +12,3 @@ xcopa:
     # - tr
     - vi
     - zh
-  state: train

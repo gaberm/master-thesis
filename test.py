@@ -4,7 +4,7 @@ import platform
 import lightning.pytorch as pl
 from lightning.pytorch.loggers import WandbLogger
 from src.model import load_model, load_tokenizer
-from src.dataset import create_data_loaders
+from src.dataset import create_test_loader
 from src.lightning import LModel
 
 dotenv.load_dotenv(override=True)
@@ -20,7 +20,7 @@ def main(config):
 
     # create test data loaders
     tokenizer = load_tokenizer(config)
-    test_loaders = create_data_loaders(config, tokenizer)
+    test_loader = create_test_loader(config, tokenizer)
     
     wandb_logger = WandbLogger(project=config.wandb.project, log_model="all")
     wandb_logger.watch(l_model)
@@ -33,7 +33,7 @@ def main(config):
                         strategy=config.trainer.strategy[system],
                         devices=config.trainer.devices[system])
 
-    for target_lang, test_loader in test_loaders.items():
+    for target_lang, test_loader in test_loader.items():
         l_model.target_lang = target_lang
         trainer.test(model=l_model, dataloaders=test_loader)
 

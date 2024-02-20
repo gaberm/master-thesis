@@ -2,4 +2,3 @@ social_i_qa:
   hf_name: social_i_qa
   languages:
     - en
-  state: train

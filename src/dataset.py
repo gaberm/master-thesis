@@ -105,13 +105,13 @@ def find_local_dataset(dataset_name, data_dir, lang=None):
         return os.path.exists(data_dir + f"/datasets/{dataset_name}/{lang}")
     
 
-def create_data_loaders(config, tokenizer):
-    # set data directory depending on the OS
+def load_from_hf_or_disk(config):
     data_dir = config.data_dir[platform.system()]
 
+    # create directory for datasets if it doesn't exist
     if not os.path.exists(data_dir + "/datasets"):
         os.makedirs(data_dir + "/datasets")
-
+    
     # load datasets from HuggingFace Hub or locally
     datasets_dict = {}
     for dataset_name in config.dataset:
@@ -136,42 +136,62 @@ def create_data_loaders(config, tokenizer):
                     set.save_to_disk(data_dir + f"/datasets/{dataset_name}/{lang}")
                 dataset[lang] = set
             datasets_dict[dataset_name] = dataset
-
-    train_set_list, val_set_list = [], []
-    test_loader_dict = {}
     
+    return datasets_dict
+    
+
+def create_train_loader(config, tokenizer):
+    datasets_dict = load_from_hf_or_disk(config)
     source_lang = config.params.source_lang
     data_collator = DataCollatorWithPadding(tokenizer)
     
+    def tokenize_function(example):
+        return tokenizer(example["sentence1"], example["sentence2"], truncation=True, padding=True)
+
     # tokenize and clean the loaded datasets
+    train_set_lst, val_set_lst = [], []
     for dataset_name, dataset in datasets_dict.items():
-        # 
-        def tokenize_function(example):
-            return tokenizer(example["sentence1"], example["sentence2"], truncation=True, padding=True)
-        
         for lang, dataset_in_lang in dataset.items():
-            state = config.dataset[dataset_name].state
             # when state is train, we create train and val loaders for the source language
-            if lang == source_lang and state == "train":
+            if lang == source_lang:
                 train_split = config.dataset[dataset_name].train_split
                 val_split = config.dataset[dataset_name].val_split
                 train_set = tokenize_and_clean_dataset(dataset_in_lang, dataset_name, lang, train_split, tokenize_function)
                 val_set = tokenize_and_clean_dataset(dataset_in_lang, dataset_name, lang, val_split, tokenize_function)
-                train_set_list.append(train_set)
-                val_set_list.append(val_set)
-            # when state is test, we create test loaders for target languages
-            if lang != source_lang and state == "test":
-                test_split = config.dataset[dataset_name].test_split
-                test_loader = tokenize_and_clean_dataset(dataset_in_lang, dataset_name, lang, test_split, tokenize_function)
-                loader = DataLoader(test_loader, shuffle=True, batch_size=config.params.batch_size, collate_fn=data_collator)
-                test_loader_dict[lang] = loader
-                return (test_loader_dict)
+                train_set_lst.append(train_set)
+                val_set_lst.append(val_set)
 
     # because we can have multiple datasets for training, we must concatenate the val and train sets
     # we want to have one concatenated dataloader for training and one for validation
-    train_val_loaders = []
-    for list in [train_set_list, val_set_list]:
-        merged_dataset = concatenate_datasets(list)
-        loader = DataLoader(merged_dataset, batch_size=config.params.batch_size, collate_fn=data_collator, num_workers=7)
-        train_val_loaders.append(loader)
-    return (train_val_loaders[0], train_val_loaders[1])
+    loader_lst = []
+    for set_list in [train_set_lst, val_set_lst]:
+        merged_dataset = concatenate_datasets(set_list)
+        loader = DataLoader(merged_dataset, 
+                            batch_size=config.params.batch_size, 
+                            collate_fn=data_collator, 
+                            num_workers=7)
+        loader_lst.append(loader)
+
+    return loader_lst[0], loader_lst[1]
+
+
+def create_test_loader(config, tokenizer):
+    dataset_name, dataset = load_from_hf_or_disk(config).popitem()
+    source_lang = config.params.source_lang
+    data_collator = DataCollatorWithPadding(tokenizer)
+
+    def tokenize_function(example):
+        return tokenizer(example["sentence1"], example["sentence2"], truncation=True, padding=True)
+    
+    lang_loader_dict = {}
+    for lang, dataset_in_lang in dataset.items():
+        if lang != source_lang:
+            test_split = config.dataset[dataset_name].test_split
+            test_loader = tokenize_and_clean_dataset(dataset_in_lang, dataset_name, lang, test_split, tokenize_function)
+            loader = DataLoader(test_loader, 
+                                shuffle=True, 
+                                batch_size=config.params.batch_size, 
+                                collate_fn=data_collator)
+            lang_loader_dict[lang] = loader
+    
+    return lang_loader_dict
