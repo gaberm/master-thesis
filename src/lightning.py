@@ -8,10 +8,10 @@ class LModel(LightningModule):
     def __init__(self, model, config):
         super().__init__()
         self.model = model
-        self.val_metric = load_metric(config, "val")
-        self.val_metric_name = config.params.val_metric
-        self.uncertainty_metric = load_metric(config, "uncertainty")
-        self.uncertainty_metric_name = config.params.uncertainty_metric
+        self.pred_metric = load_metric(config, "pred")
+        self.pred_metric_name = config.params.pred_metric
+        self.uncert_metric = load_metric(config, "uncert")
+        self.uncert_metric_name = config.params.uncert_metric
         self.source_lang = config.params.source_lang
         self.target_lang = ""
         self.task_adapter_name = config.madx.task_adapter.name if "madx" in config.keys() else None
@@ -38,11 +38,11 @@ class LModel(LightningModule):
         batch = {k: v.to(self.device) for k, v in batch.items()}
         outputs = self.model(**batch)
         logits = outputs.logits.argmax(dim=-1)
-        self.val_metric.update(logits, batch["labels"])
+        self.pred_metric.update(logits, batch["labels"])
     
     def on_validation_epoch_end(self):
-        val_score = self.val_metric.compute()
-        self.log(f"{self.val_metric_name}", val_score, prog_bar=True) 
+        val_score = self.pred_metric.compute()
+        self.log(f"{self.pred_metric_name}", val_score, prog_bar=True) 
 
     def on_test_epoch_start(self):
         # activate target_lang adapter for zero-shot cross-lingual transfer
@@ -52,15 +52,18 @@ class LModel(LightningModule):
     def test_step(self, batch, batch_idx):
         batch = {k: v.to(self.device) for k, v in batch.items()}
         outputs = self.model(**batch)
-        logits = outputs.logits
+        logits = outputs.logits.argmax(dim=-1)
         probas = torch.softmax(logits, dim=-1)
         if self.num_labels == 2:
             probas = probas[:, 1]
-        self.uncertainty_metric.update(probas, batch["labels"])
+        self.uncert_metric.update(probas, batch["labels"])
+        self.pred_metric.update(logits, batch["labels"])
 
     def on_test_epoch_end(self):
-        test_score = self.uncertainty_metric.compute()
-        self.log(f"{self.uncertainty_metric_name} {self.target_lang}", test_score, prog_bar=True)
+        uncert_score = self.uncert_metric.compute()
+        pred_score = self.pred_metric.compute()
+        self.log(f"{self.uncert_metric_name} {self.target_lang}", uncert_score, prog_bar=True)
+        self.log(f"{self.pred_metric_name} {self.target_lang}", pred_score, prog_bar=True)
 
     def configure_optimizers(self):
         optimizer = load_optimizer(self.model, self.optimizer, self.lr)

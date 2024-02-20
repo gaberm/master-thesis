@@ -28,9 +28,9 @@ def main(config):
 
     checkpoint_callback = ModelCheckpoint(
         dirpath=f"{config.data_dir[system]}/checkpoints/{config.trainer.exp_name}",
-        monitor=config.params.val_metric,
+        monitor=config.params.pred_metric,
         mode="max",
-        filename=f"{{epoch}}-{{{config.params.val_metric}:.3f}}",
+        filename=f"{{epoch}}-{{{config.params.pred_metric}:.3f}}",
         save_top_k=config.trainer.save_top_k)
 
     trainer = pl.Trainer(max_epochs=config.trainer.max_epochs,

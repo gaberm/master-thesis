@@ -7,10 +7,10 @@ def load_metric(config, metric_type):
     num_labels = config.model.num_labels
 
     match metric_type:
-        case "val":
-            metric_name = config.params.val_metric
-        case "uncertainty":
-            metric_name = config.params.uncertainty_metric
+        case "pred":
+            metric_name = config.params.pred_metric
+        case "uncert":
+            metric_name = config.params.uncert_metric
         case _:
             raise ValueError(f"Metric type {metric_type} not supported.")
     
