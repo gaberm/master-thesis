@@ -21,12 +21,10 @@ def main(config):
     model = load_model(config)
     tokenizer = load_tokenizer(config)
     train_loader, val_loader = create_train_loader(config, tokenizer)
-    print(train_loader)
-    print(val_loader)
     
     # create lightning model and initialize wandb logger
     l_model = LModel(model, config)
-    wandb_logger = WandbLogger(project=config.wandb.project, log_model="all", save_dir=config.data_dir[system])
+    wandb_logger = WandbLogger(project=config.wandb.project, log_model="all")
 
     checkpoint_callback = ModelCheckpoint(
         dirpath=f"{config.data_dir[system]}/checkpoints/{config.trainer.exp_name}",
