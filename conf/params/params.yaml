@@ -3,7 +3,7 @@ batch_size: 32
 optimizer: AdamW
 lr: 5e-5
 pred_metric: accuracy
-uncert_metric: expected_calibration_error
+uncert_metric: ece # expected calibration error
 average: micro
 source_lang: en
 seed: 42

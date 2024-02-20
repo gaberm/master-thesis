@@ -5,7 +5,6 @@ defaults:
     - paws_x
   - override /madx: null
   - override /model: mbert
-  - override /params: params
   - override /trainer: trainer
   
 dataset:
@@ -17,7 +16,5 @@ model:
   num_labels: 2
   load_ckpt: true
   ckpt: /ceph/mgaber/data/checkpoints/paws_x_mbert_fft/epoch=4-accuracy=0.910.ckpt
-params:
-  mode: full_finetuning
 trainer:
   exp_name: paws_x_mbert_fft
