@@ -37,8 +37,8 @@ class LModel(LightningModule):
     def validation_step(self, batch, batch_idx):
         batch = {k: v.to(self.device) for k, v in batch.items()}
         outputs = self.model(**batch)
-        logits = outputs.logits.argmax(dim=-1)
-        self.pred_metric.update(logits, batch["labels"])
+        preds = outputs.logits.argmax(dim=-1)
+        self.pred_metric.update(preds, batch["labels"])
     
     def on_validation_epoch_end(self):
         val_score = self.pred_metric.compute()
@@ -52,12 +52,13 @@ class LModel(LightningModule):
     def test_step(self, batch, batch_idx):
         batch = {k: v.to(self.device) for k, v in batch.items()}
         outputs = self.model(**batch)
-        logits = outputs.logits.argmax(dim=-1)
+        logits = outputs.logits
+        preds = outputs.logits.argmax(dim=-1)
         probas = torch.softmax(logits, dim=-1)
         if self.num_labels == 2:
             probas = probas[:, 1]
         self.uncert_metric.update(probas, batch["labels"])
-        self.pred_metric.update(logits, batch["labels"])
+        self.pred_metric.update(preds, batch["labels"])
 
     def on_test_epoch_end(self):
         uncert_score = self.uncert_metric.compute()
