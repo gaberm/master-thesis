@@ -15,7 +15,8 @@ def load_model(config):
     # load model checkpoint for testing
     if is_test and not using_madx:
         # replace model. with an empty string to match the keys of the model
-        model_ckpt = {k.replace("model.", ""): v for k, v in torch.load(config.model.ckpt_path)["state_dict"].items()}
+        state_dict = torch.load(config.model.ckpt_path, map_location="cuda:0")["state_dict"]
+        model_ckpt = {k.replace("model.", ""): v for k, v in state_dict.items()}
         model.load_state_dict(model_ckpt)
 
     if using_madx:
