@@ -183,9 +183,11 @@ def create_test_loader(config, tokenizer):
     def tokenize_function(example):
         return tokenizer(example["sentence1"], example["sentence2"], truncation=True, padding=True)
     
+    avail_lang_adapters = config.params.madx.lang_adapter[config.params.model.name].keys()
     lang_loader_dict = {}
     for lang, dataset_in_lang in dataset.items():
-        if lang != source_lang:
+        # we only test on languages that are not the source language and have an lang adapter available
+        if lang != source_lang and lang in avail_lang_adapters:
             test_split = config.dataset[dataset_name].test_split
             test_loader = tokenize_and_clean_dataset(dataset_in_lang, dataset_name, lang, test_split, tokenize_function)
             loader = DataLoader(test_loader, 
