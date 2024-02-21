@@ -17,7 +17,7 @@ def main(config):
     ckpt_path = config.model.ckpt
     model = load_model(config)
     model.eval()
-    l_model = LModel.load_from_checkpoint(ckpt_path, model=model)
+    l_model = LModel.load_from_checkpoint(ckpt_path, model=model, map_location="cuda:0")
 
     # create test data loaders
     tokenizer = load_tokenizer(config)
