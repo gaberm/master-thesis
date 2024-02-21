@@ -7,7 +7,7 @@ from peft import get_peft_model, LoraConfig
 def load_model(config):
     source_lang = config.params.source_lang
     using_madx = "madx" in config.keys()
-    is_test = "load_path" in config.model.keys()
+    is_test = "ckpt_path" in config.model.keys()
     using_lora = "lora" in config.keys()
 
     model = AutoModelForSequenceClassification.from_pretrained(config.model.hf_path, num_labels=config.model.num_labels)
@@ -25,8 +25,11 @@ def load_model(config):
         # we use pre-trained language adapters for cross-lingual transfer
         # for training, we only load the language adapter for the source language
         for lang, path in config.madx.lang_adapter[config.model.name].items():
-            lang_adapter_cfg = adapters.AdapterConfig.load("pfeiffer", non_linearity="relu", reduction_factor=2)
-            _ = model.load_adapter(path, lang_adapter_cfg)
+            if lang != source_lang and not is_test:
+                continue
+            else:
+                lang_adapter_cfg = adapters.AdapterConfig.load("pfeiffer", non_linearity="relu", reduction_factor=2)
+                _ = model.load_adapter(path, lang_adapter_cfg)
         
         task_adapter_name = config.madx.task_adapter.name
         if is_test:
