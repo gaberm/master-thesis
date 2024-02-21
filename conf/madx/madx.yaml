@@ -34,4 +34,8 @@ lang_adapter:
 
 task_adapter:
   name: xnli
-  reduction_factor: 4
+  load_args:
+    mh_adapter: False
+    output_adapter: True
+    reduction_factor: 4
+    non_linearity: relu

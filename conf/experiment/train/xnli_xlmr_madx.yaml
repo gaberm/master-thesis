@@ -13,7 +13,8 @@ dataset:
     test_split: validation
 madx:
   task_adapter:
-    reduction_factor: 4
+    load_args:
+      reduction_factor: 4
 params:
   lr: 1e-4
 trainer:

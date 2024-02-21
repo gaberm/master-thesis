@@ -16,6 +16,7 @@ def main(config):
     # load model
     ckpt_path = config.model.ckpt
     model = load_model(config)
+    model.eval()
     l_model = LModel.load_from_checkpoint(ckpt_path, model=model)
 
     # create test data loaders

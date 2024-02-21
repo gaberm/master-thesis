@@ -29,11 +29,11 @@ def load_model(config):
         task_adapter_name = config.madx.task_adapter.name
         if using_ckpt:
             model_ckpt = torch.load(config.model.ckpt_path)
-            task_adapter_config = adapters.SeqBnConfig.from_dict(model_ckpt["state_dict"])
+            task_adapter_config = adapters.SeqBnConfig.load(model_ckpt["state_dict"], **config.madx.task_adapter.load_args)
             model.add_adapter(task_adapter_name, task_adapter_config)
         else:
-            madx_config = adapters.SeqBnConfig(reduction_factor=config.madx.task_adapter.reduction_factor)    
-            model.add_adapter(task_adapter_name, madx_config)
+            task_adapter_config = adapters.SeqBnConfig(reduction_factor=config.madx.task_adapter.reduction_factor)    
+            model.add_adapter(task_adapter_name, task_adapter_config)
        
             # train_adapter freezes the weights of the model 
             # and the language adapters to prevent them from further finetuning
