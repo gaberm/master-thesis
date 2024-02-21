@@ -2,7 +2,6 @@
 
 defaults:
   - override /model: xlmr
-  - override /madx: madx
   - override /params: params
   - override /trainer: trainer
 
@@ -11,10 +10,6 @@ dataset:
     train_split: train
     val_split: validation
     test_split: validation
-madx:
-  task_adapter:
-    load_args:
-      reduction_factor: 4
 params:
   lr: 1e-4
 trainer:

@@ -6,9 +6,8 @@ defaults:
     - social_i_qa
   - override /madx: madx
   - override /model: xlmr
-  - override /params: params
   - override /trainer: trainer
- 
+  
 dataset:
   balanced_copa:
     train_split: train
@@ -16,12 +15,11 @@ dataset:
   social_i_qa:
     train_split: train
     val_split: validation
-madx:
-    task_adapter:
-      name: copa
 model:
   num_labels: 2
-params:
-  lr: 1e-4
+  ckpt: /ceph/mgaber/data/checkpoints/xcopa_xlmr_madx/epoch=4-accuracy=0.926.ckpt
+madx:
+  task_adapter:
+    name: copa
 trainer:
   exp_name: xcopa_xlmr_madx

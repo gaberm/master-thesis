@@ -3,7 +3,7 @@
 defaults:
   - override /dataset:
     - paws_x
-  - override /madx: null
+  - override /madx: madx
   - override /model: mbert
   - override /trainer: trainer
   
@@ -14,7 +14,9 @@ dataset:
     test_split: validation
 model:
   num_labels: 2
-  load_ckpt: true
   ckpt: /ceph/mgaber/data/checkpoints/paws_x_mbert_madx/epoch=4-accuracy=0.906.ckpt
+madx:
+  task_adapter:
+    name: paws-x
 trainer:
   exp_name: paws_x_mbert_madx

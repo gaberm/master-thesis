@@ -3,22 +3,17 @@
 defaults:
   - override /dataset:
     - paws_x
-  - override /madx: madx
+  - override /madx: null
   - override /model: xlmr
-  - override /params: params
   - override /trainer: trainer
-
+  
 dataset:
   paws_x:
     train_split: train
     val_split: validation
     test_split: validation
-madx:
-    task_adapter:
-      name: paws-x
 model:
   num_labels: 2
-params:
-  lr: 1e-4
+  ckpt: /ceph/mgaber/data/checkpoints/paws_x_xlmr_fft/epoch=4-accuracy=0.912.ckpt
 trainer:
-  exp_name: paws_x_xlmr_madx
+  exp_name: paws_x_xlmr_fft

@@ -1,0 +1,10 @@
+# @package _global_
+
+defaults:
+  - override /model: xlmr
+  - override /trainer: trainer
+
+model:
+  ckpt: /ceph/mgaber/data/checkpoints/xnli_xlmr_madx/epoch=4-accuracy=0.820.ckpt
+trainer:
+  exp_name: xnli_xlmr_madx

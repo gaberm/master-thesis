@@ -1,0 +1,11 @@
+# @package _global_
+
+defaults:
+  - override /madx: null
+  - override /model: mbert
+  - override /trainer: trainer
+
+model:
+  ckpt: /ceph/mgaber/data/checkpoints/xnli_mbert_fft/epoch=4-accuracy=0.806.ckpt
+trainer:
+  exp_name: xnli_mbert_fft

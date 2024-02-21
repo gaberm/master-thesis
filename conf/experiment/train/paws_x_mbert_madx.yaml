@@ -16,8 +16,6 @@ dataset:
 madx:
   task_adapter:
     name: paws-x
-    load_args:
-      reduction_factor: 4
 model:
   num_labels: 2
 params:
