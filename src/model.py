@@ -24,17 +24,17 @@ def load_model(config):
         
         # we use pre-trained language adapters for cross-lingual transfer
         for path in config.madx.lang_adapter[config.model.name].values():
-            config = adapters.AdapterConfig.load("pfeiffer", non_linearity="relu", reduction_factor=2)
-            _ = model.load_adapter(path, config)
+            lang_adapter_cfg = adapters.AdapterConfig.load("pfeiffer", non_linearity="relu", reduction_factor=2)
+            _ = model.load_adapter(path, lang_adapter_cfg)
         
         task_adapter_name = config.madx.task_adapter.name
         if using_ckpt:
             model_ckpt = torch.load(config.model.ckpt_path, map_location="cuda:0")
-            task_adapter_config = adapters.SeqBnConfig.load(model_ckpt["state_dict"], **config.madx.task_adapter.load_args)
-            model.add_adapter(task_adapter_name, task_adapter_config)
+            task_adapter_cfg = adapters.SeqBnConfig.load(model_ckpt["state_dict"], **config.madx.task_adapter.load_args)
+            model.add_adapter(task_adapter_name, task_adapter_cfg)
         else:
-            task_adapter_config = adapters.SeqBnConfig(**config.madx.task_adapter.load_args)    
-            model.add_adapter(task_adapter_name, task_adapter_config)
+            task_adapter_cfg = adapters.SeqBnConfig(**config.madx.task_adapter.load_args)    
+            model.add_adapter(task_adapter_name, task_adapter_cfg)
        
             # train_adapter freezes the weights of the model 
             # and the language adapters to prevent them from further finetuning
@@ -46,8 +46,8 @@ def load_model(config):
             model.active_adapters = adapters.Stack(source_lang, task_adapter_name)
         
     if using_lora:
-        cfg = LoraConfig(**config.lora)
-        model = get_peft_model(model, cfg)
+        lora_cfg = LoraConfig(**config.lora)
+        model = get_peft_model(model, lora_cfg)
 
     return model
 
