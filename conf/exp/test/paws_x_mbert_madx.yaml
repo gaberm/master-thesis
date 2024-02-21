@@ -14,7 +14,7 @@ dataset:
     test_split: validation
 model:
   num_labels: 2
-  ckpt_path: /ceph/mgaber/data/checkpoints/paws_x_mbert_madx/epoch=4-accuracy=0.906.ckpt
+  ckpt_path: /ceph/mgaber/data/checkpoints/paws_x_mbert_madx/epoch=4-accuracy=0.912.ckpt
 madx:
   task_adapter:
     name: paws-x

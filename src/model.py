@@ -25,12 +25,9 @@ def load_model(config):
         
         # we use pre-trained language adapters for cross-lingual transfer
         # for training, we only load the language adapter for the source language
-        for lang, path in config.madx.lang_adapter[config.model.name].items():
-            if lang != source_lang and not is_test:
-                continue
-            else:
-                lang_adapter_cfg = adapters.AdapterConfig.load("pfeiffer", non_linearity="relu", reduction_factor=2)
-                _ = model.load_adapter(path, lang_adapter_cfg)
+        for path in config.madx.lang_adapter[config.model.name].values():
+            lang_adapter_cfg = adapters.AdapterConfig.load("pfeiffer", non_linearity="relu", reduction_factor=2)
+            _ = model.load_adapter(path, lang_adapter_cfg)
         
         task_adapter_name = config.madx.task_adapter.name
         if is_test:
