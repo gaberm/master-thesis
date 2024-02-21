@@ -2,19 +2,11 @@
 
 defaults:
   - override /dataset:
-    - balanced_copa
-    - social_i_qa
+    - xcopa
   - override /madx: madx
   - override /model: xlmr
   - override /trainer: trainer
   
-dataset:
-  balanced_copa:
-    train_split: train
-    val_split: test
-  social_i_qa:
-    train_split: train
-    val_split: validation
 model:
   num_labels: 2
   ckpt_path: /ceph/mgaber/data/checkpoints/xcopa_xlmr_madx/epoch=4-accuracy=0.926.ckpt

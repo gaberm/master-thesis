@@ -2,3 +2,5 @@ social_i_qa:
   hf_name: social_i_qa
   languages:
     - en
+  train_split: train
+  val_split: validation

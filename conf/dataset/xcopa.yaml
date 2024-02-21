@@ -12,3 +12,4 @@ xcopa:
     - tr
     - vi
     - zh
+  test_split: test

@@ -6,14 +6,7 @@ defaults:
     - social_i_qa
   - override /madx: null
   - override /params: params
-  
-dataset:
-  balanced_copa:
-    train_split: train
-    val_split: test
-  social_i_qa:
-    train_split: train
-    val_split: validation
+ 
 model:
   num_labels: 2
 params:
