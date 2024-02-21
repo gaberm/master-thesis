@@ -32,7 +32,7 @@ def load_model(config):
             task_adapter_config = adapters.SeqBnConfig.load(model_ckpt["state_dict"], **config.madx.task_adapter.load_args)
             model.add_adapter(task_adapter_name, task_adapter_config)
         else:
-            task_adapter_config = adapters.SeqBnConfig(reduction_factor=config.madx.task_adapter.reduction_factor)    
+            task_adapter_config = adapters.SeqBnConfig(**config.madx.task_adapter.load_args)    
             model.add_adapter(task_adapter_name, task_adapter_config)
        
             # train_adapter freezes the weights of the model 
