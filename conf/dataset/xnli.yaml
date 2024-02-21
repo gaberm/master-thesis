@@ -6,7 +6,7 @@ xnli:
     - de
     - en
     - es
-    - fr
+    # - fr
     - hi
     - ru
     - sw

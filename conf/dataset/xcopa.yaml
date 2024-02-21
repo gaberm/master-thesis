@@ -3,12 +3,12 @@ xcopa:
   languages:
     - et
     - ht
-    # - id
+    - id
     # - it
     - qu
     - sw
-    - ta
+    # - ta
     # - th
-    # - tr
+    - tr
     - vi
     - zh

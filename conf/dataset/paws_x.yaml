@@ -4,9 +4,9 @@ paws_x:
     - de
     - en
     - es
-    - fr
+    # - fr
     - ja
-    - ko
+    # - ko
     - zh
   train_split: train
   val_split: validation

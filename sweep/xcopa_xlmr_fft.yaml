@@ -13,4 +13,4 @@ command:
 - ${interpreter}
 - ${program}
 - ${args_no_hyphens}
-- +experiment=sweep/xcopa_xlmr_fft
+- +exp=sweep/xcopa_xlmr_fft
