@@ -24,11 +24,12 @@ def load_model(config):
         
         # we use pre-trained language adapters for cross-lingual transfer
         for path in config.madx.lang_adapter[config.model.name].values():
-            _ = model.load_adapter(path)
+            config = adapters.AdapterConfig.load("pfeiffer", non_linearity="relu", reduction_factor=2)
+            _ = model.load_adapter(path, config)
         
         task_adapter_name = config.madx.task_adapter.name
         if using_ckpt:
-            model_ckpt = torch.load(config.model.ckpt_path)
+            model_ckpt = torch.load(config.model.ckpt_path, map_location="cuda:0")
             task_adapter_config = adapters.SeqBnConfig.load(model_ckpt["state_dict"], **config.madx.task_adapter.load_args)
             model.add_adapter(task_adapter_name, task_adapter_config)
         else:
