@@ -1,4 +1,3 @@
 name: mbert
 hf_path: bert-base-multilingual-cased
 num_labels: 3
-load_ckpt: false

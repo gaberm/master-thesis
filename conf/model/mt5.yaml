@@ -1,4 +1,3 @@
 name: mt5
 hf_path: google/mt5-base
 num_labels: 3
-load_ckpt: false

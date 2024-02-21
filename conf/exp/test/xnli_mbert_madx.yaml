@@ -5,6 +5,6 @@ defaults:
   - override /trainer: trainer
 
 model:
-  ckpt: /ceph/mgaber/data/checkpoints/xnli_mbert_madx/epoch=4-accuracy=0.796.ckpt
+  ckpt_path: /ceph/mgaber/data/checkpoints/xnli_mbert_madx/epoch=4-accuracy=0.796.ckpt
 trainer:
   exp_name: xnli_mbert_madx

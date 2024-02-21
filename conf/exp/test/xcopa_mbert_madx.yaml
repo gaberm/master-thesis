@@ -16,7 +16,7 @@ dataset:
     val_split: validation
 model:
   num_labels: 2
-  ckpt: /ceph/mgaber/data/checkpoints/xcopa_mbert_madx/epoch=1-accuracy=0.929.ckpt
+  ckpt_path: /ceph/mgaber/data/checkpoints/xcopa_mbert_madx/epoch=1-accuracy=0.929.ckpt
 madx:
   task_adapter:
     name: copa
