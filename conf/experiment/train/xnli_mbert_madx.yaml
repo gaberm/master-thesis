@@ -7,4 +7,4 @@ defaults:
 params:
   lr: 1e-4
 trainer:
-  exp_name: xnli_mbert_fft
+  exp_name: xnli_mbert_madx
