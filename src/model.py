@@ -1,7 +1,6 @@
 from transformers import AutoTokenizer, AutoModelForSequenceClassification
 import adapters
 import torch
-import platform
 from peft import get_peft_model, LoraConfig
 
 def load_model(config):
@@ -44,7 +43,7 @@ def load_model(config):
 
             # active_adapters are the adapters that are used in the forward pass
             # for mad-x, we stack the task adapter on top of the language adapter
-            # https://colab.research.google.com/github/Adapter-Hub/adapter-transformers/blob/master/notebooks/01_Adapter_Training.ipynb
+            # https://colab.research.google.com/github/Adapter-Hub/adapter-transformers/blob/master/notebooks/04_Cross_Lingual_Transfer.ipynb
             model.active_adapters = adapters.Stack(source_lang, task_adapter_name)
         
     if using_lora:
