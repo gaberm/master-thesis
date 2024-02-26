@@ -11,7 +11,7 @@ def get_best_checkpoint(ckpt_dir):
 
     # get the ckpt file with the highest prediction score
     pred_scores = [float(re.findall(r"0.\d{1,3}", file)[0]) for file in files]
-    best_ckpt = files[pred_scores.index(max(pred_scores))]
+    best_ckpt = f"{ckpt_dir}/{files[pred_scores.index(max(pred_scores))]}"
 
     return best_ckpt
 
