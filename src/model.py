@@ -1,7 +1,8 @@
-from transformers import AutoTokenizer, AutoModelForSequenceClassification
+from transformers import AutoTokenizer, AutoConfig, AutoModelForSequenceClassification
 import adapters
 import torch
 from peft import get_peft_model, LoraConfig
+
 
 def load_model(config):
     source_lang = config.params.source_lang
@@ -25,7 +26,7 @@ def load_model(config):
         # we use pre-trained language adapters for cross-lingual transfer
         # for training, we only load the language adapter for the source language
         for path in config.madx.lang_adapter[config.model.name].values():
-            lang_adapter_cfg = adapters.AdapterConfig.load("pfeiffer", non_linearity="relu", reduction_factor=2)
+            lang_adapter_cfg = adapters.AdapterConfig.load("pfeiffer", reduction_factor=2)
             _ = model.load_adapter(path, lang_adapter_cfg)
         
         task_adapter_name = config.madx.task_adapter.name
@@ -50,7 +51,7 @@ def load_model(config):
         lora_cfg = LoraConfig(**config.lora)
         model = get_peft_model(model, lora_cfg)
 
-    return model
+    return model    
 
 
 def load_tokenizer(config):

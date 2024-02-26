@@ -13,5 +13,5 @@ defaults:
 
 # path to folder to model checkpoints
 data_dir:
-  Darwin: "data/"
-  Linux: "/ceph/mgaber/data/"
+  darwin: "data/"
+  linux: "/ceph/mgaber/data/"

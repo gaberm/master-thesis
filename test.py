@@ -14,10 +14,9 @@ def main(config):
     print(config)
 
     # load model
-    ckpt_path = config.model.ckpt_path
     model = load_model(config)
     model.eval()
-    l_model = LModel.load_from_checkpoint(ckpt_path, model=model, map_location="cuda:0")
+    l_model = LModel.load_from_checkpoint(config.model.ckpt_path, model=model, map_location="cuda:0")
 
     # create test data loaders
     tokenizer = load_tokenizer(config)
@@ -26,7 +25,7 @@ def main(config):
     wandb_logger = WandbLogger(project=config.wandb.project, log_model="all")
     wandb_logger.watch(l_model)
     
-    system = platform.system()
+    system = platform.system().lower()
     trainer = pl.Trainer(max_epochs=config.trainer.max_epochs,
                         logger=wandb_logger, 
                         default_root_dir=config.data_dir[system],

@@ -1,7 +1,8 @@
 num_epochs: 2
 batch_size: 32
-optimizer: AdamW
+optimizer: adamW
 lr: 5e-5
+warmup_ratio: 0.05
 pred_metric: accuracy
 uncert_metric: ece # expected calibration error
 average: micro

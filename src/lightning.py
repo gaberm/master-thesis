@@ -1,6 +1,7 @@
 from lightning import LightningModule
 import adapters
 import torch
+from transformers import get_linear_schedule_with_warmup
 from .optimizer import load_optimizer
 from .metric import load_metric
 
@@ -42,7 +43,8 @@ class LModel(LightningModule):
     
     def on_validation_epoch_end(self):
         val_score = self.pred_metric.compute()
-        self.log(f"{self.pred_metric_name}", val_score, prog_bar=True) 
+        self.log(f"{self.pred_metric_name}", val_score, prog_bar=True)
+        self.pred_metric.reset() 
 
     def on_test_epoch_start(self):
         # activate target_lang adapter for zero-shot cross-lingual transfer
@@ -71,4 +73,15 @@ class LModel(LightningModule):
 
     def configure_optimizers(self):
         optimizer = load_optimizer(self.model, self.optimizer, self.lr)
-        return optimizer
+        # we don't use a scheduler for mad-x,
+        # because the authors of the mad-x paper don't use one
+        if self.task_adapter_name is None:
+            scheduler = get_linear_schedule_with_warmup(
+                optimizer, 
+                num_warmup_steps=self.trainer.estimated_stepping_batches*0.01, 
+                num_training_steps=self.trainer.estimated_stepping_batches)
+            return [optimizer], [scheduler]
+        else:
+            return [optimizer]
+
+        

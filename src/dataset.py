@@ -106,7 +106,7 @@ def find_local_dataset(dataset_name, data_dir, lang=None):
     
 
 def load_from_hf_or_disk(config):
-    data_dir = config.data_dir[platform.system()]
+    data_dir = config.data_dir[platform.system().lower()]
 
     # create directory for datasets if it doesn't exist
     if not os.path.exists(data_dir + "/datasets"):
