@@ -1,13 +1,14 @@
 import hydra
 import dotenv
 import platform
+import os
+import shutil
 import lightning.pytorch as pl
 from lightning.pytorch.loggers import WandbLogger
 from lightning.pytorch.callbacks import ModelCheckpoint, LearningRateMonitor
 from src.model import load_model, load_tokenizer
 from src.dataset import create_train_loader
 from src.lightning import LModel
-from src.utils import move_files
 
 dotenv.load_dotenv(".env")
 
@@ -30,8 +31,9 @@ def main(config):
     l_model = LModel(model, config)
     wandb_logger = WandbLogger(project=config.wandb.project, log_model="all")
 
+    ckpt_dir = f"{config.data_dir[system]}/checkpoints/latest-run"
     checkpoint_callback = ModelCheckpoint(
-        dirpath=f"{config.data_dir[system]}/checkpoints/{config.trainer.exp_name}",
+        dirpath=ckpt_dir,
         monitor=config.params.pred_metric,
         mode="max",
         filename=f"{{epoch}}-{{step}}-{{{config.params.pred_metric}:.3f}}",
@@ -51,7 +53,10 @@ def main(config):
     trainer.fit(model=l_model, train_dataloaders=train_loader, val_dataloaders=val_loader)
 
     # move the checkpoint files to a new directory fur the run
-    move_files(f"{config.data_dir[system]}/checkpoints/{config.trainer.exp_name}", wandb_logger.experiment.name)
+    run_dir = ckpt_dir.replace("latest-run", wandb_logger._experiment.name)
+    exp_dir = f"{config.data_dir[system]}/checkpoints/{config.trainer.exp_name}"
+    os.rename(ckpt_dir, run_dir)
+    shutil.move(run_dir, exp_dir)
 
 if __name__ == "__main__":
     main()

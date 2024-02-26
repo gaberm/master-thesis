@@ -49,6 +49,7 @@ class LModel(LightningModule):
     def on_test_epoch_start(self):
         # activate target_lang adapter for zero-shot cross-lingual transfer
         if self.task_adapter_name is not None:
+            self.model.set_active_adapters(None)
             self.model.active_adapters = adapters.Stack(self.target_lang, self.task_adapter_name)
     
     def test_step(self, batch, batch_idx):

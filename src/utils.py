@@ -1,5 +1,4 @@
 import os
-import shutil
 import re
 
 def get_best_checkpoint(ckpt_dir):
@@ -14,15 +13,3 @@ def get_best_checkpoint(ckpt_dir):
     best_ckpt = f"{ckpt_dir}/{files[pred_scores.index(max(pred_scores))]}"
 
     return best_ckpt
-
-
-def move_files(ckpt_dir, run_name):
-    # create a new directory for the run
-    run_dir = f"{ckpt_dir}/{run_name}"
-    os.makedirs(run_dir)
-
-    for filename in os.listdir(ckpt_dir):
-        ckpt_file = f"{ckpt_dir}/{filename}"
-        run_file = f"{run_dir}/{filename}"
-        # move the file to the run directory
-        shutil.move(ckpt_file, run_file)
