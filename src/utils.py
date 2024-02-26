@@ -18,11 +18,11 @@ def get_best_checkpoint(ckpt_dir):
 
 def move_files(ckpt_dir, run_name):
     # create a new directory for the run
-    run_dir = os.path.join(ckpt_dir, run_name)
+    run_dir = f"{ckpt_dir}/{run_name}"
     os.makedirs(run_dir)
 
     for filename in os.listdir(ckpt_dir):
-        ckpt_file = os.path.join(ckpt_dir, filename)
-        run_file = os.path.join(run_dir, filename)
+        ckpt_file = f"{ckpt_dir}/{filename}"
+        run_file = f"{run_dir}/{filename}"
         # move the file to the run directory
         shutil.move(ckpt_file, run_file)

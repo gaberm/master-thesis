@@ -4,6 +4,7 @@ import torch
 import os
 import re
 from peft import get_peft_model, LoraConfig
+from src.utils import get_best_checkpoint
 
 
 def load_model(config):
@@ -15,7 +16,7 @@ def load_model(config):
     model = AutoModelForSequenceClassification.from_pretrained(config.model.hf_path, num_labels=config.model.num_labels)
 
     if test_run:
-        ckpt_path = config.model.ckpt_dir
+        ckpt_path = get_best_checkpoint(config.model.ckpt_dir)
     
     # load model checkpoint for testing
     if test_run and not using_madx:
