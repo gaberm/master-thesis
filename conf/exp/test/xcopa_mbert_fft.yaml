@@ -8,6 +8,6 @@ defaults:
 
 model:
   num_labels: 2
-  ckpt_path: /ceph/mgaber/data/checkpoints/xcopa_mbert_fft/epoch=4-accuracy=0.926.ckpt
+  ckpt_dir: /ceph/mgaber/data/checkpoints/xcopa_mbert_fft/
 trainer:
   exp_name: xcopa_mbert_fft

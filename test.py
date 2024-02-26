@@ -3,7 +3,7 @@ import dotenv
 import platform
 import lightning.pytorch as pl
 from lightning.pytorch.loggers import WandbLogger
-from src.model import load_model, load_tokenizer
+from src.model import load_model, load_tokenizer, get_best_checkpoint
 from src.dataset import create_test_loader
 from src.lightning import LModel
 
@@ -16,7 +16,8 @@ def main(config):
     # load model
     model = load_model(config)
     model.eval()
-    l_model = LModel.load_from_checkpoint(config.model.ckpt_path, model=model, map_location="cuda:0")
+    ckpt_path = get_best_checkpoint(config.model.ckpt_dir)
+    l_model = LModel.load_from_checkpoint(ckpt_path, model=model, map_location="cuda:0")
 
     # create test data loaders
     tokenizer = load_tokenizer(config)

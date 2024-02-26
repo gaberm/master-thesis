@@ -1,21 +1,26 @@
 from transformers import AutoTokenizer, AutoConfig, AutoModelForSequenceClassification
 import adapters
 import torch
+import os
+import re
 from peft import get_peft_model, LoraConfig
 
 
 def load_model(config):
     source_lang = config.params.source_lang
     using_madx = "madx" in config.keys()
-    is_test = "ckpt_path" in config.model.keys()
+    test_run = "ckpt_dir" in config.model.keys()
     using_lora = "lora" in config.keys()
 
     model = AutoModelForSequenceClassification.from_pretrained(config.model.hf_path, num_labels=config.model.num_labels)
+
+    if test_run:
+        ckpt_path = config.model.ckpt_dir
     
     # load model checkpoint for testing
-    if is_test and not using_madx:
+    if test_run and not using_madx:
         # replace model. with an empty string to match the keys of the model
-        state_dict = torch.load(config.model.ckpt_path, map_location="cuda:0")["state_dict"]
+        state_dict = torch.load(ckpt_path, map_location="cuda:0")["state_dict"]
         model_ckpt = {k.replace("model.", ""): v for k, v in state_dict.items()}
         model.load_state_dict(model_ckpt)
 
@@ -30,8 +35,8 @@ def load_model(config):
             _ = model.load_adapter(path, lang_adapter_cfg)
         
         task_adapter_name = config.madx.task_adapter.name
-        if is_test:
-            model_ckpt = torch.load(config.model.ckpt_path, map_location="cuda:0")
+        if test_run:
+            model_ckpt = torch.load(ckpt_path, map_location="cuda:0")
             task_adapter_cfg = adapters.SeqBnConfig.load(model_ckpt["state_dict"], **config.madx.task_adapter.load_args)
             model.add_adapter(task_adapter_name, task_adapter_cfg)
         else:
@@ -56,3 +61,18 @@ def load_model(config):
 
 def load_tokenizer(config):
     return AutoTokenizer.from_pretrained(config.model.hf_path)
+
+
+def get_best_checkpoint(ckpt_dir):
+    files = []
+    # get all files in the checkpoint directory
+    for filename in os.listdir(ckpt_dir):
+        if os.path.isfile(os.path.join(ckpt_dir, filename)):
+            files.append(filename)
+
+    # get the ckpt file with the highest prediction score
+    pred_scores = [float(re.findall(r"0.\d{1,3}", file)[0]) for file in files]
+    best_ckpt = files[pred_scores.index(max(pred_scores))]
+
+    return best_ckpt
+ 

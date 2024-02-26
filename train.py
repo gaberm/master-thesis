@@ -30,10 +30,10 @@ def main(config):
     wandb_logger = WandbLogger(project=config.wandb.project, log_model="all")
 
     checkpoint_callback = ModelCheckpoint(
-        dirpath=f"{config.data_dir[system]}/checkpoints/{config.trainer.exp_name}",
+        dirpath=f"{config.data_dir[system]}/checkpoints/{config.trainer.exp_name}/{wandb_logger._experiment.name}",
         monitor=config.params.pred_metric,
         mode="max",
-        filename=f"{{epoch}}-{{{config.params.pred_metric}:.3f}}",
+        filename=f"{{epoch}}-{{step}}-{{{config.params.pred_metric}:.3f}}",
         save_top_k=config.trainer.save_top_k)
     lr_callback = LearningRateMonitor(logging_interval="step")
 
