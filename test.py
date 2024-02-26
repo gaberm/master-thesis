@@ -3,9 +3,10 @@ import dotenv
 import platform
 import lightning.pytorch as pl
 from lightning.pytorch.loggers import WandbLogger
-from src.model import load_model, load_tokenizer, get_best_checkpoint
+from src.model import load_model, load_tokenizer
 from src.dataset import create_test_loader
 from src.lightning import LModel
+from src.utils import get_best_checkpoint
 
 dotenv.load_dotenv(override=True)
 

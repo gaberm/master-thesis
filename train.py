@@ -7,6 +7,7 @@ from lightning.pytorch.callbacks import ModelCheckpoint, LearningRateMonitor
 from src.model import load_model, load_tokenizer
 from src.dataset import create_train_loader
 from src.lightning import LModel
+from src.utils import move_files
 
 dotenv.load_dotenv(".env")
 
@@ -30,7 +31,7 @@ def main(config):
     wandb_logger = WandbLogger(project=config.wandb.project, log_model="all")
 
     checkpoint_callback = ModelCheckpoint(
-        dirpath=f"{config.data_dir[system]}/checkpoints/{config.trainer.exp_name}/{wandb_logger._experiment.name}",
+        dirpath=f"{config.data_dir[system]}/checkpoints/{config.trainer.exp_name}",
         monitor=config.params.pred_metric,
         mode="max",
         filename=f"{{epoch}}-{{step}}-{{{config.params.pred_metric}:.3f}}",
@@ -48,6 +49,9 @@ def main(config):
     
     # train the model
     trainer.fit(model=l_model, train_dataloaders=train_loader, val_dataloaders=val_loader)
+
+    # move the checkpoint files to a new directory fur the run
+    move_files(f"{config.data_dir[system]}/checkpoints/{config.trainer.exp_name}", wandb_logger.experiment.name)
 
 if __name__ == "__main__":
     main()
