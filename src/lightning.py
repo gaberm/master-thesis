@@ -49,8 +49,11 @@ class LModel(LightningModule):
         self.pred_metric.reset()
         # save the adapter for each checkpoint
         if self.task_adapter_name is not None:
-            adapter_dir = f"{self.data_dir}checkpoints/latest-run/epoch={self.trainer.current_epoch}-step={self.trainer.global_step}-{self.pred_metric_name}={val_score:.3f}"
-            self.model.save_adapter(adapter_dir, self.task_adapter_name, with_head=True)
+            try:
+                adapter_dir = f"{self.data_dir}checkpoints/latest-run/epoch={self.trainer.current_epoch}-step={self.trainer.global_step}-{self.pred_metric_name}={val_score:.3f}"
+                self.model.save_adapter(adapter_dir, self.task_adapter_name, with_head=True)
+            except FileExistsError:
+                pass
 
     def on_test_epoch_start(self):
         # activate target_lang adapter for zero-shot cross-lingual transfer
