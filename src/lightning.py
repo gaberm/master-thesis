@@ -1,6 +1,7 @@
 from lightning import LightningModule
 import adapters
 import torch
+import platform
 from transformers import get_linear_schedule_with_warmup
 from .optimizer import load_optimizer
 from .metric import load_metric
@@ -21,6 +22,7 @@ class LModel(LightningModule):
         self.num_labels = config.model.num_labels
         self.label_smoothing = config.params.label_smoothing
         self.ce_loss = torch.nn.CrossEntropyLoss(label_smoothing=self.label_smoothing)
+        self.data_dir = config.data_dir[platform.system().lower()]
         self.save_hyperparameters(ignore=["model"])
 
     def forward(self, inputs, target):
@@ -44,7 +46,10 @@ class LModel(LightningModule):
     def on_validation_epoch_end(self):
         val_score = self.pred_metric.compute()
         self.log(f"{self.pred_metric_name}", val_score, prog_bar=True)
-        self.pred_metric.reset() 
+        self.pred_metric.reset()
+        # save the adapter for each checkpoint
+        adapter_dir = f"{self.data_dir}/checkpoints/latest-run/{{epoch}}-{{step}}-{{{self.pred_metric_name}:.3f}}"
+        self.model.save_adapter(adapter_dir, self.task_adapter_name, with_head=True)
 
     def on_test_epoch_start(self):
         # activate target_lang adapter for zero-shot cross-lingual transfer

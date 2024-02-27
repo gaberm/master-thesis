@@ -13,36 +13,26 @@ def load_model(config):
     test_run = "ckpt_dir" in config.model.keys()
     using_lora = "lora" in config.keys()
 
-    model = AutoModelForSequenceClassification.from_pretrained(config.model.hf_path, num_labels=config.model.num_labels)
-
-    if test_run:
-        ckpt_path = get_best_checkpoint(config.model.ckpt_dir)
-    
-    # load model checkpoint for testing
-    if test_run and not using_madx:
-        # replace model. with an empty string to match the keys of the model
-        state_dict = torch.load(ckpt_path, map_location="cuda:0")["state_dict"]
-        model_ckpt = {k.replace("model.", ""): v for k, v in state_dict.items()}
-        model.load_state_dict(model_ckpt)
-
     if using_madx:
+        task_adapter_name = config.madx.task_adapter.name
+
+        model = adapters.AutoAdapterModel.from_pretrained(config.model.hf_path)
+        model.add_multiple_choice_head(task_adapter_name, num_choices=2)
+
         # we must call adapters.init() to load adapters
         adapters.init(model)
         
         # we use pre-trained language adapters for cross-lingual transfer
-        # for training, we only load the language adapter for the source language
-        for path in config.madx.lang_adapter[config.model.name].values():
-            lang_adapter_cfg = adapters.AdapterConfig.load("pfeiffer", reduction_factor=2)
+        for path in config.madx.lang_adapter.values():
+            lang_adapter_cfg = adapters.AdapterConfig.load("pfeiffer", non_linearity="gelu", reduction_factor=2)
             _ = model.load_adapter(path, lang_adapter_cfg)
-        
-        task_adapter_name = config.madx.task_adapter.name
+
         if test_run:
-            model_ckpt = torch.load(ckpt_path, map_location="cuda:0")
-            task_adapter_cfg = adapters.SeqBnConfig.load(model_ckpt["state_dict"], **config.madx.task_adapter.load_args)
-            model.add_adapter(task_adapter_name, task_adapter_cfg)
+            ckpt_dir = get_best_checkpoint(config.model.ckpt_dir)
+            model.load_adapter(ckpt_dir, task_adapter_name)
+            model.load_head(ckpt_dir, task_adapter_name)
         else:
-            task_adapter_cfg = adapters.SeqBnConfig(**config.madx.task_adapter.load_args)    
-            model.add_adapter(task_adapter_name, task_adapter_cfg)
+            model.add_adapter(task_adapter_name, config="seq_bn")
        
             # train_adapter freezes the weights of the model 
             # and the language adapters to prevent them from further finetuning
@@ -52,10 +42,20 @@ def load_model(config):
             # for mad-x, we stack the task adapter on top of the language adapter
             # https://colab.research.google.com/github/Adapter-Hub/adapter-transformers/blob/master/notebooks/04_Cross_Lingual_Transfer.ipynb
             model.active_adapters = adapters.Stack(source_lang, task_adapter_name)
+    else:
+        model = AutoModelForSequenceClassification.from_pretrained(config.model.hf_path, num_labels=config.model.num_labels)
+    
+        # load model checkpoint for testing
+        if test_run:
+            ckpt_path = get_best_checkpoint(config.model.ckpt_dir)
+            state_dict = torch.load(ckpt_path, map_location="cuda:0")["state_dict"]
+            # replace model. with an empty string to match the keys of the model
+            model_ckpt = {k.replace("model.", ""): v for k, v in state_dict.items()}
+            model.load_state_dict(model_ckpt)
         
-    if using_lora:
-        lora_cfg = LoraConfig(**config.lora)
-        model = get_peft_model(model, lora_cfg)
+        # if using_lora:
+        #     lora_cfg = LoraConfig(**config.lora)
+        #     model = get_peft_model(model, lora_cfg)
 
     return model    
 
