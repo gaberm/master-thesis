@@ -49,7 +49,7 @@ class LModel(LightningModule):
         self.pred_metric.reset()
         # save the adapter for each checkpoint
         if self.task_adapter_name is not None:
-            adapter_dir = f"{self.data_dir}/checkpoints/latest-run/{{epoch}}-{{step}}-{{{self.pred_metric_name}:.3f}}"
+            adapter_dir = self.data_dir + f"checkpoints/latest-run/{self.trainer.current_epoch}-{self.trainer.global_step}-{self.pred_metric_name}{{{val_score}:.3f}}"
             self.model.save_adapter(adapter_dir, self.task_adapter_name, with_head=True)
 
     def on_test_epoch_start(self):
