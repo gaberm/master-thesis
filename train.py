@@ -32,6 +32,8 @@ def main(config):
     wandb_logger = WandbLogger(project=config.wandb.project, log_model="all")
 
     ckpt_dir = f"{config.data_dir[system]}/checkpoints/latest-run"
+    if not os.path.exists(ckpt_dir):
+        os.makedirs(ckpt_dir)
     checkpoint_callback = ModelCheckpoint(
         dirpath=ckpt_dir,
         monitor=config.params.pred_metric,
