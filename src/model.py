@@ -1,8 +1,6 @@
-from transformers import AutoTokenizer, AutoConfig, AutoModelForSequenceClassification
+from transformers import AutoTokenizer, AutoModelForSequenceClassification
 import adapters
 import torch
-import os
-import re
 from peft import get_peft_model, LoraConfig
 from src.utils import get_best_checkpoint
 
@@ -13,12 +11,9 @@ def load_model(config):
     test_run = "ckpt_dir" in config.model.keys()
     using_lora = "lora" in config.keys()
 
+    model = AutoModelForSequenceClassification.from_pretrained(config.model.hf_path, num_labels=config.model.num_labels)
+
     if using_madx:
-        task_adapter_name = config.madx.task_adapter.name
-
-        model = adapters.AutoAdapterModel.from_pretrained(config.model.hf_path)
-        model.add_multiple_choice_head(task_adapter_name, num_choices=2)
-
         # we must call adapters.init() to load adapters
         adapters.init(model)
         
@@ -27,6 +22,7 @@ def load_model(config):
             lang_adapter_cfg = adapters.AdapterConfig.load("pfeiffer", non_linearity="gelu", reduction_factor=2)
             _ = model.load_adapter(path, lang_adapter_cfg)
 
+        task_adapter_name = config.madx.task_adapter.name
         if test_run:
             ckpt_dir = get_best_checkpoint(config.model.ckpt_dir)
             model.load_adapter(ckpt_dir, task_adapter_name)
@@ -43,7 +39,6 @@ def load_model(config):
             # https://colab.research.google.com/github/Adapter-Hub/adapter-transformers/blob/master/notebooks/04_Cross_Lingual_Transfer.ipynb
             model.active_adapters = adapters.Stack(source_lang, task_adapter_name)
     else:
-        model = AutoModelForSequenceClassification.from_pretrained(config.model.hf_path, num_labels=config.model.num_labels)
     
         # load model checkpoint for testing
         if test_run:
