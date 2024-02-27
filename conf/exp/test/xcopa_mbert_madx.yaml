@@ -10,7 +10,17 @@ model:
   num_labels: 2
   ckpt_dir: /ceph/mgaber/data/checkpoints/xcopa_mbert_madx/
 madx:
+  lang_adapter:
+    et: et/wiki@ukp
+    ht: ht/wiki@ukp
+    id: id/wiki@ukp
+    qu: qu/wiki@ukp
+    sw: sw/wiki@ukp
+    ta: ta/wiki@ukp
+    tr: tr/wiki@ukp
+    vi: vi/wiki@ukp
+    zh: zh/wiki@ukp
   task_adapter:
-    name: copa
+    name: xcopa
 trainer:
   exp_name: xcopa_mbert_madx

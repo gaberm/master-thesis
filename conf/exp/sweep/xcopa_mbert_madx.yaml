@@ -9,8 +9,18 @@ defaults:
   - override /params: params
 
 madx:
-    task_adapter:
-      name: copa
+  lang_adapter:
+    et: et/wiki@ukp
+    ht: ht/wiki@ukp
+    id: id/wiki@ukp
+    qu: qu/wiki@ukp
+    sw: sw/wiki@ukp
+    ta: ta/wiki@ukp
+    tr: tr/wiki@ukp
+    vi: vi/wiki@ukp
+    zh: zh/wiki@ukp
+  task_adapter:
+    name: xcopa
 model:
   num_labels: 2
 params:

@@ -16,6 +16,12 @@ model:
   num_labels: 2
   ckpt_dir: /ceph/mgaber/data/checkpoints/paws_x_xlmr_madx/
 madx:
+  lang_adapter:
+    de: de/wiki@ukp
+    en: en/wiki@ukp
+    es: es/wiki@ukp
+    ja: ja/wiki@ukp
+    zh: zh/wiki@ukp
   task_adapter:
     name: paws-x
 trainer:

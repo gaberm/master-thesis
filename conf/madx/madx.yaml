@@ -1,38 +1,5 @@
 lang_adapter:
-  mbert:
-    ar: ar/wiki@ukp
-    de: de/wiki@ukp
-    en: en/wiki@ukp
-    es: es/wiki@ukp
-    et: et/wiki@ukp
-    fr: fr/wiki@ukp
-    hi: hi/wiki@ukp
-    ht: ht/wiki@ukp
-    id: id/wiki@ukp
-    ja: ja/wiki@ukp
-    ko: ko/wiki@ukp
-    qu: qu/wiki@ukp
-    ru: ru/wiki@ukp
-    sw: sw/wiki@ukp
-    tr: tr/wiki@ukp
-    vi: vi/wiki@ukp
-    zh: zh/wiki@ukp
-  xlmr:
-    ar: ar/wiki@ukp
-    de: de/wiki@ukp
-    en: en/wiki@ukp
-    es: es/wiki@ukp
-    et: et/wiki@ukp
-    hi: hi/wiki@ukp
-    ht: ht/wiki@ukp
-    id: id/wiki@ukp
-    ja: ja/wiki@ukp
-    qu: qu/wiki@ukp
-    ru: ru/wiki@ukp
-    sw: sw/wiki@ukp
-    tr: tr/wiki@ukp
-    vi: vi/wiki@ukp
-    zh: zh/wiki@ukp
+  en: en/wiki@ukp
 
 task_adapter:
   name: xnli
