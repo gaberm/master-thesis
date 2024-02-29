@@ -28,7 +28,7 @@ def create_sentence_pairs(dataset, dataset_name, lang, split):
         
         case "xcopa":
             # load translation for creating the questions
-            translated_question = pd.read_csv("res/translation.csv")
+            translated_question = pd.read_csv("rsc/translation.csv")
             for premise, question in zip(dataset[split]["premise"], dataset[split]["question"]):
                 if question == "cause":
                     sentence = premise + translated_question[translated_question["lang"] == lang]["cause"].tolist()[0]

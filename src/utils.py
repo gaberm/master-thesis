@@ -2,6 +2,7 @@ import os
 import re
 import platform
 import torch
+import omegaconf
 
 def get_best_checkpoint(ckpt_dir):
     files = []
@@ -22,7 +23,7 @@ def get_device(config):
         return torch.device("mps")
     if platform.system() == "Linux":
         devices = config.trainer.devices[platform.system().lower()]
-        if isinstance(devices, list):
+        if isinstance(devices, omegaconf.listconfig.ListConfig):
             device_num = devices[0]
         else:
             device_num = devices
