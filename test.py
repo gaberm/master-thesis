@@ -1,6 +1,7 @@
 import hydra
 import dotenv
 import platform
+import torch
 import lightning.pytorch as pl
 from lightning.pytorch.loggers import WandbLogger
 from src.model import load_model, load_tokenizer
@@ -12,13 +13,17 @@ dotenv.load_dotenv(override=True)
 
 @hydra.main(config_path="conf", config_name="config", version_base="1.3")
 def main(config):
+    # seed everything for reproducibility
+    pl.seed_everything(config.params.seed, workers=True) 
+    
     print(config)
 
     # load model
     model = load_model(config)
-    model.eval()
     ckpt_path = get_best_checkpoint(config.model.ckpt_dir)
-    l_model = LModel.load_from_checkpoint(ckpt_path, model=model, map_location="cuda:0")
+    device = torch.device(config.trainer.map_location[platform.system().lower()])
+    l_model = LModel.load_from_checkpoint(ckpt_path, model=model, map_location=device)
+    l_model.model.eval()
 
     # create test data loaders
     tokenizer = load_tokenizer(config)

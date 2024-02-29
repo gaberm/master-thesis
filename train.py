@@ -31,9 +31,7 @@ def main(config):
     l_model = LModel(model, config)
     wandb_logger = WandbLogger(project=config.wandb.project, log_model="all")
 
-    ckpt_dir = f"{config.data_dir[system]}/checkpoints/latest-run"
-    if not os.path.exists(ckpt_dir):
-        os.makedirs(ckpt_dir)
+    ckpt_dir = f"{config.data_dir[system]}/checkpoints/{config.trainer.exp_name}"
     checkpoint_callback = ModelCheckpoint(
         dirpath=ckpt_dir,
         monitor=config.params.pred_metric,
@@ -53,12 +51,6 @@ def main(config):
     
     # train the model
     trainer.fit(model=l_model, train_dataloaders=train_loader, val_dataloaders=val_loader)
-
-    # move the checkpoint files to a new directory fur the run
-    run_dir = ckpt_dir.replace("latest-run", wandb_logger._experiment.name)
-    exp_dir = f"{config.data_dir[system]}/checkpoints/{config.trainer.exp_name}"
-    os.rename(ckpt_dir, run_dir)
-    shutil.move(run_dir, exp_dir)
 
 if __name__ == "__main__":
     main()
