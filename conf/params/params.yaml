@@ -7,5 +7,5 @@ pred_metric: accuracy
 uncert_metric: ece # expected calibration error
 average: micro
 source_lang: en
-seed: 42
+seed: 0
 label_smoothing: 0

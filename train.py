@@ -29,7 +29,7 @@ def main(config):
     l_model = LModel(model, config)
     wandb_logger = WandbLogger(project=config.wandb.project)
 
-    ckpt_dir = f"{config.data_dir[system]}/checkpoints/{config.trainer.exp_name}"
+    ckpt_dir = f"{config.data_dir[system]}/checkpoints/{config.trainer.exp_name}/seed_{config.params.seed}"
     checkpoint_callback = ModelCheckpoint(
         dirpath=ckpt_dir,
         monitor=config.params.pred_metric,

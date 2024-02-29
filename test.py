@@ -46,7 +46,7 @@ def main(config):
     
     # save test results as csv
     result_df = pd.DataFrame(l_model.result_lst, columns=["target_lang", "metric", "score"])
-    result_df.to_csv(f"res/test/{config.trainer.exp_name}", index=False)
+    result_df.to_csv(f"res/test/exp={config.trainer.exp_name}.csv", index=False)
 
 if __name__ == "__main__":
     main()
