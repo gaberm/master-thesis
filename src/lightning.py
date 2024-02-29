@@ -1,8 +1,9 @@
 from lightning import LightningModule
+import pandas as pd
 import adapters
 import torch
 import platform
-from transformers import get_linear_schedule_with_warmup
+from transformers import get_scheduler
 from .optimizer import load_optimizer
 from .metric import load_metric
 
@@ -23,7 +24,8 @@ class LModel(LightningModule):
         self.label_smoothing = config.params.label_smoothing
         self.ce_loss = torch.nn.CrossEntropyLoss(label_smoothing=self.label_smoothing)
         self.data_dir = config.data_dir[platform.system().lower()]
-        self.save_hyperparameters(ignore=["model"])
+        self.result_lst = []
+        self.save_hyperparameters()
 
     def forward(self, inputs, target):
         return self.model(inputs, target)
@@ -70,6 +72,8 @@ class LModel(LightningModule):
         pred_score = self.pred_metric.compute()
         self.log(f"{self.uncert_metric_name} {self.target_lang}", uncert_score, prog_bar=True)
         self.log(f"{self.pred_metric_name} {self.target_lang}", pred_score, prog_bar=True)
+        self.result_lst.append([self.target_lang, self.uncert_metric_name, uncert_score])
+        self.result_lst.append([self.target_lang, self.pred_metric_name, pred_score])
         # reset metrics for the next target language
         self.uncert_metric.reset()
         self.pred_metric.reset()
@@ -79,12 +83,19 @@ class LModel(LightningModule):
         # we don't use a scheduler for mad-x,
         # because the authors of the mad-x paper don't use one
         if self.task_adapter_name is None:
-            scheduler = get_linear_schedule_with_warmup(
+            scheduler = get_scheduler(
+                "linear_scheduler",
                 optimizer, 
-                num_warmup_steps=self.trainer.estimated_stepping_batches*0.01, 
+                num_warmup_steps=self.trainer.estimated_stepping_batches*0.1, 
                 num_training_steps=self.trainer.estimated_stepping_batches)
-            return [optimizer], [scheduler]
+            scheduler_dict = {"optimizer": optimizer,
+                              "lr_scheduler": {
+                                    "scheduler": scheduler,
+                                    "interval": "step",
+                                    "frequency": 1,
+                                    "name": "lr_scheduler"}}
+            return scheduler_dict
         else:
-            return [optimizer]
+            return optimizer
 
         
