@@ -27,7 +27,7 @@ def main(config):
     
     # create lightning model and initialize wandb logger
     l_model = LModel(model, config)
-    wandb_logger = WandbLogger(project=config.wandb.project, log_model="all")
+    wandb_logger = WandbLogger(project=config.wandb.project)
 
     ckpt_dir = f"{config.data_dir[system]}/checkpoints/{config.trainer.exp_name}"
     checkpoint_callback = ModelCheckpoint(

@@ -2,6 +2,7 @@ import hydra
 import dotenv
 import platform
 import lightning.pytorch as pl
+import pandas as pd
 from lightning.pytorch.loggers import WandbLogger
 from src.model import load_model, load_tokenizer
 from src.dataset import create_test_loader
@@ -42,6 +43,10 @@ def main(config):
     for target_lang, test_loader in test_loader.items():
         l_model.target_lang = target_lang
         trainer.test(model=l_model, dataloaders=test_loader)
+    
+    # save test results as csv
+    result_df = pd.DataFrame(l_model.result_lst, columns=["target_lang", "metric", "score"])
+    result_df.to_csv(f"res/test/{config.trainer.exp_name}", index=False)
 
 if __name__ == "__main__":
     main()
