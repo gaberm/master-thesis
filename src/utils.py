@@ -21,7 +21,7 @@ def get_device(config):
     if platform.system() == "Darwin":
         return torch.device("mps")
     if platform.system() == "Linux":
-        devices = ",".join(map(str, config.trainer.device[platform.system().lower()]))
+        devices = ",".join(map(str, config.trainer.devices[platform.system().lower()]))
         return torch.device(f"cuda:{devices}")
     else:
         raise ValueError("System not supported.")
