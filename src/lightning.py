@@ -84,7 +84,7 @@ class LModel(LightningModule):
         # because the authors of the mad-x paper don't use one
         if self.task_adapter_name is None:
             scheduler = get_scheduler(
-                "linear_scheduler",
+                "linear",
                 optimizer, 
                 num_warmup_steps=self.trainer.estimated_stepping_batches*0.1, 
                 num_training_steps=self.trainer.estimated_stepping_batches)
