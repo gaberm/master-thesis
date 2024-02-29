@@ -1,6 +1,7 @@
 import hydra
 import dotenv
 import platform
+import os
 import lightning.pytorch as pl
 from lightning.pytorch.loggers import WandbLogger
 from lightning.pytorch.callbacks import ModelCheckpoint, LearningRateMonitor
@@ -30,6 +31,10 @@ def main(config):
     wandb_logger = WandbLogger(project=config.wandb.project)
 
     ckpt_dir = f"{config.data_dir[system]}/checkpoints/{config.trainer.exp_name}/seed_{config.params.seed}"
+    # check to avoid overwriting of existing checkpoints
+    if os.path.exists(ckpt_dir):
+        raise ValueError(f"Checkpoint directory {ckpt_dir} already exists. Please delete or change it.")
+    
     checkpoint_callback = ModelCheckpoint(
         dirpath=ckpt_dir,
         monitor=config.params.pred_metric,

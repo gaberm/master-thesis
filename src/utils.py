@@ -22,6 +22,7 @@ def get_device(config):
         return torch.device("mps")
     if platform.system() == "Linux":
         devices = config.trainer.devices[platform.system().lower()]
+        print(type(devices))
         if type(devices) == list:
             device_num = devices[0]
         else:
