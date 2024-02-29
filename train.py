@@ -1,8 +1,6 @@
 import hydra
 import dotenv
 import platform
-import os
-import shutil
 import lightning.pytorch as pl
 from lightning.pytorch.loggers import WandbLogger
 from lightning.pytorch.callbacks import ModelCheckpoint, LearningRateMonitor

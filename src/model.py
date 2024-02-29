@@ -1,8 +1,6 @@
 from transformers import AutoTokenizer, AutoModelForSequenceClassification
 import adapters
-import torch
-from peft import get_peft_model, LoraConfig
-from src.utils import get_best_checkpoint
+# from peft import get_peft_model, LoraConfig
 
 
 def load_model(config):

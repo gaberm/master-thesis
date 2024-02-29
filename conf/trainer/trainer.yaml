@@ -8,8 +8,5 @@ devices:
 strategy:
   darwin: auto
   linux: ddp
-map_location:
-  darwin: mps
-  linux: cuda
 save_top_k: -1
 exp_name: xnli_mbert_madx

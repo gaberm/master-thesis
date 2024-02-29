@@ -1,7 +1,9 @@
 import os
 import re
+import platform
+import torch
 
-def get_best_checkpoint(ckpt_dir, with_file_extension=True):
+def get_best_checkpoint(ckpt_dir):
     files = []
     # get all files in the checkpoint directory
     for filename in os.listdir(ckpt_dir):
@@ -12,7 +14,14 @@ def get_best_checkpoint(ckpt_dir, with_file_extension=True):
     pred_scores = [float(re.findall(r"0.\d{1,3}", file)[0]) for file in files]
     best_ckpt = f"{ckpt_dir}/{files[pred_scores.index(max(pred_scores))]}"
     
-    if with_file_extension:
-        return best_ckpt
+    return best_ckpt
+
+
+def get_device(config):
+    if platform.system() == "Darwin":
+        return torch.device("mps")
+    if platform.system() == "Linux":
+        devices = ",".join(map(str, config.trainer.device[platform.system().lower()]))
+        return torch.device(f"cuda:{devices}")
     else:
-        return best_ckpt.split(".")[0]
+        raise ValueError("System not supported.")
