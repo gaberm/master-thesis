@@ -7,7 +7,7 @@ def load_model(config):
     source_lang = config.params.source_lang
     using_madx = "madx" in config.keys()
     # using_lora = "lora" in config.keys()
-    test_run = "ckpt_dir" in config.model.keys()
+    load_ckpt = config.model.load_ckpt
 
     model = AutoModelForSequenceClassification.from_pretrained(config.model.hf_path, num_labels=config.model.num_labels)
 
@@ -26,7 +26,7 @@ def load_model(config):
         task_adapter_name = config.madx.task_adapter.name
         model.add_adapter(task_adapter_name, config="seq_bn")
        
-        if not test_run:
+        if load_ckpt:
             # train_adapter freezes the weights of the model 
             # and the language adapters to prevent them from further finetuning
             model.train_adapter([task_adapter_name]) 

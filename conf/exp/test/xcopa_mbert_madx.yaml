@@ -8,7 +8,7 @@ defaults:
 
 model:
   num_labels: 2
-  ckpt_dir: /ceph/mgaber/data/checkpoints/xcopa_mbert_madx/
+  load_ckpt: true
 madx:
   lang_adapter:
     et: et/wiki@ukp

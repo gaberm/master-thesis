@@ -6,6 +6,6 @@ defaults:
   - override /trainer: trainer
 
 model:
-  ckpt_dir: /ceph/mgaber/data/checkpoints/xnli_xlmr_fft/
+  load_ckpt: true
 trainer:
   exp_name: xnli_xlmr_fft

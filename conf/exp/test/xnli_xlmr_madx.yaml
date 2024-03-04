@@ -17,6 +17,6 @@ madx:
     vi: vi/wiki@ukp
     zh: zh/wiki@ukp
 model:
-  ckpt_dir: /ceph/mgaber/data/checkpoints/xnli_xlmr_madx/
+  load_ckpt: true
 trainer:
   exp_name: xnli_xlmr_madx

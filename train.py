@@ -15,6 +15,7 @@ dotenv.load_dotenv(".env")
 def main(config):
     # run the experiment for 5 different seeds
     for seed in config.params.seeds:
+        # seed everything for reproducibility
         pl.seed_everything(seed, workers=True) 
 
         # print the config for the current run

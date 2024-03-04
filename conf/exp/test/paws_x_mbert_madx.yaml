@@ -14,7 +14,7 @@ dataset:
     test_split: validation
 model:
   num_labels: 2
-  ckpt_dir: /ceph/mgaber/data/checkpoints/paws_x_mbert_madx/sweet-leaf-152
+  load_ckpt: true
 madx:
   lang_adapter:
     de: de/wiki@ukp

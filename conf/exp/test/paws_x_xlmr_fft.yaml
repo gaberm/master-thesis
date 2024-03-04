@@ -14,6 +14,6 @@ dataset:
     test_split: validation
 model:
   num_labels: 2
-  ckpt_dir: /ceph/mgaber/data/checkpoints/paws_x_xlmr_fft/
+  load_ckpt: true
 trainer:
   exp_name: paws_x_xlmr_fft

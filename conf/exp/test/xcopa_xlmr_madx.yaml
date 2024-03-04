@@ -9,7 +9,7 @@ defaults:
   
 model:
   num_labels: 2
-  ckpt_dir: /ceph/mgaber/data/checkpoints/xcopa_xlmr_madx/
+  load_ckpt: trues
 madx:
   lang_adapter:
     et: et/wiki@ukp

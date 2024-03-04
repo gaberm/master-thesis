@@ -72,8 +72,12 @@ class LModel(LightningModule):
         pred_score = self.pred_metric.compute()
         self.log(f"{self.uncert_metric_name} {self.target_lang}", uncert_score, prog_bar=True)
         self.log(f"{self.pred_metric_name} {self.target_lang}", pred_score, prog_bar=True)
-        self.result_lst.append([self.target_lang, self.uncert_metric_name, uncert_score])
-        self.result_lst.append([self.target_lang, self.pred_metric_name, pred_score])
+        self.result_lst.append([self.target_lang, 
+                                self.uncert_metric_name, 
+                                float(uncert_score)])
+        self.result_lst.append([self.target_lang, 
+                                self.pred_metric_name, 
+                                float(pred_score)])
         # reset metrics for the next target language
         self.uncert_metric.reset()
         self.pred_metric.reset()

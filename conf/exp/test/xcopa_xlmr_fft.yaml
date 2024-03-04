@@ -9,6 +9,6 @@ defaults:
 
 model:
   num_labels: 2
-  ckpt_dir: /ceph/mgaber/data/checkpoints/xcopa_xlmr_fft/
+  load_ckpt: true
 trainer:
   exp_name: xcopa_xlmr_fft
