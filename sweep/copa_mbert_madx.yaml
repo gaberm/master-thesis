@@ -15,4 +15,4 @@ command:
 - ${interpreter}
 - ${program}
 - ${args_no_hyphens}
-- +exp=sweep/xcopa_mbert_madx
+- +exp=sweep/copa_mbert_madx

@@ -7,7 +7,8 @@ defaults:
   - override /madx: madx
   - override /model: xlmr
   - override /params: params
-
+  - override /trainer: trainer
+ 
 madx:
   lang_adapter:
     et: et/wiki@ukp
@@ -19,8 +20,10 @@ madx:
     vi: vi/wiki@ukp
     zh: zh/wiki@ukp
   task_adapter:
-    name: xcopa
+    name: copa
 model:
   num_labels: 2
 params:
-  max_epochs: 2
+  lr: 1e-4
+trainer:
+  exp_name: copa_xlmr_madx

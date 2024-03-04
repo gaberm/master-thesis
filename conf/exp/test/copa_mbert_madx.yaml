@@ -2,13 +2,13 @@
 
 defaults:
   - override /dataset:
-    - balanced_copa
-    - social_i_qa
-  - override /model: mbert
+    - xcopa
   - override /madx: madx
-  - override /params: params
   - override /trainer: trainer
 
+model:
+  num_labels: 2
+  load_ckpt: true
 madx:
   lang_adapter:
     et: et/wiki@ukp
@@ -20,10 +20,6 @@ madx:
     vi: vi/wiki@ukp
     zh: zh/wiki@ukp
   task_adapter:
-    name: xcopa
-model:
-  num_labels: 2
-params:
-  lr: 1e-4
+    name: copa
 trainer:
-  exp_name: xcopa_mbert_madx
+  exp_name: copa_mbert_madx

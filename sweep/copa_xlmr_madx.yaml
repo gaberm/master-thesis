@@ -7,10 +7,12 @@ metric:
   name: accuracy
 parameters:
   params.lr:
-    values: [2e-5, 3e-5, 5e-5]
+    values: [2e-5, 3e-5, 5e-5, 1e-4]
+  madx.task_adapter.reduction_factor:
+    values: [4, 16]
 command:
 - ${env}
 - ${interpreter}
 - ${program}
 - ${args_no_hyphens}
-- +exp=sweep/xcopa_mbert_fft
+- +exp=sweep/copa_xlmr_madx

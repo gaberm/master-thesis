@@ -19,7 +19,7 @@ madx:
     vi: vi/wiki@ukp
     zh: zh/wiki@ukp
   task_adapter:
-    name: xcopa
+    name: copa
 model:
   num_labels: 2
 params:

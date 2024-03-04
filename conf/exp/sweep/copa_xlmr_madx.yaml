@@ -2,14 +2,12 @@
 
 defaults:
   - override /dataset:
-    - xcopa
+    - balanced_copa
+    - social_i_qa
   - override /madx: madx
   - override /model: xlmr
-  - override /trainer: trainer
-  
-model:
-  num_labels: 2
-  load_ckpt: trues
+  - override /params: params
+
 madx:
   lang_adapter:
     et: et/wiki@ukp
@@ -21,6 +19,8 @@ madx:
     vi: vi/wiki@ukp
     zh: zh/wiki@ukp
   task_adapter:
-    name: xcopa
-trainer:
-  exp_name: xcopa_xlmr_madx
+    name: copa
+model:
+  num_labels: 2
+params:
+  max_epochs: 2

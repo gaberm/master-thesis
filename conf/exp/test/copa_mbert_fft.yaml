@@ -4,11 +4,10 @@ defaults:
   - override /dataset:
     - xcopa
   - override /madx: null
-  - override /model: xlmr
   - override /trainer: trainer
 
 model:
   num_labels: 2
   load_ckpt: true
 trainer:
-  exp_name: xcopa_xlmr_fft
+  exp_name: copa_mbert_fft
