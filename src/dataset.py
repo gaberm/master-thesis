@@ -13,9 +13,9 @@ def create_sentence_pairs(dataset, dataset_name, lang, split):
         case "balanced_copa":
             for premise, question in zip(dataset[split]["premise"], dataset[split]["question"]):
                 if question == "cause":
-                    sentence = premise + " " + "What is the cause?"
+                    sentence = premise + " " + "What was the cause?"
                 elif question == "effect":
-                    sentence = premise + " " + "What is the effect?"
+                    sentence = premise + " " + "What was the effect?"
                 sentence_list.append(sentence)
             question_list = sentence_list + sentence_list 
             choice1_list = [choice1 for choice1 in dataset[split]["choice1"]]
