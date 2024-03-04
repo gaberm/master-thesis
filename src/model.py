@@ -26,7 +26,7 @@ def load_model(config):
         task_adapter_name = config.madx.task_adapter.name
         model.add_adapter(task_adapter_name, config="seq_bn")
        
-        if load_ckpt:
+        if not load_ckpt:
             # train_adapter freezes the weights of the model 
             # and the language adapters to prevent them from further finetuning
             model.train_adapter([task_adapter_name]) 
