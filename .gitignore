@@ -14,3 +14,4 @@
 /conf/.DS_Store
 /train.log
 /test.log
+train_ddp_process_1.log
