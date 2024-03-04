@@ -26,13 +26,13 @@ def load_metric(config, metric_type):
         case ("pred", "accuracy", _):
             metric = Accuracy(task="multiclass", num_classes=num_labels, average="micro").to(device)
         case ("uncert", "ece", 2):
-            metric = BinaryCalibrationError(n_bins=10, norm="l1").to(device)
+            metric = BinaryCalibrationError(n_bins=100, norm="l1").to(device)
         case ("uncert", "ece", _):
-            metric = MulticlassCalibrationError(num_classes=num_labels, n_bins=10, norm="l1").to(device)
+            metric = MulticlassCalibrationError(num_classes=num_labels, n_bins=100, norm="l1").to(device)
         case ("uncert" "mce", 2):
-            metric = BinaryCalibrationError(n_bins=15, norm="max").to(device)
+            metric = BinaryCalibrationError(n_bins=100, norm="max").to(device)
         case ("uncert", "mce", _):
-            metric = MulticlassCalibrationError(num_classes=num_labels, n_bins=10, norm="max").to(device)
+            metric = MulticlassCalibrationError(num_classes=num_labels, n_bins=100, norm="max").to(device)
         case (_, _, _):
             raise ValueError(f"Metric {metric_name} not supported.")
     

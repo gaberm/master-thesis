@@ -4,11 +4,12 @@ import platform
 import os
 import lightning.pytorch as pl
 import pandas as pd
+import numpy as np
 from lightning.pytorch.loggers import WandbLogger
 from src.model import load_model, load_tokenizer
 from src.dataset import create_test_loader
 from src.lightning import LModel
-from src.utils import get_best_checkpoint, get_device
+from src.utils import get_best_checkpoint, get_device, create_result_csv
 
 dotenv.load_dotenv(override=True)
 
@@ -23,7 +24,7 @@ def main(config):
 
         # load model
         model = load_model(config)
-        ckpt_path = get_best_checkpoint(f"{config.model.data_dir}checkpoint/{config.trainer.exp_name}/seed_{seed}")
+        ckpt_path = get_best_checkpoint(f"{config.data_dir[platform.system().lower()]}checkpoints/{config.trainer.exp_name}/seed_{seed}")
         device = get_device(config)
         l_model = LModel.load_from_checkpoint(ckpt_path, model=model, map_location=device)
         l_model.model.eval()
@@ -48,13 +49,14 @@ def main(config):
             trainer.test(model=l_model, dataloaders=test_loader)
         
         # save test results as csv
-        result_df = pd.DataFrame(l_model.result_lst, columns=["target_lang", "metric", "score"])
         try:
             os.mkdir(f"res/test/{config.trainer.exp_name}")
         except FileExistsError:
             pass
-        result_df.to_csv(f"res/test/{config.trainer.exp_name}/seed_{seed}.csv", index=False)
+        np.save(f"res/test/{config.trainer.exp_name}/seed_{seed}", l_model.result_lst)
 
+    # create result csv
+    create_result_csv(f"res/test/{config.trainer.exp_name}")
 
 if __name__ == "__main__":
     main()

@@ -30,7 +30,7 @@ def main(config):
         train_loader, val_loader = create_train_loader(config, tokenizer)
         
         # create lightning model and initialize wandb logger
-        l_model = LModel(model, config)
+        l_model = LModel(model, config, seed)
         wandb_logger = WandbLogger(project=config.wandb.project)
 
         ckpt_dir = f"{config.data_dir[system]}/checkpoints/{config.trainer.exp_name}/seed_{seed}"

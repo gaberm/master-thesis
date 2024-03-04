@@ -3,6 +3,9 @@ import re
 import platform
 import torch
 import omegaconf
+import numpy as np
+import pandas as pd
+
 
 def get_best_checkpoint(ckpt_dir):
     files = []
@@ -30,3 +33,25 @@ def get_device(config):
         return torch.device(f"cuda:{device_num}")
     else:
         raise ValueError("System not supported.")
+    
+
+def create_result_csv(result_dir):
+    # get all files in the checkpoint directory
+    files = []
+    for filename in os.listdir(result_dir):
+        if os.path.isfile(os.path.join(result_dir, filename)):
+            files.append(filename)
+
+    # add all result lists for each seed together
+    df_data = []
+    for file in files:
+        df_data += np.load(f"{result_dir}/{file}", allow_pickle=True)
+    df = pd.DataFrame(df_data, columns=["seed", "target_lang", "metric", "score"])
+
+    # save the complete result list as csv
+    df.to_csv(f"{df}/test_results.csv", sep=";", decimal=",", index=False)
+
+    # remove all result lists
+    for file in files:
+        os.remove(f"{result_dir}/{file}")
+

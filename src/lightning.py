@@ -8,7 +8,7 @@ from .optimizer import load_optimizer
 from .metric import load_metric
 
 class LModel(LightningModule):
-    def __init__(self, model, config):
+    def __init__(self, model, config, seed):
         super().__init__()
         self.model = model
         self.pred_metric = load_metric(config, "pred")
@@ -25,6 +25,7 @@ class LModel(LightningModule):
         self.ce_loss = torch.nn.CrossEntropyLoss(label_smoothing=self.label_smoothing)
         self.data_dir = config.data_dir[platform.system().lower()]
         self.result_lst = []
+        self.seed = seed
         self.save_hyperparameters()
 
     def forward(self, inputs, target):
@@ -72,10 +73,12 @@ class LModel(LightningModule):
         pred_score = self.pred_metric.compute()
         self.log(f"{self.uncert_metric_name} {self.target_lang}", uncert_score, prog_bar=True)
         self.log(f"{self.pred_metric_name} {self.target_lang}", pred_score, prog_bar=True)
-        self.result_lst.append([self.target_lang, 
+        self.result_lst.append([self.seed,
+                                self.target_lang, 
                                 self.uncert_metric_name, 
                                 float(uncert_score)])
-        self.result_lst.append([self.target_lang, 
+        self.result_lst.append([self.seed,
+                                self.target_lang, 
                                 self.pred_metric_name, 
                                 float(pred_score)])
         # reset metrics for the next target language
