@@ -14,7 +14,7 @@ dotenv.load_dotenv(".env")
 @hydra.main(config_path="conf", config_name="config", version_base="1.3")
 def main(config):
     # run the experiment for 5 different seeds
-    for seed in config.params.seed:
+    for seed in config.params.seeds:
         pl.seed_everything(seed, workers=True) 
 
         # print the config for the current run
@@ -32,7 +32,7 @@ def main(config):
         l_model = LModel(model, config)
         wandb_logger = WandbLogger(project=config.wandb.project)
 
-        ckpt_dir = f"{config.data_dir[system]}/checkpoints/{config.trainer.exp_name}/seed_{config.params.seed}"
+        ckpt_dir = f"{config.data_dir[system]}/checkpoints/{config.trainer.exp_name}/seed_{seed}"
         # check to avoid overwriting of existing checkpoints
         if os.path.exists(ckpt_dir):
             raise ValueError(f"Checkpoint directory {ckpt_dir} already exists. Please delete or change it.")
