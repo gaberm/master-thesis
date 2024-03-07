@@ -24,6 +24,7 @@ class LModel(LightningModule):
         self.label_smoothing = config.params.label_smoothing
         self.ce_loss = torch.nn.CrossEntropyLoss(label_smoothing=self.label_smoothing)
         self.data_dir = config.data_dir[platform.system().lower()]
+        self.exp_name = config.trainer.exp_name
         self.result_lst = []
         self.seed = seed
         self.save_hyperparameters()
@@ -73,11 +74,13 @@ class LModel(LightningModule):
         pred_score = self.pred_metric.compute()
         self.log(f"{self.uncert_metric_name} {self.target_lang}", uncert_score, prog_bar=True)
         self.log(f"{self.pred_metric_name} {self.target_lang}", pred_score, prog_bar=True)
-        self.result_lst.append([self.seed,
+        self.result_lst.append([self.exp_name,
+                                self.seed,
                                 self.target_lang, 
                                 self.uncert_metric_name, 
                                 float(uncert_score)])
-        self.result_lst.append([self.seed,
+        self.result_lst.append([self.exp_name,
+                                self.seed,
                                 self.target_lang, 
                                 self.pred_metric_name, 
                                 float(pred_score)])
@@ -95,12 +98,15 @@ class LModel(LightningModule):
                 optimizer, 
                 num_warmup_steps=self.trainer.estimated_stepping_batches*0.1, 
                 num_training_steps=self.trainer.estimated_stepping_batches)
-            scheduler_dict = {"optimizer": optimizer,
-                              "lr_scheduler": {
-                                    "scheduler": scheduler,
-                                    "interval": "step",
-                                    "frequency": 1,
-                                    "name": "lr_scheduler"}}
+            scheduler_dict = {
+                "optimizer": optimizer,
+                "lr_scheduler": {
+                    "scheduler": scheduler,
+                    "interval": "step",
+                    "frequency": 1,
+                    "name": "lr_scheduler"
+                }
+            }
             return scheduler_dict
         else:
             return optimizer
