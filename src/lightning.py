@@ -149,18 +149,18 @@ class CopaModel(LightningModule):
         # (copa: 2, social_i_qa: 3) for xcopa, we have to handle the training and inference differently.
         # Details can be found in the paper: https://arxiv.org/abs/2005.00333
         idx = 0
-        softmax_vec = []
-        label_vec = []
+        prob_lst = []
+        label_lst = []
         while idx < len(outputs.logits):
             if "copa":
-                softmax_vec.append(outputs.logits[idx:idx+1].softmax(dim=-1).tolist())
-                label_vec.append(batch["labels"][idx:idx+1].tolist())
+                prob_lst.append(outputs.logits[idx:idx+1].softmax(dim=-1).tolist())
+                label_lst.append(batch["labels"][idx:idx+1].tolist())
                 idx += 2
             if "socialiqa":
-                softmax_vec.append(outputs.logits[idx:idx+2].softmax(dim=-1).tolist())
-                label_vec.append(batch["labels"][idx:idx+2].tolist())
+                prob_lst.append(outputs.logits[idx:idx+2].softmax(dim=-1).tolist())
+                label_lst.append(batch["labels"][idx:idx+2].tolist())
                 idx += 3
-        loss = self.ce_loss(torch.tensor(softmax_vec), torch.tensor(label_vec))
+        loss = self.ce_loss(torch.tensor(prob_lst), torch.tensor(label_lst))
         self.log("train_loss", loss)
         return loss
     
@@ -168,18 +168,18 @@ class CopaModel(LightningModule):
         batch = {k: v.to(self.device) for k, v in batch.items()}
         outputs = self.model(**batch)
         idx = 0
-        softmax_vec = []
-        label_vec = []
+        prob_lst = []
+        label_lst = []
         while idx < len(outputs.logits):
             if "copa":
-                softmax_vec.append(outputs.logits[idx:idx+1].softmax(dim=-1).tolist())
-                label_vec.append(batch["labels"][idx:idx+1].tolist())
+                prob_lst.append(outputs.logits[idx:idx+1].softmax(dim=-1).tolist())
+                label_lst.append(batch["labels"][idx:idx+1].tolist())
                 idx += 2
             if "socialiqa":
-                softmax_vec.append(outputs.logits[idx:idx+2].softmax(dim=-1).tolist())
-                label_vec.append(batch["labels"][idx:idx+2].tolist())
+                prob_lst.append(outputs.logits[idx:idx+2].softmax(dim=-1).tolist())
+                label_lst.append(batch["labels"][idx:idx+2].tolist())
                 idx += 3
-        preds = torch.tensor(softmax_vec).argmax(dim=-1)
+        preds = torch.tensor(prob_lst).argmax(dim=-1)
         self.pred_metric.update(preds, batch["labels"])
     
     def on_validation_epoch_end(self):
@@ -197,14 +197,14 @@ class CopaModel(LightningModule):
         batch = {k: v.to(self.device) for k, v in batch.items()}
         outputs = self.model(**batch)
         idx = 0
-        softmax_vec = []
-        label_vec = []
+        prob_lst = []
+        label_lst = []
         while idx < len(outputs.logits):
-            softmax_vec.append(outputs.logits[idx:idx+1].softmax(dim=-1).tolist())
-            label_vec.append(batch["labels"][idx:idx+1].tolist())
+            prob_lst.append(outputs.logits[idx:idx+1].softmax(dim=-1).tolist())
+            label_lst.append(batch["labels"][idx:idx+1].tolist())
             idx += 2
-        preds = torch.tensor(softmax_vec).argmax(dim=-1)
-        probas = torch.tensor(softmax_vec)[:,1]
+        preds = torch.tensor(prob_lst).argmax(dim=-1)
+        probas = torch.tensor(prob_lst)[:,1]
         self.uncert_metric.update(probas, batch["labels"])
         self.pred_metric.update(preds, batch["labels"])
 
