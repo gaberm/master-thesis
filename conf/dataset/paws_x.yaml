@@ -1,13 +1,2 @@
 paws_x:
-  hf_name: paws-x
-  languages:
-    - de
-    - en
-    - es
-    # - fr
-    - ja
-    # - ko
-    - zh
-  train_split: train
-  val_split: validation
-  test_split: test
+  batch_size: 32

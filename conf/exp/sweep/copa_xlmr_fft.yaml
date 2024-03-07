@@ -2,8 +2,8 @@
 
 defaults:
   - override /dataset:
-    - balanced_copa
-    - social_i_qa
+    - copa
+    - siqa
   - override /madx: null
   - override /model: xlmr
   - override /params: params
