@@ -35,21 +35,24 @@ def get_device(config):
         raise ValueError("System not supported.")
     
 
-def create_result_csv(result_dir):
+def create_test_csv(result_dir):
     # get all files in the checkpoint directory
     files = []
     for filename in os.listdir(result_dir):
         if os.path.isfile(os.path.join(result_dir, filename)):
             files.append(filename)
 
-    # add all result lists for each seed together
-    df_data = []
+    # merge all result lists into one final dataframe
+    final_df = pd.DataFrame(columns=["seed", "target_lang", "metric", "score"])
     for file in files:
-        df_data += np.load(f"{result_dir}/{file}", allow_pickle=True)
-    df = pd.DataFrame(df_data, columns=["seed", "target_lang", "metric", "score"])
+        df = pd.DataFrame(
+            np.load(f"{result_dir}/{file}", allow_pickle=True),
+            columns=["seed", "target_lang", "metric", "score"]
+        )
+        final_df = pd.concat([final_df, df], axis=0).reset_index(drop=True)
 
-    # save the complete result list as csv
-    df.to_csv(f"{df}/test_results.csv", sep=";", decimal=",", index=False)
+    # save the final dataframe as csv
+    final_df.to_csv(f"{df}/test_results.csv", sep=";", decimal=",", index=False)
 
     # remove all result lists
     for file in files:
