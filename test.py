@@ -9,7 +9,7 @@ from lightning.pytorch.loggers import WandbLogger
 from src.model import load_model, load_tokenizer
 from src.dataset import create_test_loader
 from src.lightning import LModel
-from src.utils import get_best_checkpoint, get_device, create_result_csv
+from src.utils import get_best_checkpoint, get_device, save_test_results, create_test_csv 
 
 dotenv.load_dotenv(override=True)
 
@@ -48,15 +48,10 @@ def main(config):
             l_model.target_lang = target_lang
             trainer.test(model=l_model, dataloaders=test_loader)
         
-        # save test results as csv
-        try:
-            os.mkdir(f"res/test/{config.trainer.exp_name}")
-        except FileExistsError:
-            pass
-        np.save(f"res/test/{config.trainer.exp_name}/seed_{seed}", l_model.result_lst)
+        save_test_results(l_model, config, seed)
 
     # create result csv
-    create_result_csv(f"res/test/{config.trainer.exp_name}")
+    create_test_csv(f"res/test/{config.trainer.exp_name}")
 
 if __name__ == "__main__":
     main()

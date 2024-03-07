@@ -1,6 +1,7 @@
 import os
 import re
 import platform
+import shutil
 import torch
 import omegaconf
 import numpy as np
@@ -35,23 +36,34 @@ def get_device(config):
         raise ValueError("System not supported.")
     
 
-def create_result_csv(result_dir):
-    # get all files in the checkpoint directory
+def save_test_results(model, config, seed):
+    # try to create a tempory directory to save the results
+    # the directory will be deleted after we have created the csv
+    try:
+        os.mkdir(f"res/test/{config.trainer.exp_name}")
+    except FileExistsError:
+        pass
+    np.save(f"res/test/{config.trainer.exp_name}/seed_{seed}", model.result_lst)
+    
+
+def create_test_csv(exp_name):
     files = []
+    result_dir = f"res/test/{exp_name}"
     for filename in os.listdir(result_dir):
         if os.path.isfile(os.path.join(result_dir, filename)):
             files.append(filename)
 
-    # add all result lists for each seed together
-    df_data = []
+    # we merge the results list of all seeds into one dataframe
+    final_df = pd.DataFrame(columns=["seed", "target_lang", "metric", "score"])
     for file in files:
-        df_data += np.load(f"{result_dir}/{file}", allow_pickle=True)
-    df = pd.DataFrame(df_data, columns=["seed", "target_lang", "metric", "score"])
+        df = pd.DataFrame(
+            np.load(f"{result_dir}/{file}", allow_pickle=True),
+            columns=["seed", "target_lang", "metric", "score"]
+        )
+        final_df = pd.concat([final_df, df], axis=0).reset_index(drop=True)
+    final_df['score'] = final_df['score'].astype(float)
 
-    # save the complete result list as csv
-    df.to_csv(f"{df}/test_results.csv", sep=";", decimal=",", index=False)
+    final_df.to_csv(f"res/test/{exp_name}.csv", sep=";", decimal=",", index=False)
 
-    # remove all result lists
-    for file in files:
-        os.remove(f"{result_dir}/{file}")
-
+    # remove all result lists by deleting the result directory
+    shutil.rmtree("result_dir")
