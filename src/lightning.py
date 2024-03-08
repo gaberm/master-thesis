@@ -6,34 +6,28 @@ import platform
 from transformers import get_scheduler
 from .optimizer import load_optimizer
 from .metric import load_metric
+from .model import load_model
 
 class LModel(LightningModule):
-    def __init__(self, model, config, seed):
+    def __init__(self, config, seed):
         super().__init__()
-        # model
-        self.model = model
-
-        # metrics
+        self.model = load_model(config)
         self.pred_metric = load_metric(config, "pred")
         self.pred_metric_name = config.params.pred_metric
         self.uncert_metric = load_metric(config, "uncert")
         self.uncert_metric_name = config.params.uncert_metric
-
-        # cross-lingual transfer parameters
         self.source_lang = config.params.source_lang
         self.target_lang = ""
         self.task_adapter_name = config.madx.task_adapter.name if "madx" in config.keys() else None
-
-        # hyperparameters and other parameters
         self.optimizer = config.params.optimizer
         self.lr = config.params.lr
         self.num_labels = config.model.num_labels
-        self.loss = torch.nn.CrossEntropyLoss(label_smoothing=self.label_smoothing)
+        self.label_smoothing = config.params.label_smoothing
+        self.ce_loss = torch.nn.CrossEntropyLoss(label_smoothing=self.label_smoothing)
         self.data_dir = config.data_dir[platform.system().lower()]
         self.exp_name = config.trainer.exp_name
         self.result_lst = []
         self.seed = seed
-
         self.save_hyperparameters()
 
     def forward(self, inputs, target):
@@ -54,7 +48,7 @@ class LModel(LightningModule):
     
     def on_validation_epoch_end(self):
         val_score = self.pred_metric.compute()
-        self.log(f"{self.pred_metric_name}", val_score, prog_bar=True)
+        self.log(f"{self.pred_metric_name}", val_score, prog_bar=True, sync_dist=True)
         self.pred_metric.reset()
 
     def on_test_epoch_start(self):
@@ -117,38 +111,32 @@ class LModel(LightningModule):
             return optimizer
         
 
-class CopaModel(LightningModule):
-    def __init__(self, model, config, seed):
+class LModelCopa(LightningModule):
+    def __init__(self, config, seed):
         super().__init__()
-        # model
-        self.model = model
-
-        # metrics
+        self.model = load_model(config)
         self.pred_metric = load_metric(config, "pred")
         self.pred_metric_name = config.params.pred_metric
         self.uncert_metric = load_metric(config, "uncert")
         self.uncert_metric_name = config.params.uncert_metric
-
-        # cross-lingual transfer parameters
         self.source_lang = config.params.source_lang
         self.target_lang = ""
         self.task_adapter_name = config.madx.task_adapter.name if "madx" in config.keys() else None
-
-        # hyperparameters and other parameters
         self.optimizer = config.params.optimizer
         self.lr = config.params.lr
         self.num_labels = config.model.num_labels
+        self.label_smoothing = config.params.label_smoothing
         self.ce_loss = torch.nn.CrossEntropyLoss(label_smoothing=self.label_smoothing)
         self.data_dir = config.data_dir[platform.system().lower()]
+        self.exp_name = config.trainer.exp_name
         self.result_lst = []
         self.seed = seed
-
         self.save_hyperparameters()
 
     def forward(self, inputs, target):
         return self.model(inputs, target)
 
-    def training_step(self, batch, batch_idx):
+    def training_step(self, batch, batch_idx, dataloader_idx):
         batch = {k: v.to(self.device) for k, v in batch.items()}
         outputs = self.model(**batch)
         # Because we train the model on two datasets with a different number of labels 
@@ -158,11 +146,13 @@ class CopaModel(LightningModule):
         prob_lst = []
         label_lst = []
         while idx < len(outputs.logits):
-            if "copa":
+            # dataloader_idx == 0: copa
+            if dataloader_idx == 0:
                 prob_lst.append(outputs.logits[idx:idx+1].softmax(dim=-1).tolist())
                 label_lst.append(batch["labels"][idx:idx+1].tolist())
                 idx += 2
-            if "socialiqa":
+            # dataloader_idx == 1: social_i_qa
+            if dataloader_idx == 1:
                 prob_lst.append(outputs.logits[idx:idx+2].softmax(dim=-1).tolist())
                 label_lst.append(batch["labels"][idx:idx+2].tolist())
                 idx += 3
@@ -170,18 +160,18 @@ class CopaModel(LightningModule):
         self.log("train_loss", loss)
         return loss
     
-    def validation_step(self, batch, batch_idx):
+    def validation_step(self, batch, batch_idx, dataloader_idx):
         batch = {k: v.to(self.device) for k, v in batch.items()}
         outputs = self.model(**batch)
         idx = 0
         prob_lst = []
         label_lst = []
         while idx < len(outputs.logits):
-            if "copa":
+            if dataloader_idx == 0:
                 prob_lst.append(outputs.logits[idx:idx+1].softmax(dim=-1).tolist())
                 label_lst.append(batch["labels"][idx:idx+1].tolist())
                 idx += 2
-            if "socialiqa":
+            if dataloader_idx == 1:
                 prob_lst.append(outputs.logits[idx:idx+2].softmax(dim=-1).tolist())
                 label_lst.append(batch["labels"][idx:idx+2].tolist())
                 idx += 3
@@ -190,7 +180,7 @@ class CopaModel(LightningModule):
     
     def on_validation_epoch_end(self):
         val_score = self.pred_metric.compute()
-        self.log(f"{self.pred_metric_name}", val_score, prog_bar=True)
+        self.log(f"{self.pred_metric_name}", val_score, prog_bar=True, sync_dist=True)
         self.pred_metric.reset()
 
     def on_test_epoch_start(self):
@@ -250,3 +240,10 @@ class CopaModel(LightningModule):
             return scheduler_dict
         else:
             return optimizer
+        
+
+def load_lightning_model(config, seed):
+    if "copa" in config.trainer.exp_name:
+        return LModelCopa(config, seed)
+    else:
+        return LModel(config, seed)

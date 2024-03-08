@@ -1,7 +1,5 @@
 import os
-from transformers import DataCollatorWithPadding
-from torch.utils.data import DataLoader
-from datasets import load_dataset, load_from_disk, Dataset, concatenate_datasets
+from datasets import load_dataset, load_from_disk, Dataset
 import pandas as pd
 
 
@@ -26,7 +24,7 @@ def prepare_copa(dataset):
                 question = f"{row['premise']} What was the effect?"
             # add the question twice to match the number of choices
             question_lst += [question] * 2
-            choice_lst += row["choice1"] + row["choice2"]
+            choice_lst += [row["choice1"]] + [row["choice2"]]
             if row["label"] == 0:
                 label_lst += [1] + [0]
             else:
@@ -50,7 +48,7 @@ def prepare_siqa(dataset):
         question = f"{row['context']} {row['question']}"
         # add the question three times to match the number of choices
         question_lst += [question] * 3
-        choice_lst += row["choice1"] + row["choice2"] + row["choice3"]
+        choice_lst += [row["answerA"]] + [row["answerB"]] + [row["answerC"]]
         if row["label"] == 1:
             label_lst += [1] + [0] + [0]
         elif row["label"] == 2:
@@ -117,23 +115,37 @@ def tokenize_function(example, tokenizer):
     return tokenizer(example["sentence1"], example["sentence2"], truncation=True, padding=True)
 
 
-def load_ds(dataset, lang, split, data_dir):
-    from_disk = True
-    if not os.path.exists(f"{data_dir}/datasets/{dataset}/{lang}"):
-        os.mkdir(f"{data_dir}/datasets/{dataset}/{lang}")
-        from_disk = False
-    
-    # we load and save the dataset to disk because its faster than
-    # loading the dataset from the cache
-    if from_disk:
-        if dataset == "balanced_copa" or dataset == "social_i_qa":
-            ds = load_from_disk(f"{data_dir}/datasets/{dataset}/en/{split}")
-        else:
-            ds = load_from_disk(f"{data_dir}/datasets/{dataset}/{lang}/{split}")
+def download_ds(dataset, lang, split, data_dir):
+    not_downloaded = True
+    if dataset == "pkavumba/balanced-copa":
+        try:
+            os.makedirs(f"{data_dir}/datasets/balanced-copa/{lang}/{split}")
+        except OSError:
+            not_downloaded = False
     else:
-        if dataset == "balanced_copa" or dataset == "social_i_qa":
-            ds = load_dataset(dataset, split)
+        try:
+            os.makedirs(f"{data_dir}/datasets/{dataset}/{lang}/{split}")
+        except OSError:
+            not_downloaded = False
+
+    if not_downloaded:
+        if dataset == "pkavumba/balanced-copa":
+            ds = load_dataset(dataset, split=split)
+            ds.save_to_disk(f"{data_dir}/datasets/balanced-copa/en/{split}")
+        elif dataset == "social_i_qa":
+            ds = load_dataset(dataset, split=split)
             ds.save_to_disk(f"{data_dir}/datasets/{dataset}/en/{split}")
         else:
-            ds = load_dataset(dataset, lang, split)
+            ds = load_dataset(dataset, lang, split=split)
             ds.save_to_disk(f"{data_dir}/datasets/{dataset}/{lang}/{split}")
+
+
+def load_ds(dataset, lang, split, data_dir):
+    if dataset == "pkavumba/balanced-copa":
+        ds = load_from_disk(f"{data_dir}/datasets/balanced-copa/en/{split}")
+    elif dataset == "social_i_qa":
+        ds = load_from_disk(f"{data_dir}/datasets/{dataset}/en/{split}")
+    else:
+        ds = load_from_disk(f"{data_dir}/datasets/{dataset}/{lang}/{split}")
+
+    return ds

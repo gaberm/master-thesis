@@ -1,8 +1,7 @@
 # @package _global_
 
 defaults:
-  - override /dataset:
-    - xcopa
+  - override /dataset: xcopa
   - override /madx: null
   - override /trainer: trainer
 

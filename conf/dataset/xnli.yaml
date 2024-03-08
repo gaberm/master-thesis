@@ -1,2 +1,3 @@
-xnli:
-  batch_size: 32
+name: xnli
+batch_size: 32
+lang: [ar, de, en, es, hi, ru, sw, tr, vi, zh]

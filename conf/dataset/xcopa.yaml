@@ -1,2 +1,3 @@
-xcopa:
-  batch_size: 32
+name: xcopa
+batch_size: 32
+lang: [et, ht, id, qu, sw, tr, vi, zh]

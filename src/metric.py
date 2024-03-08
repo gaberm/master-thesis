@@ -1,39 +1,26 @@
-from torchmetrics.classification import F1Score, Accuracy, MulticlassCalibrationError, BinaryCalibrationError
-import platform
-                            
+from torchmetrics.classification import Accuracy, MulticlassCalibrationError, BinaryCalibrationError
+import platform            
 
 def load_metric(config, metric_type):
     num_labels = config.model.num_labels
-
-    match metric_type:
-        case "pred":
-            metric_name = config.params.pred_metric
-        case "uncert":
-            metric_name = config.params.uncert_metric
-        case _:
-            raise ValueError(f"Metric type {metric_type} not supported.")
+    if metric_type == "pred":
+        metric_name = config.params.pred_metric
+    elif metric_type == "uncert":
+        metric_name = config.params.uncert_metric
+    else:
+        raise ValueError(f"Invalid metric type: {metric_type}. Must be 'pred' or 'uncert'.")
     
     # device is set to "mps:0" for Mac and "cuda" for Linux
     device = config.trainer.gpu_name[platform.system().lower()]
 
-    match (metric_type, metric_name, num_labels):
-        case ("pred", "f1", 2):
-            metric = F1Score(task="binary").to(device)
-        case ("pred", "f1", _):
-            metric = F1Score(task="multiclass", num_classes=num_labels, average="micro").to(device)
-        case ("pred", "accuracy", 2):
-            metric = Accuracy(task="binary").to(device)
-        case ("pred", "accuracy", _):
-            metric = Accuracy(task="multiclass", num_classes=num_labels, average="micro").to(device)
-        case ("uncert", "ece", 2):
-            metric = BinaryCalibrationError(n_bins=10, norm="l1").to(device)
-        case ("uncert", "ece", _):
-            metric = MulticlassCalibrationError(num_classes=num_labels, n_bins=10, norm="l1").to(device)
-        case ("uncert" "mce", 2):
-            metric = BinaryCalibrationError(n_bins=10, norm="max").to(device)
-        case ("uncert", "mce", _):
-            metric = MulticlassCalibrationError(num_classes=num_labels, n_bins=10, norm="max").to(device)
-        case (_, _, _):
-            raise ValueError(f"Metric {metric_name} not supported.")
+    metrics = {"pred":{
+        "accuracy": Accuracy(task="binary").to(device) if num_labels == 2 else Accuracy(task="multiclass", num_classes=num_labels, average="micro").to(device),
+        },
+        "uncert":{
+            "ece": BinaryCalibrationError(n_bins=10, norm="l1").to(device) if num_labels == 2 else MulticlassCalibrationError(num_classes=num_labels, n_bins=10, norm="l1").to(device),
+            "mce": BinaryCalibrationError(n_bins=10, norm="max").to(device) if num_labels == 2 else MulticlassCalibrationError(num_classes=num_labels, n_bins=10, norm="max").to(device)    
+        }
+    }
+    metric = metrics[metric_type][metric_name]
     
     return metric
