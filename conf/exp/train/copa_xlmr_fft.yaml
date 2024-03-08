@@ -12,4 +12,7 @@ model:
 params:
   lr: 2e-5
 trainer:
+  devices:
+    darwin: auto
+    linux: 1
   exp_name: copa_xlmr_fft

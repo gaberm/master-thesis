@@ -139,14 +139,14 @@ class LModelCopa(LightningModule):
     def training_step(self, batch, batch_idx, dataloader_idx):
         batch = {k: v.to(self.device) for k, v in batch.items()}
         outputs = self.model(**batch)
-        # Because we train the model on two datasets with a different number of labels 
+        # because we train the model on two datasets with a different number of labels 
         # (copa: 2, social_i_qa: 3) for xcopa, we have to handle the training and inference differently.
-        # Details can be found in the paper: https://arxiv.org/abs/2005.00333
+        # details can be found in the paper: https://arxiv.org/abs/2005.00333
         idx = 0
         prob_lst = []
         label_lst = []
         while idx < len(outputs.logits):
-            # dataloader_idx == 0: copa
+            # dataloader_idx == 0: balanced-copa
             if dataloader_idx == 0:
                 prob_lst.append(outputs.logits[idx:idx+1].softmax(dim=-1).tolist())
                 label_lst.append(batch["labels"][idx:idx+1].tolist())
@@ -166,6 +166,7 @@ class LModelCopa(LightningModule):
         idx = 0
         prob_lst = []
         label_lst = []
+        print(batch_idx)
         while idx < len(outputs.logits):
             if dataloader_idx == 0:
                 prob_lst.append(outputs.logits[idx:idx+1].softmax(dim=-1).tolist())

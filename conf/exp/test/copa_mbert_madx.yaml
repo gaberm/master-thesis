@@ -21,4 +21,7 @@ madx:
   task_adapter:
     name: copa
 trainer:
+  devices:
+    darwin: auto
+    linux: 1
   exp_name: copa_mbert_madx

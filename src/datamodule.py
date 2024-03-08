@@ -28,7 +28,7 @@ class CopaDataModule(LightningDataModule):
             self.train_data = [
                 load_ds("pkavumba/balanced-copa", "en", "train", self.data_dir),
                 load_ds("social_i_qa", "en", "train", self.data_dir)
-                ]
+            ]
             self.train_data = [
                 prepare_copa(self.train_data[0]),
                 prepare_siqa(self.train_data[1])
@@ -80,7 +80,7 @@ class XcopaDataModule(LightningDataModule):
         self.tokenizer = config.tokenizer
         self.tokenizer = load_tokenizer(config)
         self.data_collator = DataCollatorWithPadding(self.tokenizer)
-        self.lang = config.dataset["xcopa"].lang
+        self.lang = config.dataset.lang
 
     def prepare_data(self):
         for lang in self.lang:
@@ -112,7 +112,7 @@ class PawsXDataModule(LightningDataModule):
         self.batch_size = config.params.batch_size
         self.tokenizer = load_tokenizer(config)
         self.data_collator = DataCollatorWithPadding(self.tokenizer)
-        self.lang = config.dataset["paws_x"].lang
+        self.lang = config.dataset.lang
 
     def prepare_data(self):
         download_ds("paws-x", "en", "train", self.data_dir)
@@ -173,7 +173,7 @@ class XnliDataModule(LightningDataModule):
         self.batch_size = config.params.batch_size
         self.tokenizer = load_tokenizer(config)
         self.data_collator = DataCollatorWithPadding(self.tokenizer)
-        self.lang = config.dataset["xnli"].lang
+        self.lang = config.dataset.lang
 
     def prepare_data(self):
         download_ds("xnli", "en", "train", self.data_dir)
@@ -183,13 +183,16 @@ class XnliDataModule(LightningDataModule):
 
     def setup(self, stage: str):
         if stage == "fit":
+            self.train_data = load_ds("xnli", "en", "train", self.data_dir)
             self.train_data = prepare_xnli(self.train_data)
             self.train_data = tokenize_ds(self.train_data, self.tokenizer)
 
+            self.val_data = load_ds("xnli", "en", "validation", self.data_dir)
             self.val_data = prepare_xnli(self.val_data)
             self.val_data = tokenize_ds(self.val_data, self.tokenizer)
         
         if stage == "test":
+            self.test_data = [load_ds("xnli", lang, "test", self.data_dir) for lang in self.lang] 
             self.test_data = [prepare_xnli(ds) for ds in self.test_data]
             self.test_data = [tokenize_ds(ds, self.tokenizer) for ds in self.test_data]
 

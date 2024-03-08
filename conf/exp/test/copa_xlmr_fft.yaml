@@ -10,4 +10,7 @@ model:
   num_labels: 2
   load_ckpt: true
 trainer:
+  devices:
+    darwin: auto
+    linux: 1
   exp_name: copa_xlmr_fft

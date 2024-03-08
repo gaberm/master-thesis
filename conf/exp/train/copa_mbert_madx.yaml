@@ -24,4 +24,7 @@ model:
 params:
   lr: 1e-4
 trainer:
+  devices:
+    darwin: auto
+    linux: 1
   exp_name: copa_mbert_madx

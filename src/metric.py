@@ -1,5 +1,5 @@
 from torchmetrics.classification import Accuracy, MulticlassCalibrationError, BinaryCalibrationError
-import platform            
+import platform
 
 def load_metric(config, metric_type):
     num_labels = config.model.num_labels

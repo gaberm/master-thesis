@@ -5,6 +5,7 @@ defaults:
   - override /model: mbert
   - override /madx: madx
   - override /params: params
+  - override /trainer: trainer
 
 madx:
   lang_adapter:
@@ -22,3 +23,7 @@ model:
   num_labels: 2
 params:
   max_epochs: 2
+trainer:
+  devices:
+    darwin: auto
+    linux: 1

@@ -4,8 +4,13 @@ defaults:
   - override /dataset: copa
   - override /madx: null
   - override /params: params
+  - override /trainer: trainer
  
 model:
   num_labels: 2
 params:
   max_epochs: 2
+trainer:
+  devices:
+    darwin: auto
+    linux: 1

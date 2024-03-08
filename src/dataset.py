@@ -92,12 +92,12 @@ def prepare_xcopa(dataset, lang):
 
 
 def prepare_xnli(dataset):
-    old_column_names = ["premise", "hypothesis", "label"]
-    new_column_names = ["sentence1", "sentence2", "labels"]
-    for old_column, new_column in zip(old_column_names, new_column_names):
-        prepared_xnli = dataset.rename_column(old_column, new_column)
+    old_col_names = ["premise", "hypothesis", "label"]
+    new_col_names = ["sentence1", "sentence2", "labels"]
+    for old_col, new_col in zip(old_col_names, new_col_names):
+        dataset = dataset.rename_column(old_col, new_col)
 
-    return prepared_xnli
+    return dataset
 
 
 def tokenize_ds(dataset, tokenizer):
