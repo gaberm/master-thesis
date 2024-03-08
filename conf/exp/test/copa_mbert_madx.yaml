@@ -3,11 +3,14 @@
 defaults:
   - override /dataset: xcopa
   - override /madx: madx
+  - override /model: params
   - override /trainer: trainer
 
 model:
   num_labels: 2
   load_ckpt: true
+params:
+  batch_size: 24
 madx:
   lang_adapter:
     et: et/wiki@ukp

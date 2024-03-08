@@ -1,5 +1,4 @@
 from lightning import LightningModule
-import pandas as pd
 import adapters
 import torch
 import platform
@@ -166,7 +165,6 @@ class LModelCopa(LightningModule):
         idx = 0
         prob_lst = []
         label_lst = []
-        print(batch_idx)
         while idx < len(outputs.logits):
             if dataloader_idx == 0:
                 prob_lst.append(outputs.logits[idx:idx+1].softmax(dim=-1).tolist())
@@ -177,7 +175,7 @@ class LModelCopa(LightningModule):
                 label_lst.append(batch["labels"][idx:idx+2].tolist())
                 idx += 3
         preds = torch.tensor(prob_lst).argmax(dim=-1)
-        self.pred_metric.update(preds, batch["labels"])
+        self.pred_metric.update(preds, torch.tensor(label_lst))
     
     def on_validation_epoch_end(self):
         val_score = self.pred_metric.compute()

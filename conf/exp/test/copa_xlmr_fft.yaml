@@ -4,11 +4,14 @@ defaults:
   - override /dataset: xcopa
   - override /madx: null
   - override /model: xlmr
+  - override /params: params
   - override /trainer: trainer
 
 model:
   num_labels: 2
   load_ckpt: true
+params:
+  batch_size: 24
 trainer:
   devices:
     darwin: auto

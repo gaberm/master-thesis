@@ -23,6 +23,7 @@ model:
   num_labels: 2
 params:
   max_epochs: 2
+  batch_size: 24
 trainer:
   devices:
     darwin: auto

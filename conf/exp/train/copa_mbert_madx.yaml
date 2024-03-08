@@ -23,6 +23,7 @@ model:
   num_labels: 2
 params:
   lr: 1e-4
+  batch_size: 24
 trainer:
   devices:
     darwin: auto

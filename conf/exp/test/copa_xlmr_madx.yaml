@@ -4,6 +4,7 @@ defaults:
   - override /dataset: xcopa
   - override /madx: madx
   - override /model: xlmr
+  - override /params: params
   - override /trainer: trainer
   
 model:
@@ -21,6 +22,8 @@ madx:
     zh: zh/wiki@ukp
   task_adapter:
     name: copa
+params:
+  batch_size: 24
 trainer:
   devices:
     darwin: auto
