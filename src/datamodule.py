@@ -1,6 +1,6 @@
 import platform
 from lightning import LightningDataModule
-from torch.utils.data import DataLoader
+from torch.utils.data import DataLoader, ConcatDataset
 from transformers import DataCollatorWithPadding
 from .model import load_tokenizer
 from .dataset import prepare_copa, prepare_siqa, prepare_xcopa, prepare_paws_x, prepare_xnli, tokenize_ds, load_ds, download_ds
@@ -52,23 +52,26 @@ class CopaDataModule(LightningDataModule):
             ]
     
     def train_dataloader(self):
-        train_dataloader = [DataLoader(
-            dataset,
-            batch_size=self.batch_size,
+        concat_dataset = ConcatDataset([
+            self.train_data[0],
+            self.train_data[1]
+        ])
+        train_dataloader = DataLoader(
+            concat_dataset,
+            batch_size=10,
             shuffle=False,
             collate_fn=self.data_collator,
             )
-            for dataset in self.train_data]
         return train_dataloader
 
     def val_dataloader(self):
         val_dataloader = [DataLoader(
             dataset,
-            batch_size=self.batch_size,
+            batch_size=10,
             shuffle=False,
             collate_fn=self.data_collator
-            ) 
-            for dataset in self.val_data]
+        )
+        for dataset in self.val_data]
         return val_dataloader
     
 

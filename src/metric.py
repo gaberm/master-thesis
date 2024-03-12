@@ -14,7 +14,7 @@ def load_metric(config, metric_type):
     device = config.trainer.gpu_name[platform.system().lower()]
 
     metrics = {"pred":{
-        "accuracy": Accuracy(task="binary").to(device) if num_labels == 2 else Accuracy(task="multiclass", num_classes=num_labels, average="micro").to(device),
+        "accuracy": Accuracy(task="binary") if num_labels == 2 else Accuracy(task="multiclass", num_classes=num_labels, average="micro").to(device),
         },
         "uncert":{
             "ece": BinaryCalibrationError(n_bins=10, norm="l1").to(device) if num_labels == 2 else MulticlassCalibrationError(num_classes=num_labels, n_bins=10, norm="l1").to(device),

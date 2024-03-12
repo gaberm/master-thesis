@@ -135,7 +135,7 @@ class LModelCopa(LightningModule):
     def forward(self, inputs, target):
         return self.model(inputs, target)
 
-    def training_step(self, batch, batch_idx, dataloader_idx):
+    def training_step(self, batch, batch_idx):
         batch = {k: v.to(self.device) for k, v in batch.items()}
         outputs = self.model(**batch)
         # because we train the model on two datasets with a different number of labels 
@@ -146,14 +146,14 @@ class LModelCopa(LightningModule):
         label_lst = []
         while idx < len(outputs.logits):
             # dataloader_idx == 0: balanced-copa
-            if dataloader_idx == 0:
-                prob_lst.append(outputs.logits[idx:idx+1].softmax(dim=-1).tolist())
-                label_lst.append(batch["labels"][idx:idx+1].tolist())
+            if batch_idx < 100:
+                prob_lst.append(outputs.logits[idx:idx+1].softmax(dim=-1))
+                label_lst.append(batch["labels"][idx:idx+1])
                 idx += 2
             # dataloader_idx == 1: social_i_qa
-            if dataloader_idx == 1:
-                prob_lst.append(outputs.logits[idx:idx+2].softmax(dim=-1).tolist())
-                label_lst.append(batch["labels"][idx:idx+2].tolist())
+            else:
+                prob_lst.append(outputs.logits[idx:idx+2].softmax(dim=-1))
+                label_lst.append(batch["labels"][idx:idx+2])
                 idx += 3
         loss = self.ce_loss(torch.tensor(prob_lst), torch.tensor(label_lst))
         self.log("train_loss", loss)
@@ -167,12 +167,12 @@ class LModelCopa(LightningModule):
         label_lst = []
         while idx < len(outputs.logits):
             if dataloader_idx == 0:
-                prob_lst.append(outputs.logits[idx:idx+1].softmax(dim=-1).tolist())
-                label_lst.append(batch["labels"][idx:idx+1].tolist())
+                prob_lst.append(outputs.logits[idx:idx+1].softmax(dim=-1))
+                label_lst.append(batch["labels"][idx:idx+1])
                 idx += 2
             if dataloader_idx == 1:
-                prob_lst.append(outputs.logits[idx:idx+2].softmax(dim=-1).tolist())
-                label_lst.append(batch["labels"][idx:idx+2].tolist())
+                prob_lst.append(outputs.logits[idx:idx+2].softmax(dim=-1))
+                label_lst.append(batch["labels"][idx:idx+2])
                 idx += 3
         preds = torch.tensor(prob_lst).argmax(dim=-1)
         self.pred_metric.update(preds, torch.tensor(label_lst))
