@@ -14,5 +14,5 @@ params:
 trainer:
   devices:
     darwin: auto
-    linux: 1
+    linux: [0]
   exp_name: copa_mbert_fft
