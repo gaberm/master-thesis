@@ -1,0 +1,9 @@
+exp_name;seed;target_lang;metric;score
+paws_x_xlmr_madx;4;de;ece;0,051836319267749786
+paws_x_xlmr_madx;4;de;accuracy;0,8569999933242798
+paws_x_xlmr_madx;4;es;ece;0,04536503180861473
+paws_x_xlmr_madx;4;es;accuracy;0,8709999918937683
+paws_x_xlmr_madx;4;ja;ece;0,08844642341136932
+paws_x_xlmr_madx;4;ja;accuracy;0,7335000038146973
+paws_x_xlmr_madx;4;zh;ece;0,08566059917211533
+paws_x_xlmr_madx;4;zh;accuracy;0,7864999771118164
