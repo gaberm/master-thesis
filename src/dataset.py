@@ -1,6 +1,10 @@
 import os
-from datasets import load_dataset, load_from_disk, Dataset
+import platform
 import pandas as pd
+from datasets import load_dataset, load_from_disk, Dataset
+from torch.utils.data import DataLoader
+from transformers import DataCollatorWithPadding
+from .model import load_tokenizer
 
 
 def prepare_paws_x(dataset):
@@ -140,12 +144,102 @@ def download_ds(dataset, lang, split, data_dir):
             ds.save_to_disk(f"{data_dir}/datasets/{dataset}/{lang}/{split}")
 
 
-def load_ds(dataset, lang, split, data_dir):
-    if dataset == "pkavumba/balanced-copa":
-        ds = load_from_disk(f"{data_dir}/datasets/balanced-copa/en/{split}")
-    elif dataset == "social_i_qa":
-        ds = load_from_disk(f"{data_dir}/datasets/{dataset}/en/{split}")
-    else:
-        ds = load_from_disk(f"{data_dir}/datasets/{dataset}/{lang}/{split}")
+def get_data_loader(config, split):
+    data_dir = config.data_dir[platform.system().lower()]
+    tokenizer = load_tokenizer(config)
+    data_collator = DataCollatorWithPadding(tokenizer)
 
-    return ds
+    if split == "train" or split == "val":
+        if config.dataset.name == "copa":
+            download_ds("pkavumba/balanced-copa", "en", split, data_dir)
+            download_ds("social_i_qa", "en", split, data_dir)
+            datasets = [
+                load_from_disk(f"{data_dir}/datasets/balanced-copa/en/{split}"),
+                load_from_disk(f"{data_dir}/datasets/social_i_qa/en/{split}")
+            ]
+            datasets = [
+                prepare_copa(datasets[0]),
+                prepare_siqa(datasets[1])
+            ]
+            datasets = [
+                tokenize_ds(datasets[0], tokenizer),
+                tokenize_ds(datasets[1], tokenizer)
+            ]
+            data_loaders = [DataLoader(
+                ds,
+                batch_size=config.params.batch_size,
+                shuffle=False,
+                collate_fn=data_collator,
+            ) 
+            for ds in datasets]
+            return data_loaders
+        
+        if config.dataset.name == "xnli":
+            download_ds("xnli", "en", split, data_dir)
+            xnli = load_from_disk(f"{data_dir}/datasets/xnli/en/{split}")
+            xnli = prepare_xnli(xnli)
+            xnli = tokenize_ds(xnli, tokenizer)
+            data_loader = DataLoader(
+                xnli,
+                batch_size=config.params.batch_size,
+                shuffle=True,
+                collate_fn=data_collator,
+            )
+            return data_loader
+        
+        if config.dataset.name == "paws_x":
+            download_ds("paws-x", "en", split, data_dir)
+            paws_x = load_from_disk(f"{data_dir}/datasets/paws_x/en/{split}")
+            paws_x = prepare_paws_x(paws_x)
+            paws_x = tokenize_ds(paws_x, tokenizer)
+            data_loader = DataLoader(
+                paws_x,
+                batch_size=config.params.batch_size,
+                shuffle=True,
+                collate_fn=data_collator,
+            )
+            return data_loader
+
+    if split == "test":
+        test_loaders = []
+        for lang in config.dataset.lang:
+            if config.dataset.name == "xcopa":
+                download_ds("xcopa", lang, split, data_dir)
+                xcopa = load_from_disk(f"{data_dir}/datasets/xcopa/{lang}/{split}")
+                xcopa = prepare_xcopa(xcopa, lang)
+                xcopa = tokenize_ds(xcopa, tokenizer)
+                data_loader = DataLoader(
+                    xcopa,
+                    batch_size=config.params.batch_size,
+                    shuffle=False,
+                    collate_fn=data_collator,
+                )
+                test_loaders.append(data_loader)
+
+            if config.dataset.name == "xnli":
+                download_ds("xnli", lang, split, data_dir)
+                xnli = load_from_disk(f"{data_dir}/datasets/xnli/{lang}/{split}")
+                xnli = prepare_xnli(xnli)
+                xnli = tokenize_ds(xnli, tokenizer)
+                data_loader = DataLoader(
+                    xnli,
+                    batch_size=config.params.batch_size,
+                    shuffle=True,
+                    collate_fn=data_collator,
+                )
+                test_loaders.append(data_loader)
+                
+            if config.dataset.name == "paws_x":
+                download_ds("paws-x", lang, split, data_dir)
+                paws_x = load_from_disk(f"{data_dir}/datasets/paws-x/{lang}/{split}")
+                paws_x = prepare_paws_x(paws_x)
+                paws_x = tokenize_ds(paws_x, tokenizer)
+                data_loader = DataLoader(
+                    paws_x,
+                    batch_size=config.params.batch_size,
+                    shuffle=True,
+                    collate_fn=data_collator,
+                )
+                test_loaders.append(data_loader)
+        
+        return test_loaders

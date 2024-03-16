@@ -54,11 +54,11 @@ def create_test_csv(exp_name):
             files.append(filename)
 
     # we merge the results list of all seeds into one dataframe
-    final_df = pd.DataFrame(columns=["seed", "target_lang", "metric", "score"])
+    final_df = pd.DataFrame(columns=["exp_name", "seed", "target_lang", "metric", "score"])
     for file in files:
         df = pd.DataFrame(
             np.load(f"{result_dir}/{file}", allow_pickle=True),
-            columns=["seed", "target_lang", "metric", "score"]
+            columns=["exp_name", "seed", "target_lang", "metric", "score"]
         )
         final_df = pd.concat([final_df, df], axis=0).reset_index(drop=True)
     final_df['score'] = final_df['score'].astype(float)
@@ -66,4 +66,8 @@ def create_test_csv(exp_name):
     final_df.to_csv(f"res/test/{exp_name}.csv", sep=";", decimal=",", index=False)
 
     # remove all result lists by deleting the result directory
-    shutil.rmtree("result_dir")
+    # try except block to avoid errors if the system runs on multiple threads
+    try:
+        shutil.rmtree(result_dir)
+    except OSError:
+        pass

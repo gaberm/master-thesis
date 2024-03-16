@@ -4,7 +4,7 @@ import platform
 import lightning.pytorch as pl
 from lightning.pytorch.loggers import WandbLogger
 from lightning.pytorch.callbacks import ModelCheckpoint, LearningRateMonitor
-from src.datamodule import create_data_modules
+from src.dataset import get_data_loader
 from src.lightning import load_lightning_model
 
 dotenv.load_dotenv(".env")
@@ -23,7 +23,8 @@ def main(config):
         # so we need to know which system we are on
         system = platform.system().lower()
 
-        data_modules = create_data_modules(config)
+        train_loader = get_data_loader(config, "train")
+        val_loader = get_data_loader(config, "val")
         
         # create lightning model and initialize wandb logger
         l_model = load_lightning_model(config, seed)
@@ -55,7 +56,11 @@ def main(config):
         )
         
         # train the model
-        trainer.fit(model=l_model, datamodule=data_modules)
+        trainer.fit(
+            model=l_model,
+            train_dataloaders=train_loader,
+            val_dataloaders=val_loader
+        )
 
 if __name__ == "__main__":
     main()
