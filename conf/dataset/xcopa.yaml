@@ -1,2 +1,3 @@
 name: xcopa
 lang: [et, ht, id, qu, sw, tr, vi, zh]
+max_length: 72

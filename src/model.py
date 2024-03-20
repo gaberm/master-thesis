@@ -10,11 +10,11 @@ def load_model(config):
     # using_lora = "lora" in config.keys()
     load_ckpt = config.model.load_ckpt
 
-    # if "copa" in config.trainer.exp_name:
-    #     model = AutoModelForSequenceClassification.from_pretrained(config.model.hf_path)
-    #     model.classifier = CopaClassifier(model.config.hidden_size, model.config.hidden_size, 1)
-    # else:
-    model = AutoModelForSequenceClassification.from_pretrained(config.model.hf_path, num_labels=config.model.num_labels)
+    if "copa" in config.trainer.exp_name:
+        model = AutoModelForSequenceClassification.from_pretrained(config.model.hf_path)
+        model.classifier = CopaClassifier(model.config.hidden_size, model.config.hidden_size, 2)
+    else:
+        model = AutoModelForSequenceClassification.from_pretrained(config.model.hf_path, num_labels=config.model.num_labels)
 
     if using_madx:
         # we must call adapters.init() to load adapters

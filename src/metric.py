@@ -1,8 +1,10 @@
 from torchmetrics.classification import Accuracy, MulticlassCalibrationError, BinaryCalibrationError
 import platform
 
-def load_metric(config, metric_type):
-    num_labels = config.model.num_labels
+def load_metric(config, metric_type, num_labels=None):
+    if num_labels is None:
+        num_labels = config.model.num_labels
+        
     if metric_type == "pred":
         metric_name = config.params.pred_metric
     elif metric_type == "uncert":

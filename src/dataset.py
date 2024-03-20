@@ -1,11 +1,14 @@
 import os
 import platform
+import random
 import pandas as pd
 from datasets import load_dataset, load_from_disk, Dataset
-from torch.utils.data import DataLoader
+from torch.utils.data import DataLoader, BatchSampler, SequentialSampler, Sampler
 from transformers import DataCollatorWithPadding
 from .model import load_tokenizer
-
+from lightning.pytorch.utilities import CombinedLoader
+from torch.utils.data.distributed import DistributedSampler
+import torch.distributed as dist
 
 def prepare_paws_x(dataset):
     prepared_paws_x = dataset.rename_column("label", "labels")
@@ -147,32 +150,51 @@ def download_ds(dataset, lang, split, data_dir):
 def get_data_loader(config, split):
     data_dir = config.data_dir[platform.system().lower()]
     tokenizer = load_tokenizer(config)
-    data_collator = DataCollatorWithPadding(tokenizer)
+    if config.dataset.name == "copa" or config.dataset.name == "xcopa": 
+        data_collator = DataCollatorWithPadding(
+            tokenizer,
+            padding="max_length", 
+            max_length=config.dataset.max_length)
+    else:
+        data_collator = DataCollatorWithPadding(tokenizer)
 
-    if split == "train" or split == "val":
+    if split == "train" or split == "validation":
         if config.dataset.name == "copa":
-            download_ds("pkavumba/balanced-copa", "en", split, data_dir)
-            download_ds("social_i_qa", "en", split, data_dir)
+            if split == "train":
+                download_ds("pkavumba/balanced-copa", "en", "train", data_dir)
+                download_ds("social_i_qa", "en", "train", data_dir)
+                datasets = [
+                    load_from_disk(f"{data_dir}/datasets/balanced-copa/en/train"),
+                    load_from_disk(f"{data_dir}/datasets/social_i_qa/en/train")
+                ]
+            if split == "validation":
+                download_ds("pkavumba/balanced-copa", "en", "test", data_dir)
+                download_ds("social_i_qa", "en", "validation", data_dir)
+                datasets = [
+                    load_from_disk(f"{data_dir}/datasets/balanced-copa/en/test"),
+                    load_from_disk(f"{data_dir}/datasets/social_i_qa/en/validation")
+                ]
             datasets = [
-                load_from_disk(f"{data_dir}/datasets/balanced-copa/en/{split}"),
-                load_from_disk(f"{data_dir}/datasets/social_i_qa/en/{split}")
-            ]
-            datasets = [
-                prepare_copa(datasets[0]),
+                prepare_copa(datasets[0]), 
                 prepare_siqa(datasets[1])
             ]
-            datasets = [
-                tokenize_ds(datasets[0], tokenizer),
-                tokenize_ds(datasets[1], tokenizer)
-            ]
-            data_loaders = [DataLoader(
-                ds,
-                batch_size=config.params.batch_size,
-                shuffle=False,
-                collate_fn=data_collator,
-            ) 
-            for ds in datasets]
-            return data_loaders
+            datasets = [tokenize_ds(ds, tokenizer) for ds in datasets]  
+            combined_loader = CombinedLoader(
+                {"copa": DataLoader(
+                    datasets[0],
+                    batch_size=config.params.batch_size*2,
+                    sampler=CopaSampler(datasets[0], config.params.batch_size*2),
+                    collate_fn=data_collator,
+                ),"siqa": DataLoader(
+                    datasets[1],
+                    batch_size=config.params.batch_size*3,
+                    sampler=CopaSampler(datasets[1], config.params.batch_size*3),
+                    collate_fn=data_collator,
+                )},
+                "max_size"
+            )
+            _ = iter(combined_loader) 
+            return combined_loader
         
         if config.dataset.name == "xnli":
             download_ds("xnli", "en", split, data_dir)
@@ -211,7 +233,7 @@ def get_data_loader(config, split):
                 data_loader = DataLoader(
                     xcopa,
                     batch_size=config.params.batch_size,
-                    shuffle=False,
+                    sampler=CopaSampler(xcopa, config.params.batch_size),
                     collate_fn=data_collator,
                 )
                 test_loaders.append(data_loader)
@@ -243,3 +265,22 @@ def get_data_loader(config, split):
                 test_loaders.append(data_loader)
         
         return test_loaders
+    
+
+class CopaSampler(Sampler):
+    def __init__(self, data_source, batch_size):
+        self.data_source = data_source
+        self.batch_size = batch_size
+        self.data_size = len(self.data_source)
+
+    def __iter__(self):
+        self.indices = [
+            list(range(i, min(i + self.batch_size, self.data_size)))
+            for i in range(0, self.data_size, self.batch_size) 
+        ]
+        random.shuffle(self.indices)
+        self.indices = [idx for sublist in self.indices for idx in sublist]
+        return iter(self.indices)
+    
+    def __len__(self):
+        return self.data_size

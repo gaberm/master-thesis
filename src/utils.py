@@ -71,3 +71,7 @@ def create_test_csv(exp_name):
         shutil.rmtree(result_dir)
     except OSError:
         pass
+
+
+def compute_val_score(val_score_1, val_score_2, num_samples_1, num_samples_2):
+    return (val_score_1 * num_samples_1 + val_score_2 * num_samples_2) / (num_samples_1 + num_samples_2)

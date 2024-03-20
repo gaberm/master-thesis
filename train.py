@@ -24,7 +24,7 @@ def main(config):
         system = platform.system().lower()
 
         train_loader = get_data_loader(config, "train")
-        val_loader = get_data_loader(config, "val")
+        val_loader = get_data_loader(config, "validation")
         
         # create lightning model and initialize wandb logger
         l_model = load_lightning_model(config, seed)
@@ -52,14 +52,15 @@ def main(config):
             strategy=config.trainer.strategy[system],
             devices=config.trainer.devices[system],
             val_check_interval=0.25,
-            callbacks=[checkpoint_callback, lr_callback]
+            callbacks=[checkpoint_callback, lr_callback],
+            use_distributed_sampler=False
         )
         
         # train the model
         trainer.fit(
             model=l_model,
             train_dataloaders=train_loader,
-            val_dataloaders=val_loader
+            val_dataloaders=val_loader,
         )
 
 if __name__ == "__main__":
