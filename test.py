@@ -46,7 +46,7 @@ def main(config):
         )
 
         
-        for lang, test_loader in zip(config.dataset.lang, test_loaders):
+        for lang, test_loader in zip(config.dataset.test_lang, test_loaders):
             l_model.target_lang = lang
             trainer.test(model=l_model, dataloaders=test_loader)
         
