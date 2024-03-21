@@ -55,13 +55,13 @@ def main(config):
             callbacks=[checkpoint_callback, lr_callback],
             use_distributed_sampler=False
         )
-        
+
         # train the model
         trainer.fit(
             model=l_model,
             train_dataloaders=train_loader,
             val_dataloaders=val_loader,
         )
-
+        
 if __name__ == "__main__":
     main()

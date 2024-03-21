@@ -11,8 +11,8 @@ def load_model(config):
     load_ckpt = config.model.load_ckpt
 
     if "copa" in config.trainer.exp_name:
-        model = AutoModelForSequenceClassification.from_pretrained(config.model.hf_path)
-        model.classifier = CopaClassifier(model.config.hidden_size, model.config.hidden_size, 2)
+        model = AutoModelForSequenceClassification.from_pretrained(config.model.hf_path, num_labels=1)
+        model.classifier = CopaClassifier(model.config.hidden_size, model.config.hidden_size, 1)
     else:
         model = AutoModelForSequenceClassification.from_pretrained(config.model.hf_path, num_labels=config.model.num_labels)
 

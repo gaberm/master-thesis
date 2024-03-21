@@ -2,6 +2,7 @@ from lightning import LightningModule
 import adapters
 import torch
 import platform
+import numpy as np
 from transformers import get_scheduler
 from .utils import compute_val_score
 from .optimizer import load_optimizer
@@ -148,6 +149,8 @@ class LModelCopa(LightningModule):
         # because we train the model on two datasets with a different number of labels 
         # (copa: 2, social_i_qa: 3) for xcopa, we have to handle the training and inference differently.
         # details can be found in the paper: https://arxiv.org/abs/2005.00333
+        if batch_idx == 1488:
+            np.save("batch.npy", batch)
 
         batches = {}
         for dataset, batch in batch.items():
@@ -167,18 +170,18 @@ class LModelCopa(LightningModule):
             label_lst = []
             if dataset == "copa":
                 while idx < len(output.logits):
-                    logit_lst.append(output.logits[idx:idx+2,1])
+                    logit_lst.append(output.logits[idx:idx+2])
                     label_lst.append(batches[dataset]["labels"][idx:idx+2].argmax(dim=0))
                     if not batches[dataset]["labels"][idx:idx+2].eq(1).sum() == 1:
                         raise ValueError("More than one label is set to 1. This is not allowed.")
                     idx += 2
                 num_rows = int(len(output.logits) / 2)
-                logits = torch.cat(logit_lst).view(num_rows, 2)[:,1]
-                labels = torch.stack(label_lst).to(torch.float32)
+                logits = torch.cat(logit_lst).view(num_rows, 2)
+                labels = torch.stack(label_lst)
 
             if dataset == "siqa":
                 while idx < len(output.logits):
-                    logit_lst.append(output.logits[idx:idx+3,1])
+                    logit_lst.append(output.logits[idx:idx+3])
                     label_lst.append(batches[dataset]["labels"][idx:idx+3].argmax(dim=0))
                     if not batches[dataset]["labels"][idx:idx+3].eq(1).sum() == 1:
                         raise ValueError("More than one label is set to 1. This is not allowed.")
@@ -187,7 +190,7 @@ class LModelCopa(LightningModule):
                 logits = torch.cat(logit_lst).view(num_rows, 3)
                 labels = torch.stack(label_lst)
 
-            loss = self.ce_loss(logits, labels)
+            loss += self.ce_loss(logits, labels)
         self.log("train_loss", loss)
         return loss
     
@@ -210,18 +213,18 @@ class LModelCopa(LightningModule):
 
             if dataset == "copa":
                 while idx < len(output.logits):
-                    proba_lst.append(output.logits[idx:idx+2,1].softmax(dim=0))
+                    proba_lst.append(output.logits[idx:idx+2].softmax(dim=0))
                     label_lst.append(batches[dataset]["labels"][idx:idx+2].argmax(dim=0))
                     idx += 2
                 num_rows = int(len(output.logits) / 2)
-                probas = torch.cat(proba_lst).view(num_rows, 2)[:,1] 
+                probas = torch.cat(proba_lst).view(num_rows, 2)[:,1]
                 labels = torch.stack(label_lst)
                 self.pred_metric_binary.update(probas, labels)
                 self.copa_val_samples += len(labels)
 
             if dataset == "siqa":
                 while idx < len(output.logits):
-                    proba_lst.append(output.logits[idx:idx+3,1].softmax(dim=0))
+                    proba_lst.append(output.logits[idx:idx+3].softmax(dim=0))
                     label_lst.append(batches[dataset]["labels"][idx:idx+3].argmax(dim=0))
                     idx += 3
                 num_rows = int(len(output.logits) / 3)

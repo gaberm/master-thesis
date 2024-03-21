@@ -36,6 +36,9 @@ def prepare_copa(dataset):
                 label_lst += [1] + [0]
             else:
                 label_lst += [0] + [1]
+    
+    ds_lst = [question_lst, choice_lst, label_lst]
+    question_lst, choice_lst, label_lst = shuffle_lst(ds_lst, 2)
 
     prepared_copa = Dataset.from_dict(
         {"sentence1": question_lst,
@@ -56,12 +59,15 @@ def prepare_siqa(dataset):
         # add the question three times to match the number of choices
         question_lst += [question] * 3
         choice_lst += [row["answerA"]] + [row["answerB"]] + [row["answerC"]]
-        if row["label"] == 1:
+        if row["label"] == "1":
             label_lst += [1] + [0] + [0]
-        elif row["label"] == 2:
+        elif row["label"] == "2":
             label_lst += [0] + [1] + [0]
         else:
             label_lst += [0] + [0] + [1]
+
+    ds_lst = [question_lst, choice_lst, label_lst]
+    question_lst, choice_lst, label_lst = shuffle_lst(ds_lst, 3)
 
     prepared_siqa = Dataset.from_dict(
         {"sentence1": question_lst,
@@ -83,11 +89,14 @@ def prepare_xcopa(dataset, lang):
         else:
             question = f"{row['premise']} {question_in_lang}"
         question_lst += [question] * 2
-        choice_lst += dataset["choice1"] + dataset["choice2"]
+        choice_lst += [row["choice1"]] + [row["choice2"]]
         if row["label"] == 0:
             label_lst += [1] + [0]
         else:
             label_lst += [0] + [1]
+
+    ds_lst = [question_lst, choice_lst, label_lst]
+    question_lst, choice_lst, label_lst = shuffle_lst(ds_lst, 2)
 
     prepared_xcopa = Dataset.from_dict(
         {"sentence1" : question_lst, 
@@ -109,7 +118,7 @@ def prepare_xnli(dataset):
 
 def tokenize_ds(dataset, tokenizer):
     def tokenize_function(example):
-        return tokenizer(example["sentence1"], example["sentence2"], truncation=True, padding=True)
+        return tokenizer(example["sentence1"], example["sentence2"], truncation=True, padding=True, max_length=512)
 
     dataset = dataset.map(tokenize_function, batched=True)
     dataset = dataset.remove_columns(["sentence1", "sentence2"])
@@ -151,10 +160,7 @@ def get_data_loader(config, split):
     data_dir = config.data_dir[platform.system().lower()]
     tokenizer = load_tokenizer(config)
     if config.dataset.name == "copa" or config.dataset.name == "xcopa": 
-        data_collator = DataCollatorWithPadding(
-            tokenizer,
-            padding="max_length", 
-            max_length=config.dataset.max_length)
+        data_collator = DataCollatorWithPadding(tokenizer)
     else:
         data_collator = DataCollatorWithPadding(tokenizer)
 
@@ -178,17 +184,17 @@ def get_data_loader(config, split):
                 prepare_copa(datasets[0]), 
                 prepare_siqa(datasets[1])
             ]
-            datasets = [tokenize_ds(ds, tokenizer) for ds in datasets]  
+            datasets = [tokenize_ds(ds, tokenizer) for ds in datasets]
             combined_loader = CombinedLoader(
                 {"copa": DataLoader(
                     datasets[0],
                     batch_size=config.params.batch_size*2,
-                    sampler=CopaSampler(datasets[0], config.params.batch_size*2),
+                    sampler=SequentialSampler(datasets[0]),
                     collate_fn=data_collator,
                 ),"siqa": DataLoader(
                     datasets[1],
                     batch_size=config.params.batch_size*3,
-                    sampler=CopaSampler(datasets[1], config.params.batch_size*3),
+                    sampler=SequentialSampler(datasets[1]),
                     collate_fn=data_collator,
                 )},
                 "max_size"
@@ -284,3 +290,20 @@ class CopaSampler(Sampler):
     
     def __len__(self):
         return self.data_size
+
+def shuffle_lst(ds_lst: list[str | int], num_labels):
+    batch_lst = []
+    for lst in ds_lst:
+        lst = [
+            lst[i:i+num_labels] for i in range(0, len(lst), num_labels) 
+            if (i + num_labels) < len(lst)
+        ]
+        batch_lst.append(lst)
+
+    random.shuffle([zip(*batch_lst)])
+
+    flattened_lst = []
+    for lst in batch_lst:
+        flattened_lst.append([sentence for batch in lst for sentence in batch])
+
+    return flattened_lst
