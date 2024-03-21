@@ -217,7 +217,7 @@ def get_data_loader(config, split):
         
         if config.dataset.name == "paws_x":
             download_ds("paws-x", "en", split, data_dir)
-            paws_x = load_from_disk(f"{data_dir}/datasets/paws_x/en/{split}")
+            paws_x = load_from_disk(f"{data_dir}/datasets/paws-x/en/{split}")
             paws_x = prepare_paws_x(paws_x)
             paws_x = tokenize_ds(paws_x, tokenizer)
             data_loader = DataLoader(
