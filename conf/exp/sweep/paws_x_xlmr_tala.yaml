@@ -1,17 +1,11 @@
 # @package _global_
 
 defaults:
-  - override /dataset:
-    - paws_x
+  - override /dataset: paws_x
   - override /madx: madx
-  - override /model: mbert
+  - override /model: xlmr
   - override /params: params
-
-dataset:
-  paws_x:
-    train_split: train
-    val_split: validation
-    test_split: validation
+  
 madx:
   lang_adapter:
     de: de/wiki@ukp
@@ -25,4 +19,3 @@ model:
   num_labels: 2
 params:
   max_epochs: 2
-

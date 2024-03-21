@@ -19,4 +19,4 @@ madx:
 model:
   load_ckpt: true
 trainer:
-  exp_name: xnli_xlmr_madx
+  exp_name: xnli_xlmr_tala

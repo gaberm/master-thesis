@@ -1,0 +1,10 @@
+# @package _global_
+
+defaults:
+  - override /model: xlmr
+  - override /trainer: trainer
+
+model:
+  load_ckpt: true
+trainer:
+  exp_name: xnli_xlmr_ta

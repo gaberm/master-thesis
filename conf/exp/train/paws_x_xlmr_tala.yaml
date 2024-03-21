@@ -1,22 +1,24 @@
 # @package _global_
 
 defaults:
+  - override /dataset: paws_x
   - override /madx: madx
+  - override /model: xlmr
   - override /params: params
   - override /trainer: trainer
 
 madx:
   lang_adapter:
-    ar: ar/wiki@ukp
     de: de/wiki@ukp
+    en: en/wiki@ukp
     es: es/wiki@ukp
-    hi: hi/wiki@ukp
-    ru: ru/wiki@ukp
-    sw: sw/wiki@ukp
-    tr: tr/wiki@ukp
-    vi: vi/wiki@ukp
+    ja: ja/wiki@ukp
     zh: zh/wiki@ukp
+  task_adapter:
+    name: paws-x
+model:
+  num_labels: 2
 params:
   lr: 1e-4
 trainer:
-  exp_name: xnli_mbert_madx
+  exp_name: paws_x_xlmr_tala

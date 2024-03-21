@@ -1,20 +1,17 @@
 # @package _global_
 
 defaults:
-  - override /dataset:
-    - paws_x
+  - override /dataset: paws_x
   - override /madx: madx
   - override /model: mbert
+  - override /params: params
   - override /trainer: trainer
-  
+
 dataset:
   paws_x:
     train_split: train
     val_split: validation
     test_split: validation
-model:
-  num_labels: 2
-  load_ckpt: true
 madx:
   lang_adapter:
     de: de/wiki@ukp
@@ -24,5 +21,10 @@ madx:
     zh: zh/wiki@ukp
   task_adapter:
     name: paws-x
+model:
+  num_labels: 2
+params:
+  lr: 1e-4
 trainer:
-  exp_name: paws_x_mbert_madx
+  exp_name: paws_x_mbert_tala
+

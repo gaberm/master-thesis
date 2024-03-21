@@ -1,15 +1,12 @@
 # @package _global_
 
 defaults:
-  - override /dataset: xcopa
+  - override /dataset: copa
   - override /madx: madx
   - override /model: xlmr
   - override /params: params
   - override /trainer: trainer
-  
-model:
-  num_labels: 2
-  load_ckpt: trues
+ 
 madx:
   lang_adapter:
     et: et/wiki@ukp
@@ -22,10 +19,13 @@ madx:
     zh: zh/wiki@ukp
   task_adapter:
     name: copa
-params:
+model:
+  num_labels: 2
   batch_size: 24
+params:
+  lr: 1e-4
 trainer:
   devices:
     darwin: auto
     linux: 1
-  exp_name: copa_xlmr_madx
+  exp_name: copa_xlmr_tala

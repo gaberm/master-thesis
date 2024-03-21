@@ -1,0 +1,8 @@
+# @package _global_
+
+defaults:
+  - override /params: params
+
+params:
+  max_epochs: 2
+

@@ -2,7 +2,7 @@
 
 defaults:
   - override /madx: madx
-  - override /model: mbert
+  - override /params: params
   - override /trainer: trainer
 
 madx:
@@ -16,7 +16,7 @@ madx:
     tr: tr/wiki@ukp
     vi: vi/wiki@ukp
     zh: zh/wiki@ukp
-model:
-  load_ckpt: true
+params:
+  lr: 1e-4
 trainer:
-  exp_name: xnli_mbert_madx
+  exp_name: xnli_mbert_tala

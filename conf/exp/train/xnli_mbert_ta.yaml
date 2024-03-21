@@ -1,0 +1,11 @@
+# @package _global_
+
+defaults:
+  - override /madx: madx
+  - override /params: params
+  - override /trainer: trainer
+
+params:
+  lr: 1e-4
+trainer:
+  exp_name: xnli_mbert_ta
