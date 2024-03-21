@@ -230,7 +230,7 @@ def get_data_loader(config, split):
 
     if split == "test":
         test_loaders = []
-        for lang in config.dataset.lang:
+        for lang in config.dataset.test_lang:
             if config.dataset.name == "xcopa":
                 download_ds("xcopa", lang, split, data_dir)
                 xcopa = load_from_disk(f"{data_dir}/datasets/xcopa/{lang}/{split}")

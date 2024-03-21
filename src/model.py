@@ -20,10 +20,17 @@ def load_model(config):
         # we must call adapters.init() to load adapters
         adapters.init(model)
         
-        # we use pre-trained language adapters for cross-lingual transfer
-        for path in config.madx.lang_adapter.values():
-            lang_adapter_cfg = adapters.AdapterConfig.load("pfeiffer", non_linearity="gelu", reduction_factor=2)
-            _ = model.load_adapter(path, lang_adapter_cfg)
+        # check if we are using a pre-trained language adapter
+        if "lang_adapter" in config.madx.keys():
+            load_lang_adapter = True
+        else:
+            load_lang_adapter = False
+        
+        # we use pre-trained language adapters
+        if load_lang_adapter:
+            for path in config.madx.lang_adapter.values():
+                lang_adapter_cfg = adapters.AdapterConfig.load("pfeiffer", non_linearity="gelu", reduction_factor=2)
+                _ = model.load_adapter(path, lang_adapter_cfg)
 
         # we add an untrained task adapter
         # for train, we train the task adapter for the task
@@ -37,9 +44,12 @@ def load_model(config):
             model.train_adapter([task_adapter_name]) 
 
             # active_adapters are the adapters that are used in the forward pass
-            # for mad-x, we stack the task adapter on top of the language adapter
+            # if we use language adapter, we stack the task adapter on top of the language adapter
             # https://colab.research.google.com/github/Adapter-Hub/adapter-transformers/blob/master/notebooks/04_Cross_Lingual_Transfer.ipynb
-            model.active_adapters = adapters.Stack(source_lang, task_adapter_name)
+            if load_lang_adapter:
+                model.active_adapters = adapters.Stack(source_lang, task_adapter_name)
+            else:
+                model.active_adapters = task_adapter_name
         
         # if using_lora:
         #     lora_cfg = LoraConfig(**config.lora)
