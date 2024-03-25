@@ -5,6 +5,8 @@ import torch.nn as nn
 
 def load_model(config):
     source_lang = config.params.source_lang
+    has_lang_adapter = False
+    has_task_adapter = False
     if "madx" in config.keys():
         has_lang_adapter = "lang_adapter" in config.madx.keys()
         has_task_adapter = "task_adapter" in config.madx.keys()

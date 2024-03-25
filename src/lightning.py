@@ -17,6 +17,7 @@ class LModel(LightningModule):
         self.pred_metric_name = config.params.pred_metric
         self.uncert_metric = load_metric(config, "uncert")
         self.uncert_metric_name = config.params.uncert_metric
+        
         self.target_lang = None
         if "madx" in config.keys():
             self.task_adapter_name = config.madx.task_adapter.name
@@ -25,6 +26,11 @@ class LModel(LightningModule):
                 self.has_lang_adapter = True
             else:
                 self.has_lang_adapter = False
+        else:
+            self.task_adapter_name = None
+            self.has_task_adapter = False
+            self.has_lang_adapter = False
+        
         self.optimizer = config.params.optimizer
         self.lr = config.params.lr
         self.num_labels = config.model.num_labels
@@ -134,6 +140,7 @@ class LModelCopa(LightningModule):
         self.pred_metric_name = config.params.pred_metric
         self.uncert_metric = load_metric(config, "uncert")
         self.uncert_metric_name = config.params.uncert_metric
+
         self.target_lang = None
         if "madx" in config.keys():
             self.task_adapter_name = config.madx.task_adapter.name
@@ -142,6 +149,11 @@ class LModelCopa(LightningModule):
                 self.has_lang_adapter = True
             else:
                 self.has_lang_adapter = False
+        else:
+            self.task_adapter_name = None
+            self.has_task_adapter = False
+            self.has_lang_adapter = False
+
         self.optimizer = config.params.optimizer
         self.lr = config.params.lr
         self.num_labels = config.model.num_labels
