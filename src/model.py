@@ -1,35 +1,44 @@
 from transformers import AutoTokenizer, AutoModelForSequenceClassification
 import adapters
 import torch.nn as nn
-# from peft import get_peft_model, LoraConfig
 
 
 def load_model(config):
     source_lang = config.params.source_lang
-    using_madx = "madx" in config.keys()
-    # using_lora = "lora" in config.keys()
+    if "madx" in config.keys():
+        has_lang_adapter = "lang_adapter" in config.madx.keys()
+        has_task_adapter = "task_adapter" in config.madx.keys()
     load_ckpt = config.model.load_ckpt
 
     if "copa" in config.trainer.exp_name:
-        model = AutoModelForSequenceClassification.from_pretrained(config.model.hf_path, num_labels=1)
-        model.classifier = CopaClassifier(model.config.hidden_size, model.config.hidden_size, 1)
+        model = AutoModelForSequenceClassification.from_pretrained(
+            config.model.hf_path,
+            num_labels=1
+        )
+        model.classifier = CopaClassifier(
+            input_dim=model.config.hidden_size,
+            hidden_dim=model.config.hidden_size,
+            output_dim=1
+        )
     else:
-        model = AutoModelForSequenceClassification.from_pretrained(config.model.hf_path, num_labels=config.model.num_labels)
+        model = AutoModelForSequenceClassification.from_pretrained(
+            config.model.hf_path,
+            num_labels=config.model.num_labels
+        )
+        
 
-    if using_madx:
+    if has_lang_adapter or has_task_adapter:
         # we must call adapters.init() to load adapters
         adapters.init(model)
-        
-        # check if we are using a pre-trained language adapter
-        if "lang_adapter" in config.madx.keys():
-            load_lang_adapter = True
-        else:
-            load_lang_adapter = False
-        
-        # we use pre-trained language adapters
-        if load_lang_adapter:
+
+        if has_lang_adapter:
+            lang_adapter_cfg = adapters.AdapterConfig.load(
+                "pfeiffer",
+                non_linearity="gelu",
+                reduction_factor=2
+            )
+            # we use pre-trained language adapters
             for path in config.madx.lang_adapter.values():
-                lang_adapter_cfg = adapters.AdapterConfig.load("pfeiffer", non_linearity="gelu", reduction_factor=2)
                 _ = model.load_adapter(path, lang_adapter_cfg)
 
         # we add an untrained task adapter
@@ -46,14 +55,10 @@ def load_model(config):
             # active_adapters are the adapters that are used in the forward pass
             # if we use language adapter, we stack the task adapter on top of the language adapter
             # https://colab.research.google.com/github/Adapter-Hub/adapter-transformers/blob/master/notebooks/04_Cross_Lingual_Transfer.ipynb
-            if load_lang_adapter:
+            if has_lang_adapter:
                 model.active_adapters = adapters.Stack(source_lang, task_adapter_name)
             else:
                 model.active_adapters = task_adapter_name
-        
-        # if using_lora:
-        #     lora_cfg = LoraConfig(**config.lora)
-        #     model = get_peft_model(model, lora_cfg)
 
     return model    
 

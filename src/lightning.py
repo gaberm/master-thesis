@@ -17,14 +17,18 @@ class LModel(LightningModule):
         self.pred_metric_name = config.params.pred_metric
         self.uncert_metric = load_metric(config, "uncert")
         self.uncert_metric_name = config.params.uncert_metric
-        self.source_lang = config.params.source_lang
-        self.target_lang = ""
-        self.task_adapter_name = config.madx.task_adapter.name if "madx" in config.keys() else None
+        self.target_lang = None
+        if "madx" in config.keys():
+            self.task_adapter_name = config.madx.task_adapter.name
+            self.has_task_adapter = True
+            if "lang_adapter" in config.madx.keys():
+                self.has_lang_adapter = True
+            else:
+                self.has_lang_adapter = False
         self.optimizer = config.params.optimizer
         self.lr = config.params.lr
         self.num_labels = config.model.num_labels
-        self.label_smoothing = config.params.label_smoothing
-        self.ce_loss = torch.nn.CrossEntropyLoss(label_smoothing=self.label_smoothing)
+        self.ce_loss = torch.nn.CrossEntropyLoss()
         self.data_dir = config.data_dir[platform.system().lower()]
         self.exp_name = config.trainer.exp_name
         self.result_lst = []
@@ -53,10 +57,15 @@ class LModel(LightningModule):
         self.pred_metric.reset()
 
     def on_test_epoch_start(self):
-        # deactive all adapters and active the target language and task adapter
-        if self.task_adapter_name is not None:
+        if self.has_task_adapter:
             self.model.set_active_adapters(None)
-            self.model.active_adapters = adapters.Stack(self.target_lang, self.task_adapter_name)
+            if self.has_lang_adapter:
+                self.model.active_adapters = adapters.Stack(
+                    self.target_lang,
+                    self.task_adapter_name
+                )
+            else:
+                self.model.active_adapters = self.task_adapter_name
     
     def test_step(self, batch, batch_idx):
         batch = {k: v.to(self.device) for k, v in batch.items()}
@@ -125,15 +134,19 @@ class LModelCopa(LightningModule):
         self.pred_metric_name = config.params.pred_metric
         self.uncert_metric = load_metric(config, "uncert")
         self.uncert_metric_name = config.params.uncert_metric
-        self.source_lang = config.params.source_lang
-        self.target_lang = ""
-        self.task_adapter_name = config.madx.task_adapter.name if "madx" in config.keys() else None
+        self.target_lang = None
+        if "madx" in config.keys():
+            self.task_adapter_name = config.madx.task_adapter.name
+            self.has_task_adapter = True
+            if "lang_adapter" in config.madx.keys():
+                self.has_lang_adapter = True
+            else:
+                self.has_lang_adapter = False
         self.optimizer = config.params.optimizer
         self.lr = config.params.lr
         self.num_labels = config.model.num_labels
-        self.label_smoothing = config.params.label_smoothing
+        self.ce_loss = torch.nn.CrossEntropyLoss()
         self.bce_loss = torch.nn.BCEWithLogitsLoss()
-        self.ce_loss = torch.nn.CrossEntropyLoss(label_smoothing=self.label_smoothing)
         self.data_dir = config.data_dir[platform.system().lower()]
         self.exp_name = config.trainer.exp_name
         self.result_lst = []
@@ -149,13 +162,10 @@ class LModelCopa(LightningModule):
         # because we train the model on two datasets with a different number of labels 
         # (copa: 2, social_i_qa: 3) for xcopa, we have to handle the training and inference differently.
         # details can be found in the paper: https://arxiv.org/abs/2005.00333
-        if batch_idx == 1488:
-            np.save("batch.npy", batch)
-
         batches = {}
-        for dataset, batch in batch.items():
+        for dataset, data in batch.items():
             try:
-                batches[dataset] = {k: v.to(self.device) for k, v in batch.items()}
+                batches[dataset] = {k: v.to(self.device) for k, v in data.items()}
             except AttributeError:
                 pass
 
@@ -196,9 +206,9 @@ class LModelCopa(LightningModule):
     
     def validation_step(self, batch, batch_idx):
         batches = {}
-        for dataset, batch in batch.items():
+        for dataset, data in batch.items():
             try:
-                batches[dataset] = {k: v.to(self.device) for k, v in batch.items()}
+                batches[dataset] = {k: v.to(self.device) for k, v in data.items()}
             except AttributeError:
                 pass
 
@@ -248,10 +258,15 @@ class LModelCopa(LightningModule):
         self.siqa_val_samples = 0
 
     def on_test_epoch_start(self):
-        # deactive all adapters and active the target language and task adapter
-        if self.task_adapter_name is not None:
+        if self.has_task_adapter:
             self.model.set_active_adapters(None)
-            self.model.active_adapters = adapters.Stack(self.target_lang, self.task_adapter_name)
+            if self.has_lang_adapter:
+                self.model.active_adapters = adapters.Stack(
+                    self.target_lang,
+                    self.task_adapter_name
+                )
+            else:
+                self.model.active_adapters = self.task_adapter_name
     
     def test_step(self, batch, batch_idx):
         batch = {k: v.to(self.device) for k, v in batch.items()}

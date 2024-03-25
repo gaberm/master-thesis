@@ -8,4 +8,3 @@ uncert_metric: ece # expected calibration error
 average: micro
 source_lang: en
 seeds: [0, 1, 2, 3, 4]
-label_smoothing: 0

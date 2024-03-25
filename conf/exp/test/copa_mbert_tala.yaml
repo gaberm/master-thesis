@@ -13,6 +13,7 @@ params:
   batch_size: 24
 madx:
   lang_adapter:
+    en: en/wiki@ukp
     et: et/wiki@ukp
     ht: ht/wiki@ukp
     id: id/wiki@ukp

@@ -118,17 +118,13 @@ def prepare_xnli(dataset):
 
 def tokenize_ds(dataset, tokenizer):
     def tokenize_function(example):
-        return tokenizer(example["sentence1"], example["sentence2"], truncation=True, padding=True, max_length=512)
+        return tokenizer(example["sentence1"], example["sentence2"], truncation=True, padding=True) #max_length=512
 
     dataset = dataset.map(tokenize_function, batched=True)
     dataset = dataset.remove_columns(["sentence1", "sentence2"])
     dataset.set_format("torch")
 
     return dataset
-
-
-def tokenize_function(example, tokenizer):
-    return tokenizer(example["sentence1"], example["sentence2"], truncation=True, padding=True)
 
 
 def download_ds(dataset, lang, split, data_dir):

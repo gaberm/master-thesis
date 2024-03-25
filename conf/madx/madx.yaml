@@ -1,6 +1,3 @@
-lang_adapter:
-  en: en/wiki@ukp
-
 task_adapter:
   name: xnli
   load_args:
