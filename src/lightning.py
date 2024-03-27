@@ -2,7 +2,6 @@ from lightning import LightningModule
 import adapters
 import torch
 import platform
-import numpy as np
 from transformers import get_scheduler
 from .utils import compute_val_score, get_device, get_best_checkpoint
 from .optimizer import load_optimizer
@@ -78,10 +77,10 @@ class LModel(LightningModule):
         outputs = self.model(**batch)
         logits = outputs.logits
         preds = outputs.logits.argmax(dim=-1)
-        probas = torch.softmax(logits, dim=-1)
+        probs = torch.softmax(logits, dim=-1)
         if self.num_labels == 2:
-            probas = probas[:, 1]
-        self.uncert_metric.update(probas, batch["labels"])
+            probs = probs[:, 1]
+        self.uncert_metric.update(probs, batch["labels"])
         self.pred_metric.update(preds, batch["labels"])
 
     def on_test_epoch_end(self):
@@ -158,7 +157,6 @@ class LModelCopa(LightningModule):
         self.lr = config.params.lr
         self.num_labels = config.model.num_labels
         self.ce_loss = torch.nn.CrossEntropyLoss()
-        self.bce_loss = torch.nn.BCEWithLogitsLoss()
         self.data_dir = config.data_dir[platform.system().lower()]
         self.exp_name = config.trainer.exp_name
         self.result_lst = []
@@ -230,31 +228,30 @@ class LModelCopa(LightningModule):
 
         for dataset, output in outputs.items():
             idx = 0
-            proba_lst = []
+            prob_lst = []
             label_lst = []
 
             if dataset == "copa":
                 while idx < len(output.logits):
-                    proba_lst.append(output.logits[idx:idx+2].softmax(dim=0))
+                    prob_lst.append(output.logits[idx:idx+2].softmax(dim=0))
                     label_lst.append(batches[dataset]["labels"][idx:idx+2].argmax(dim=0))
                     idx += 2
                 num_rows = int(len(output.logits) / 2)
-                probas = torch.cat(proba_lst).view(num_rows, 2)[:,1]
+                probs = torch.cat(prob_lst).view(num_rows, 2)[:,1]
                 labels = torch.stack(label_lst)
-                self.pred_metric_binary.update(probas, labels)
+                self.pred_metric_binary.update(probs, labels)
                 self.copa_val_samples += len(labels)
 
             if dataset == "siqa":
                 while idx < len(output.logits):
-                    proba_lst.append(output.logits[idx:idx+3].softmax(dim=0))
+                    prob_lst.append(output.logits[idx:idx+3].softmax(dim=0))
                     label_lst.append(batches[dataset]["labels"][idx:idx+3].argmax(dim=0))
                     idx += 3
                 num_rows = int(len(output.logits) / 3)
-                probas = torch.cat(proba_lst).view(num_rows, 3)
+                probs = torch.cat(prob_lst).view(num_rows, 3)
                 labels = torch.stack(label_lst)
-                self.pred_metric_multiclass.update(probas, labels)
+                self.pred_metric_multiclass.update(probs, labels)
                 self.siqa_val_samples += len(labels)
-
     
     def on_validation_epoch_end(self):
         val_score = compute_val_score(
@@ -284,22 +281,22 @@ class LModelCopa(LightningModule):
         batch = {k: v.to(self.device) for k, v in batch.items()}
         outputs = self.model(**batch)
         idx = 0
-        proba_lst = []
+        prob_lst = []
         label_lst = []
                 
         while idx < len(outputs.logits):
-            proba_lst.append(outputs.logits[idx:idx+2].softmax(dim=0))
+            prob_lst.append(outputs.logits[idx:idx+2].softmax(dim=0))
             label_lst.append(batch["labels"][idx:idx+2].argmax(dim=0))
             if not batch["labels"][idx:idx+2].eq(1).sum() == 1:
                 raise ValueError("More than one label is set to 1. This is not allowed.")
             idx += 2
 
         num_rows = int(len(outputs.logits)/2)
-        probas = torch.cat(proba_lst).view(num_rows, 2)[:,1]
+        probs = torch.cat(prob_lst).view(num_rows, 2)[:,1]
         labels = torch.stack(label_lst)
 
-        self.pred_metric_binary.update(probas, labels)
-        self.uncert_metric.update(probas, labels)
+        self.pred_metric_binary.update(probs, labels)
+        self.uncert_metric.update(probs, labels)
 
     def on_test_epoch_end(self):
         uncert_score = self.uncert_metric.compute()
@@ -348,8 +345,7 @@ class LModelCopa(LightningModule):
 def load_l_model(config, seed):
     load_copa_model = "copa" in config.trainer.exp_name
     if config.model.load_ckpt:
-        ckpt_dir = f"{config.data_dir[platform.system().lower()]}/checkpoints/{config.trainer.exp_name}/seed_{seed}"
-        ckpt_path = get_best_checkpoint(ckpt_dir)
+        ckpt_path = get_best_checkpoint(f"{config.data_dir[platform.system().lower()]}/checkpoints/{config.trainer.exp_name}/seed_{seed}")
         device = get_device(config)
         if load_copa_model:
             return LModelCopa.load_from_checkpoint(ckpt_path, map_location=device)

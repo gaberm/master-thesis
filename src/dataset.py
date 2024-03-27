@@ -2,13 +2,11 @@ import os
 import platform
 import random
 import pandas as pd
-from datasets import load_dataset, load_from_disk, Dataset
-from torch.utils.data import DataLoader, BatchSampler, SequentialSampler, Sampler
+from datasets import Dataset, load_dataset, load_from_disk
+from torch.utils.data import DataLoader, SequentialSampler, Sampler
 from transformers import DataCollatorWithPadding
 from .model import load_tokenizer
 from lightning.pytorch.utilities import CombinedLoader
-from torch.utils.data.distributed import DistributedSampler
-import torch.distributed as dist
 
 def prepare_paws_x(dataset):
     prepared_paws_x = dataset.rename_column("label", "labels")
@@ -118,7 +116,7 @@ def prepare_xnli(dataset):
 
 def tokenize_ds(dataset, tokenizer):
     def tokenize_function(example):
-        return tokenizer(example["sentence1"], example["sentence2"], truncation=True, padding=True) #max_length=512
+        return tokenizer(example["sentence1"], example["sentence2"], truncation=True, padding=True) 
 
     dataset = dataset.map(tokenize_function, batched=True)
     dataset = dataset.remove_columns(["sentence1", "sentence2"])

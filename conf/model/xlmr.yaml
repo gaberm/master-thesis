@@ -1,4 +1,5 @@
 name: xlmr
 hf_path: xlm-roberta-base
 num_labels: 3
+dropout: 0.0
 load_ckpt: false

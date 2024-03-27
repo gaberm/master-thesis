@@ -20,7 +20,8 @@ def load_model(config):
         model.classifier = CopaClassifier(
             input_dim=model.config.hidden_size,
             hidden_dim=model.config.hidden_size,
-            output_dim=1
+            output_dim=1,
+            dropout_prob=config.model.dropout
         )
     else:
         model = AutoModelForSequenceClassification.from_pretrained(
@@ -72,14 +73,16 @@ def load_tokenizer(config):
 # we use the same classifier for xcopa that the authors used in their paper
 # https://arxiv.org/pdf/2005.00333.pdf
 class CopaClassifier(nn.Module):
-    def __init__(self, input_dim, hidden_dim, output_dim):
+    def __init__(self, input_dim, hidden_dim, output_dim, dropout_prob):
         super(CopaClassifier, self).__init__()
         self.fc1 = nn.Linear(input_dim, hidden_dim)
+        self.dropout = nn.Dropout(dropout_prob)
         self.activation = nn.Tanh()
         self.fc2 = nn.Linear(hidden_dim, output_dim)
         
     def forward(self, x):
         x = self.fc1(x)
+        x = self.dropout(x)
         x = self.activation(x)
         x = self.fc2(x)
         return x

@@ -1,14 +1,11 @@
 import hydra
 import dotenv
 import platform
-import os
 import lightning.pytorch as pl
-import pandas as pd
-import numpy as np
 from lightning.pytorch.loggers import WandbLogger
 from src.dataset import get_data_loader
 from src.lightning import load_l_model
-from src.utils import get_best_checkpoint, get_device, save_test_results, create_test_csv 
+from src.utils import save_test_results, create_test_csv 
 
 dotenv.load_dotenv(override=True)
 
@@ -39,7 +36,6 @@ def main(config):
             strategy=config.trainer.strategy[system],
             devices=config.trainer.devices[system]
         )
-
         
         for lang, test_loader in zip(config.dataset.test_lang, test_loaders):
             l_model.target_lang = lang
