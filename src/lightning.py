@@ -4,7 +4,7 @@ import torch
 import platform
 import numpy as np
 from transformers import get_scheduler
-from .utils import compute_val_score
+from .utils import compute_val_score, get_device, get_best_checkpoint
 from .optimizer import load_optimizer
 from .metric import load_metric
 from .model import load_model
@@ -290,10 +290,12 @@ class LModelCopa(LightningModule):
         while idx < len(outputs.logits):
             proba_lst.append(outputs.logits[idx:idx+2].softmax(dim=0))
             label_lst.append(batch["labels"][idx:idx+2].argmax(dim=0))
+            if not batch["labels"][idx:idx+2].eq(1).sum() == 1:
+                raise ValueError("More than one label is set to 1. This is not allowed.")
             idx += 2
 
         num_rows = int(len(outputs.logits)/2)
-        probas = torch.cat(proba_lst).view(num_rows, 2)
+        probas = torch.cat(proba_lst).view(num_rows, 2)[:,1]
         labels = torch.stack(label_lst)
 
         self.pred_metric_binary.update(probas, labels)
@@ -301,7 +303,7 @@ class LModelCopa(LightningModule):
 
     def on_test_epoch_end(self):
         uncert_score = self.uncert_metric.compute()
-        pred_score = self.pred_metric.compute()
+        pred_score = self.pred_metric_binary.compute()
         self.log(f"{self.uncert_metric_name} {self.target_lang}", uncert_score, prog_bar=True)
         self.log(f"{self.pred_metric_name} {self.target_lang}", pred_score, prog_bar=True)
         self.result_lst.append(
@@ -320,7 +322,7 @@ class LModelCopa(LightningModule):
         )
         # reset metrics for the next target language
         self.uncert_metric.reset()
-        self.pred_metric.reset()
+        self.pred_metric_binary.reset()
 
     def configure_optimizers(self):
         optimizer = load_optimizer(self.model, self.optimizer, self.lr)
@@ -341,10 +343,20 @@ class LModelCopa(LightningModule):
             return scheduler_dict
         else:
             return optimizer
-        
+    
 
-def load_lightning_model(config, seed):
-    if "copa" in config.trainer.exp_name:
-        return LModelCopa(config, seed)
+def load_l_model(config, seed):
+    load_copa_model = "copa" in config.trainer.exp_name
+    if config.model.load_ckpt:
+        ckpt_dir = f"{config.data_dir[platform.system().lower()]}/checkpoints/{config.trainer.exp_name}/seed_{seed}"
+        ckpt_path = get_best_checkpoint(ckpt_dir)
+        device = get_device(config)
+        if load_copa_model:
+            return LModelCopa.load_from_checkpoint(ckpt_path, map_location=device)
+        else:
+            return LModel.load_from_checkpoint(ckpt_path, map_location=device)
     else:
-        return LModel(config, seed)
+        if load_copa_model:
+            return LModelCopa(config, seed)
+        else:
+            return LModel(config, seed)

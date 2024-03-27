@@ -235,7 +235,7 @@ def get_data_loader(config, split):
                 data_loader = DataLoader(
                     xcopa,
                     batch_size=config.params.batch_size,
-                    sampler=CopaSampler(xcopa, config.params.batch_size),
+                    sampler=SequentialSampler(xcopa),
                     collate_fn=data_collator,
                 )
                 test_loaders.append(data_loader)

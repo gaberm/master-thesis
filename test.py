@@ -7,7 +7,7 @@ import pandas as pd
 import numpy as np
 from lightning.pytorch.loggers import WandbLogger
 from src.dataset import get_data_loader
-from src.lightning import LModel
+from src.lightning import load_l_model
 from src.utils import get_best_checkpoint, get_device, save_test_results, create_test_csv 
 
 dotenv.load_dotenv(override=True)
@@ -18,14 +18,9 @@ def main(config):
         # seed everything for reproducibility
         pl.seed_everything(seed, workers=True) 
         
-        # print
         print(config)
 
-        # load model
-        # model = load_model(config)
-        ckpt_path = get_best_checkpoint(f"{config.data_dir[platform.system().lower()]}/checkpoints/{config.trainer.exp_name}/seed_{seed}")
-        device = get_device(config)
-        l_model = LModel.load_from_checkpoint(ckpt_path, map_location=device)
+        l_model = load_l_model(config, seed)
         l_model.model.eval()
 
         # create test data loaders
