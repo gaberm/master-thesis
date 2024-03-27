@@ -3,14 +3,9 @@
 defaults:
   - override /dataset: xcopa
   - override /madx: madx
-  - override /model: params
+  - override /params: params
   - override /trainer: trainer
 
-model:
-  num_labels: 2
-  load_ckpt: true
-params:
-  batch_size: 24
 madx:
   lang_adapter:
     en: en/wiki@ukp
@@ -24,6 +19,11 @@ madx:
     zh: zh/wiki@ukp
   task_adapter:
     name: copa
+model:
+  num_labels: 2
+  load_ckpt: true
+params:
+  batch_size: 24
 trainer:
   devices:
     darwin: auto

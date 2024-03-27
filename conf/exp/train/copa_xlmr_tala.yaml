@@ -22,7 +22,7 @@ madx:
     name: copa
 model:
   num_labels: 2
-  batch_size: 24
+  batch_size: 8
 params:
   lr: 1e-4
 trainer:

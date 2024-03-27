@@ -4,7 +4,7 @@ gpu_name:
   linux: cuda
 devices:
   darwin: auto
-  linux: [0]
+  linux: [0, 1]
 strategy:
   darwin: auto
   linux: ddp
