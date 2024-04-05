@@ -1,11 +1,12 @@
 from lightning import LightningModule
 import adapters
 import torch
+import os
 from transformers import get_scheduler
 from .utils import compute_val_score, get_device, get_best_checkpoint
 from .optimizer import load_optimizer
 from .metric import load_metric
-from .model import load_model
+from .model import load_model, get_average_state_dict
 
 class LModel(LightningModule):
     def __init__(self, config, seed):
@@ -344,14 +345,27 @@ class LModelCopa(LightningModule):
 def load_l_model(config, seed):
     load_copa_model = "copa" in config.trainer.exp_name
     if config.model.load_ckpt:
-        ckpt_path = get_best_checkpoint(f"{config.data_dir}/checkpoints/{config.trainer.exp_name}/seed_{seed}")
         device = get_device(config)
+        
+        if config.model.ckpt_averaging:
+            ckpt_file = os.listdir(f"{config.data_dir}/{config.model.ckpt_dir}")[0]
+            ckpt_path = f"{config.data_dir}/{config.model.ckpt_dir}/{ckpt_file}"
+            if load_copa_model:
+                l_model = LModelCopa.load_from_checkpoint(ckpt_path, map_location=device)
+            else:
+                l_model = LModel.load_from_checkpoint(ckpt_path, map_location=device)
+            return l_model.model.load_state_dict(get_average_state_dict(config))
+        
+        else:
+            ckpt_path = get_best_checkpoint(f"{config.data_dir}/checkpoints/{config.trainer.exp_name}/seed_{seed}")
+            device = get_device(config)
+            if load_copa_model:
+                return LModelCopa.load_from_checkpoint(ckpt_path, map_location=device)
+            else:
+                return LModel.load_from_checkpoint(ckpt_path, map_location=device)
+    
+    else:    
         if load_copa_model:
             return LModelCopa.load_from_checkpoint(ckpt_path, map_location=device)
         else:
             return LModel.load_from_checkpoint(ckpt_path, map_location=device)
-    else:
-        if load_copa_model:
-            return LModelCopa(config, seed)
-        else:
-            return LModel(config, seed)

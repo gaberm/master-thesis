@@ -12,7 +12,6 @@ def load_model(config):
         has_lang_adapter = "lang_adapter" in config.madx.keys()
         has_task_adapter = "task_adapter" in config.madx.keys()
     load_ckpt = config.model.load_ckpt
-    ckpt_averaging = config.model.ckpt_averaging
 
     if "copa" in config.trainer.exp_name:
         if config.model.name == "xlmr":
@@ -41,10 +40,6 @@ def load_model(config):
             config.model.hf_path,
             num_labels=config.model.num_labels
         )
-        if ckpt_averaging:
-            average_state_dict = get_ckpt_average(config)
-            model.load_state_dict(average_state_dict)
-        
 
     if has_lang_adapter or has_task_adapter:
         # we must call adapters.init() to load adapters
@@ -104,7 +99,7 @@ class CopaClassifier(nn.Module):
         return x
     
 
-def get_ckpt_average(config):
+def get_average_state_dict(config):
     ckpt_dir = f"{config.data_dir}{config.model.ckpt_path}"
     ckpt_files = []
     for filename in os.listdir(ckpt_dir):

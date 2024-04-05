@@ -10,7 +10,7 @@ model:
   num_labels: 2
   load_ckpt: true
   ckpt_averaging: true
-  ckpt_path: checkpoints/copa_mbert_fft/seed_0
+  ckpt_dir: checkpoints/copa_mbert_fft/seed_0
 params:
   batch_size: 24
 trainer:
