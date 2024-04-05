@@ -1,7 +1,8 @@
 from transformers import AutoTokenizer, AutoModelForSequenceClassification
 import adapters
 import torch.nn as nn
-
+import os
+import numpy as np
 
 def load_model(config):
     source_lang = config.params.source_lang
@@ -11,23 +12,38 @@ def load_model(config):
         has_lang_adapter = "lang_adapter" in config.madx.keys()
         has_task_adapter = "task_adapter" in config.madx.keys()
     load_ckpt = config.model.load_ckpt
+    ckpt_averaging = config.model.ckpt_averaging
 
     if "copa" in config.trainer.exp_name:
-        model = AutoModelForSequenceClassification.from_pretrained(
-            config.model.hf_path,
-            num_labels=1
-        )
-        model.classifier = CopaClassifier(
-            input_dim=model.config.hidden_size,
-            hidden_dim=model.config.hidden_size,
-            output_dim=1,
-            dropout_prob=config.model.dropout
-        )
+        if config.model.name == "xlmr":
+            model = AutoModelForSequenceClassification.from_pretrained(
+                config.model.hf_path,
+            )
+            model.classifier = CopaClassifier(
+                input_dim=model.config.hidden_size,
+                hidden_dim=model.config.hidden_size,
+                output_dim=2,
+                dropout_prob=config.model.dropout
+            )
+        else:
+            model = AutoModelForSequenceClassification.from_pretrained(
+                config.model.hf_path,
+                num_labels=1
+            )
+            model.classifier = CopaClassifier(
+                input_dim=model.config.hidden_size,
+                hidden_dim=model.config.hidden_size,
+                output_dim=1,
+                dropout_prob=config.model.dropout
+            )
     else:
         model = AutoModelForSequenceClassification.from_pretrained(
             config.model.hf_path,
             num_labels=config.model.num_labels
         )
+        if ckpt_averaging:
+            average_state_dict = get_ckpt_average(config)
+            model.load_state_dict(average_state_dict)
         
 
     if has_lang_adapter or has_task_adapter:
@@ -86,3 +102,25 @@ class CopaClassifier(nn.Module):
         x = self.activation(x)
         x = self.fc2(x)
         return x
+    
+
+def get_ckpt_average(config):
+    ckpt_dir = f"{config.data_dir}{config.model.ckpt_path}"
+    ckpt_files = []
+    for filename in os.listdir(ckpt_dir):
+        if os.path.isfile(os.path.join(ckpt_dir, filename)):
+            ckpt_files.append(filename)
+    
+    k = len(ckpt_files)
+    average_state_dict = {np.load(ckpt_files[0], allow_pickle=True)}
+    for key, value in average_state_dict.items():
+        if value.is_floating_point():
+            average_state_dict[key] = value / k
+
+    for ckpt_file in ckpt_files[1:]:
+        ckpt = np.load(ckpt_file, allow_pickle=True)
+        for key, value in ckpt.items():
+            if value.is_floating_point():
+                average_state_dict[key] += value / k
+
+    return average_state_dict

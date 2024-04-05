@@ -16,6 +16,4 @@ model:
 params:
   max_epochs: 2
 trainer:
-  devices:
-    darwin: auto
-    linux: 1
+  devices: 1

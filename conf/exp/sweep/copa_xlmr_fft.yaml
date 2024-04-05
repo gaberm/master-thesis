@@ -13,6 +13,4 @@ params:
   max_epochs: 2
   batch_size: 24
 trainer:
-  devices:
-    darwin: auto
-    linux: 1
+  devices: 1

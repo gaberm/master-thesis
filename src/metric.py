@@ -1,5 +1,4 @@
 from torchmetrics.classification import Accuracy, MulticlassCalibrationError, BinaryCalibrationError
-import platform
 
 def load_metric(config, metric_type, num_labels=None):
     if num_labels is None:
@@ -13,7 +12,7 @@ def load_metric(config, metric_type, num_labels=None):
         raise ValueError(f"Invalid metric type: {metric_type}. Must be 'pred' or 'uncert'.")
     
     # device is set to "mps:0" for Mac and "cuda" for Linux
-    device = config.trainer.gpu_name[platform.system().lower()]
+    device = config.trainer.gpu_name
 
     metrics = {"pred":{
         "accuracy": Accuracy(task="binary") if num_labels == 2 else Accuracy(task="multiclass", num_classes=num_labels, average="micro").to(device),

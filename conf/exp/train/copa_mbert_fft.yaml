@@ -12,7 +12,5 @@ params:
   lr: 2e-5
   batch_size: 8
 trainer:
-  devices:
-    darwin: auto
-    linux: [0]
+  devices: 1
   exp_name: copa_mbert_fft

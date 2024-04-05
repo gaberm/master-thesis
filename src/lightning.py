@@ -1,7 +1,6 @@
 from lightning import LightningModule
 import adapters
 import torch
-import platform
 from transformers import get_scheduler
 from .utils import compute_val_score, get_device, get_best_checkpoint
 from .optimizer import load_optimizer
@@ -34,7 +33,7 @@ class LModel(LightningModule):
         self.lr = config.params.lr
         self.num_labels = config.model.num_labels
         self.ce_loss = torch.nn.CrossEntropyLoss()
-        self.data_dir = config.data_dir[platform.system().lower()]
+        self.data_dir = config.data_dir
         self.exp_name = config.trainer.exp_name
         self.result_lst = []
         self.seed = seed
@@ -157,7 +156,7 @@ class LModelCopa(LightningModule):
         self.lr = config.params.lr
         self.num_labels = config.model.num_labels
         self.ce_loss = torch.nn.CrossEntropyLoss()
-        self.data_dir = config.data_dir[platform.system().lower()]
+        self.data_dir = config.data_dir
         self.exp_name = config.trainer.exp_name
         self.result_lst = []
         self.seed = seed
@@ -345,7 +344,7 @@ class LModelCopa(LightningModule):
 def load_l_model(config, seed):
     load_copa_model = "copa" in config.trainer.exp_name
     if config.model.load_ckpt:
-        ckpt_path = get_best_checkpoint(f"{config.data_dir[platform.system().lower()]}/checkpoints/{config.trainer.exp_name}/seed_{seed}")
+        ckpt_path = get_best_checkpoint(f"{config.data_dir}/checkpoints/{config.trainer.exp_name}/seed_{seed}")
         device = get_device(config)
         if load_copa_model:
             return LModelCopa.load_from_checkpoint(ckpt_path, map_location=device)

@@ -1,10 +1,10 @@
 import hydra
 import dotenv
-import platform
 import lightning.pytorch as pl
 from lightning.pytorch.loggers import WandbLogger
 from src.dataset import get_data_loader
 from src.lightning import load_l_model
+from src.model import load_model
 from src.utils import save_test_results, create_test_csv 
 
 dotenv.load_dotenv(override=True)
@@ -18,6 +18,8 @@ def main(config):
         print(config)
 
         l_model = load_l_model(config, seed)
+        if config.model.ckpt_averaging:
+            l_model.model = load_model()
         l_model.model.eval()
 
         # create test data loaders
@@ -27,14 +29,13 @@ def main(config):
         wandb_logger = WandbLogger(project=config.wandb.project, log_model="all")
         wandb_logger.watch(l_model)
         
-        system = platform.system().lower()
         trainer = pl.Trainer(
             max_epochs=config.trainer.max_epochs,
             logger=wandb_logger, 
-            default_root_dir=config.data_dir[system],
+            default_root_dir=config.data_dir,
             deterministic=True,
-            strategy=config.trainer.strategy[system],
-            devices=config.trainer.devices[system]
+            strategy=config.trainer.strategy,
+            devices=config.trainer.devices
         )
         
         for lang, test_loader in zip(config.dataset.test_lang, test_loaders):

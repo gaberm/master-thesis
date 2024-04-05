@@ -1,5 +1,4 @@
 import os
-import platform
 import random
 import pandas as pd
 from datasets import Dataset, load_dataset, load_from_disk
@@ -151,7 +150,7 @@ def download_ds(dataset, lang, split, data_dir):
 
 
 def get_data_loader(config, split):
-    data_dir = config.data_dir[platform.system().lower()]
+    data_dir = config.data_dir
     tokenizer = load_tokenizer(config)
     if config.dataset.name == "copa" or config.dataset.name == "xcopa": 
         data_collator = DataCollatorWithPadding(tokenizer)

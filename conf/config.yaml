@@ -12,6 +12,4 @@ defaults:
   - override hydra/job_logging: colorlog
 
 # path to folder to model checkpoints
-data_dir:
-  darwin: "data/"
-  linux: "/ceph/mgaber/data"
+data_dir: "/ceph/mgaber/data"

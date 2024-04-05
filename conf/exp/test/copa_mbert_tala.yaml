@@ -25,7 +25,5 @@ model:
 params:
   batch_size: 24
 trainer:
-  devices:
-    darwin: auto
-    linux: 1
+  devices: 1
   exp_name: copa_mbert_tala

@@ -1,6 +1,5 @@
 import hydra
 import dotenv
-import platform
 import lightning.pytorch as pl
 from lightning.pytorch.loggers import WandbLogger
 from lightning.pytorch.callbacks import ModelCheckpoint, LearningRateMonitor
@@ -19,10 +18,6 @@ def main(config):
         # print the config for the current run
         print(config)
 
-        # gpu, no of devices and training strategy differ between the macos and linux setup
-        # so we need to know which system we are on
-        system = platform.system().lower()
-
         train_loader = get_data_loader(config, "train")
         val_loader = get_data_loader(config, "validation")
         
@@ -30,7 +25,7 @@ def main(config):
         l_model = load_l_model(config, seed)
         wandb_logger = WandbLogger(project=config.wandb.project)
 
-        ckpt_dir = f"{config.data_dir[system]}/checkpoints/{config.trainer.exp_name}/seed_{seed}"
+        ckpt_dir = f"{config.data_dir}/checkpoints/{config.trainer.exp_name}/seed_{seed}"
         # check to avoid overwriting of existing checkpoints
         # if os.path.exists(ckpt_dir):
         #     raise ValueError(f"Checkpoint directory {ckpt_dir} already exists. Please delete or change it.")
@@ -47,10 +42,10 @@ def main(config):
         trainer = pl.Trainer(
             max_epochs=config.trainer.max_epochs,
             logger=wandb_logger, 
-            default_root_dir=config.data_dir[system],
+            default_root_dir=config.data_dir,
             deterministic=True,
-            strategy=config.trainer.strategy[system],
-            devices=config.trainer.devices[system],
+            strategy=config.trainer.strategy,
+            devices=config.trainer.devices,
             val_check_interval=0.25,
             callbacks=[checkpoint_callback, lr_callback],
             use_distributed_sampler=False
