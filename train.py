@@ -4,7 +4,7 @@ import lightning.pytorch as pl
 from lightning.pytorch.loggers import WandbLogger
 from lightning.pytorch.callbacks import ModelCheckpoint, LearningRateMonitor
 from src.dataset import get_data_loader
-from src.lightning import load_l_model
+from src.lightning import get_l_model
 
 dotenv.load_dotenv(".env")
 
@@ -22,7 +22,7 @@ def main(config):
         val_loader = get_data_loader(config, "validation")
         
         # create lightning model and initialize wandb logger
-        l_model = load_l_model(config, seed)
+        l_model = get_l_model(config, seed)
         wandb_logger = WandbLogger(project=config.wandb.project)
 
         ckpt_dir = f"{config.data_dir}/checkpoints/{config.trainer.exp_name}/seed_{seed}"

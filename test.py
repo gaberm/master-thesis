@@ -3,7 +3,7 @@ import dotenv
 import lightning.pytorch as pl
 from lightning.pytorch.loggers import WandbLogger
 from src.dataset import get_data_loader
-from src.lightning import load_l_model
+from src.lightning import get_l_model
 from src.model import load_model
 from src.utils import save_test_results, create_test_csv 
 
@@ -17,9 +17,7 @@ def main(config):
         
         print(config)
 
-        l_model = load_l_model(config, seed)
-        if config.model.ckpt_averaging:
-            l_model.model = load_model()
+        l_model = get_l_model(config, seed)
         l_model.model.eval()
 
         # create test data loaders

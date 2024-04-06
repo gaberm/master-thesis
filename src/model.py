@@ -1,8 +1,9 @@
-from transformers import AutoTokenizer, AutoModelForSequenceClassification
+from transformers import AutoTokenizer, AutoModelForSequenceClassification, AutoModel
 import adapters
 import torch.nn as nn
 import os
-import numpy as np
+import torch
+from tqdm import tqdm
 
 def load_model(config):
     source_lang = config.params.source_lang
@@ -12,29 +13,15 @@ def load_model(config):
         has_lang_adapter = "lang_adapter" in config.madx.keys()
         has_task_adapter = "task_adapter" in config.madx.keys()
     load_ckpt = config.model.load_ckpt
-
     if "copa" in config.trainer.exp_name:
-        if config.model.name == "xlmr":
-            model = AutoModelForSequenceClassification.from_pretrained(
-                config.model.hf_path,
-            )
-            model.classifier = CopaClassifier(
-                input_dim=model.config.hidden_size,
-                hidden_dim=model.config.hidden_size,
-                output_dim=2,
-                dropout_prob=config.model.dropout
-            )
-        else:
-            model = AutoModelForSequenceClassification.from_pretrained(
-                config.model.hf_path,
-                num_labels=1
-            )
-            model.classifier = CopaClassifier(
-                input_dim=model.config.hidden_size,
-                hidden_dim=model.config.hidden_size,
-                output_dim=1,
-                dropout_prob=config.model.dropout
-            )
+        transformer = AutoModel.from_pretrained(config.model.hf_path)
+        classifier = CopaClassifier(
+            input_dim=transformer.config.hidden_size,
+            hidden_dim=transformer.config.hidden_size,
+            output_dim=1,
+            dropout_prob=config.model.dropout
+        )
+        model = CopaModel(transformer, classifier)
     else:
         model = AutoModelForSequenceClassification.from_pretrained(
             config.model.hf_path,
@@ -99,23 +86,41 @@ class CopaClassifier(nn.Module):
         return x
     
 
-def get_average_state_dict(config):
-    ckpt_dir = f"{config.data_dir}{config.model.ckpt_path}"
+class CopaModel(nn.Module):
+    def __init__(self, transformer_model, classifier):
+        super(CopaModel, self).__init__()
+        self.transformer = transformer_model
+        self.classifier = classifier
+
+    def forward(self, input_ids, attention_mask, labels):
+        outputs = self.transformer(input_ids=input_ids, attention_mask=attention_mask)
+        pooled_output = outputs.pooler_output
+        logits = self.classifier(pooled_output)
+        return logits
+    
+
+def compute_ckpt_average(config):
+    ckpt_dir = f"{config.data_dir}/{config.model.ckpt_dir}"
     ckpt_files = []
     for filename in os.listdir(ckpt_dir):
         if os.path.isfile(os.path.join(ckpt_dir, filename)):
             ckpt_files.append(filename)
     
     k = len(ckpt_files)
-    average_state_dict = {np.load(ckpt_files[0], allow_pickle=True)}
-    for key, value in average_state_dict.items():
-        if value.is_floating_point():
-            average_state_dict[key] = value / k
+    average_state_dict = None
+    for ckpt_file in tqdm(ckpt_files, total=k, desc="Loading checkpoints"):
+        ckpt = torch.load(f"{ckpt_dir}/{ckpt_file}")["state_dict"]
+        if average_state_dict is None:
+            average_state_dict = ckpt
+            for key, value in average_state_dict.items():
+                if value.is_floating_point():
+                    average_state_dict[key] = value / k
+        else:
+            for key, value in ckpt.items():
+                if value.is_floating_point():
+                    average_state_dict[key] += value / k
+            del ckpt
 
-    for ckpt_file in ckpt_files[1:]:
-        ckpt = np.load(ckpt_file, allow_pickle=True)
-        for key, value in ckpt.items():
-            if value.is_floating_point():
-                average_state_dict[key] += value / k
-
+    average_state_dict = {k.replace("model.", ""): v for k, v in average_state_dict.items()}
+    
     return average_state_dict

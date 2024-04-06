@@ -10,5 +10,7 @@ defaults:
 model:
   num_labels: 2
   load_ckpt: true
+  ckpt_averaging: true
+  ckpt_dir: checkpoints/paws_x_mbert_fft/seed_0
 trainer:
-  exp_name: paws_x_mbert_fft
+  exp_name: paws_x_mbert_ca

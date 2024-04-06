@@ -7,7 +7,7 @@ import numpy as np
 import pandas as pd
 
 
-def get_best_checkpoint(ckpt_dir):
+def find_best_ckpt(ckpt_dir):
     files = []
     # get all files in the checkpoint directory
     for filename in os.listdir(ckpt_dir):

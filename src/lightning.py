@@ -3,10 +3,10 @@ import adapters
 import torch
 import os
 from transformers import get_scheduler
-from .utils import compute_val_score, get_device, get_best_checkpoint
+from .utils import compute_val_score, get_device, find_best_ckpt
 from .optimizer import load_optimizer
 from .metric import load_metric
-from .model import load_model, get_average_state_dict
+from .model import load_model, compute_ckpt_average
 
 class LModel(LightningModule):
     def __init__(self, config, seed):
@@ -130,7 +130,7 @@ class LModel(LightningModule):
             return optimizer
         
 
-class LModelCopa(LightningModule):
+class LCopaModel(LightningModule):
     def __init__(self, config, seed):
         super().__init__()
         self.model = load_model(config)
@@ -184,33 +184,34 @@ class LModelCopa(LightningModule):
             outputs[dataset] = self.model(**batch)
 
         loss = 0.0
-        for dataset, output in outputs.items():
+        for dataset, logits in outputs.items():
+            labels = batches[dataset]["labels"]
             idx = 0
             logit_lst = []
             label_lst = []
             if dataset == "copa":
-                while idx < len(output.logits):
-                    logit_lst.append(output.logits[idx:idx+2])
-                    label_lst.append(batches[dataset]["labels"][idx:idx+2].argmax(dim=0))
-                    if not batches[dataset]["labels"][idx:idx+2].eq(1).sum() == 1:
+                while idx < len(logits):
+                    logit_lst.append(logits[idx:idx+2])
+                    label_lst.append(labels[idx:idx+2].argmax(dim=0))
+                    if not labels[idx:idx+2].eq(1).sum() == 1:
                         raise ValueError("More than one label is set to 1. This is not allowed.")
                     idx += 2
-                num_rows = int(len(output.logits) / 2)
-                logits = torch.cat(logit_lst).view(num_rows, 2)
-                labels = torch.stack(label_lst)
+                num_rows = int(len(logits) / 2)
+                new_logits = torch.cat(logit_lst).view(num_rows, 2)
+                new_labels = torch.stack(label_lst)
 
             if dataset == "siqa":
-                while idx < len(output.logits):
-                    logit_lst.append(output.logits[idx:idx+3])
-                    label_lst.append(batches[dataset]["labels"][idx:idx+3].argmax(dim=0))
-                    if not batches[dataset]["labels"][idx:idx+3].eq(1).sum() == 1:
+                while idx < len(logits):
+                    logit_lst.append(logits[idx:idx+3])
+                    label_lst.append(labels[idx:idx+3].argmax(dim=0))
+                    if not labels[idx:idx+3].eq(1).sum() == 1:
                         raise ValueError("More than one label is set to 1. This is not allowed.")
                     idx += 3
-                num_rows = int(len(output.logits) / 3)
-                logits = torch.cat(logit_lst).view(num_rows, 3)
-                labels = torch.stack(label_lst)
+                num_rows = int(len(logits) / 3)
+                new_logits = torch.cat(logit_lst).view(num_rows, 3)
+                new_labels = torch.stack(label_lst)
 
-            loss += self.ce_loss(logits, labels)
+            loss += self.ce_loss(new_logits, new_labels)
         self.log("train_loss", loss)
         return loss
     
@@ -226,28 +227,29 @@ class LModelCopa(LightningModule):
         for dataset, batch in batches.items():
             outputs[dataset] = self.model(**batch)
 
-        for dataset, output in outputs.items():
+        for dataset, logits in outputs.items():
+            labels = batches[dataset]["labels"]
             idx = 0
             prob_lst = []
             label_lst = []
 
             if dataset == "copa":
-                while idx < len(output.logits):
-                    prob_lst.append(output.logits[idx:idx+2].softmax(dim=0))
-                    label_lst.append(batches[dataset]["labels"][idx:idx+2].argmax(dim=0))
+                while idx < len(logits):
+                    prob_lst.append(logits[idx:idx+2].softmax(dim=0))
+                    label_lst.append(labels[idx:idx+2].argmax(dim=0))
                     idx += 2
-                num_rows = int(len(output.logits) / 2)
+                num_rows = int(len(logits) / 2)
                 probs = torch.cat(prob_lst).view(num_rows, 2)[:,1]
                 labels = torch.stack(label_lst)
                 self.pred_metric_binary.update(probs, labels)
                 self.copa_val_samples += len(labels)
 
             if dataset == "siqa":
-                while idx < len(output.logits):
-                    prob_lst.append(output.logits[idx:idx+3].softmax(dim=0))
-                    label_lst.append(batches[dataset]["labels"][idx:idx+3].argmax(dim=0))
+                while idx < len(logits):
+                    prob_lst.append(logits[idx:idx+3].softmax(dim=0))
+                    label_lst.append(labels[idx:idx+3].argmax(dim=0))
                     idx += 3
-                num_rows = int(len(output.logits) / 3)
+                num_rows = int(len(logits) / 3)
                 probs = torch.cat(prob_lst).view(num_rows, 3)
                 labels = torch.stack(label_lst)
                 self.pred_metric_multiclass.update(probs, labels)
@@ -342,30 +344,38 @@ class LModelCopa(LightningModule):
             return optimizer
     
 
-def load_l_model(config, seed):
+def get_l_model(config, seed):
     load_copa_model = "copa" in config.trainer.exp_name
+
+    # test: load model from checkpoint
     if config.model.load_ckpt:
         device = get_device(config)
         
+        # checkpoint averaging: load lightning model from first checkpoint
+        # replace the self.model's state_dict with the averaged state_dict
         if config.model.ckpt_averaging:
-            ckpt_file = os.listdir(f"{config.data_dir}/{config.model.ckpt_dir}")[0]
-            ckpt_path = f"{config.data_dir}/{config.model.ckpt_dir}/{ckpt_file}"
+            ckpt_name = os.listdir(f"{config.data_dir}/{config.model.ckpt_dir}")[0]
+            ckpt = f"{config.data_dir}/{config.model.ckpt_dir}/{ckpt_name}"
             if load_copa_model:
-                l_model = LModelCopa.load_from_checkpoint(ckpt_path, map_location=device)
+                l_model = LCopaModel.load_from_checkpoint(ckpt, map_location=device)
             else:
-                l_model = LModel.load_from_checkpoint(ckpt_path, map_location=device)
-            return l_model.model.load_state_dict(get_average_state_dict(config))
+                l_model = LModel.load_from_checkpoint(ckpt, map_location=device)
+            l_model.model.load_state_dict(compute_ckpt_average(config))
+            return l_model 
         
+        # load lightning model using most accurate checkpoint 
+        # based on the source language validation dataset
         else:
-            ckpt_path = get_best_checkpoint(f"{config.data_dir}/checkpoints/{config.trainer.exp_name}/seed_{seed}")
+            ckpt = find_best_ckpt(f"{config.data_dir}/checkpoints/{config.trainer.exp_name}/seed_{seed}")
             device = get_device(config)
             if load_copa_model:
-                return LModelCopa.load_from_checkpoint(ckpt_path, map_location=device)
+                return LCopaModel.load_from_checkpoint(ckpt, map_location=device)
             else:
-                return LModel.load_from_checkpoint(ckpt_path, map_location=device)
+                return LModel.load_from_checkpoint(ckpt, map_location=device)
     
-    else:    
+    # train: load model from scratch
+    else:
         if load_copa_model:
-            return LModelCopa.load_from_checkpoint(ckpt_path, map_location=device)
+            return LCopaModel(config, seed)
         else:
-            return LModel.load_from_checkpoint(ckpt_path, map_location=device)
+            return LModel(config, seed)

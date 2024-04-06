@@ -26,5 +26,4 @@ model:
 params:
   lr: 1e-4
 trainer:
-  devices: 1
   exp_name: copa_xlmr_tala
