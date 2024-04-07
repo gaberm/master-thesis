@@ -1,5 +1,7 @@
 import hydra
 import dotenv
+import os
+import shutil
 import lightning.pytorch as pl
 from lightning.pytorch.loggers import WandbLogger
 from lightning.pytorch.callbacks import ModelCheckpoint, LearningRateMonitor
@@ -11,7 +13,7 @@ dotenv.load_dotenv(".env")
 @hydra.main(config_path="conf", config_name="config", version_base="1.3")
 def main(config):
     # run the experiment for 5 different seeds
-    for seed in config.params.seeds:
+    for idx, seed in enumerate(config.params.seeds):
         # seed everything for reproducibility
         pl.seed_everything(seed, workers=True) 
 
@@ -22,13 +24,14 @@ def main(config):
         val_loader = get_data_loader(config, "validation")
         
         # create lightning model and initialize wandb logger
-        l_model = get_l_model(config, seed)
+        l_model = get_l_model(config, seed, idx)
         wandb_logger = WandbLogger(project=config.wandb.project)
 
         ckpt_dir = f"{config.data_dir}/checkpoints/{config.trainer.exp_name}/seed_{seed}"
         # check to avoid overwriting of existing checkpoints
-        # if os.path.exists(ckpt_dir):
-        #     raise ValueError(f"Checkpoint directory {ckpt_dir} already exists. Please delete or change it.")
+        if os.path.exists(ckpt_dir):
+            shutil.rmtree(ckpt_dir)
+            print(f"Removed existing checkpoint directory {ckpt_dir} for experiment {config.trainer.exp_name}")
         
         checkpoint_callback = ModelCheckpoint(
             dirpath=ckpt_dir,

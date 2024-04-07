@@ -5,68 +5,55 @@ import os
 import torch
 from tqdm import tqdm
 
-def load_model(config):
-    source_lang = config.params.source_lang
-    has_lang_adapter = False
-    has_task_adapter = False
-    if "madx" in config.keys():
-        has_lang_adapter = "lang_adapter" in config.madx.keys()
-        has_task_adapter = "task_adapter" in config.madx.keys()
-    load_ckpt = config.model.load_ckpt
+
+def load_model_from_hf(config):
     if "copa" in config.trainer.exp_name:
-        transformer = AutoModel.from_pretrained(config.model.hf_path)
-        classifier = CopaClassifier(
-            input_dim=transformer.config.hidden_size,
-            hidden_dim=transformer.config.hidden_size,
-            output_dim=1,
-            dropout_prob=config.model.dropout
-        )
-        model = CopaModel(transformer, classifier)
+        model = AutoModel.from_pretrained(config.model.hf_path)
     else:
         model = AutoModelForSequenceClassification.from_pretrained(
             config.model.hf_path,
             num_labels=config.model.num_labels
         )
+    return model
 
-    if has_lang_adapter or has_task_adapter:
-        # we must call adapters.init() to load adapters
-        adapters.init(model)
 
+def add_adapters(model, config):
+    has_lang_adapter = "lang_adapter" in config.madx.keys()
+    
+    # we must call adapters.init() to load adapters
+    adapters.init(model)
+    
+    if has_lang_adapter:
+        lang_adapter_cfg = adapters.AdapterConfig.load(
+            "pfeiffer",
+            non_linearity="gelu",
+            reduction_factor=2
+        )
+        # we use pre-trained language adapters
+        for path in config.madx.lang_adapter.values():
+            _ = model.load_adapter(path, lang_adapter_cfg)
+
+    # we add an untrained task adapter
+    # for train, we train the task adapter for the task
+    # for test, we load the weights of the task adapter from the best checkpoint
+    task_adapter_name = config.madx.task_adapter.name
+    model.add_adapter(task_adapter_name, config="seq_bn")
+    
+    if not config.model.load_ckpt:
+        # train_adapter freezes the weights of the model 
+        # and the language adapters to prevent them from further finetuning
+        model.train_adapter([task_adapter_name]) 
+
+        # active_adapters are the adapters that are used in the forward pass
+        # if we use language adapter, we stack the task adapter on top of the language adapter
+        # https://colab.research.google.com/github/Adapter-Hub/adapter-transformers/blob/master/notebooks/04_Cross_Lingual_Transfer.ipynb
         if has_lang_adapter:
-            lang_adapter_cfg = adapters.AdapterConfig.load(
-                "pfeiffer",
-                non_linearity="gelu",
-                reduction_factor=2
-            )
-            # we use pre-trained language adapters
-            for path in config.madx.lang_adapter.values():
-                _ = model.load_adapter(path, lang_adapter_cfg)
+            model.active_adapters = adapters.Stack(config.params.source_lang, task_adapter_name)
+        else:
+            model.active_adapters = task_adapter_name
 
-        # we add an untrained task adapter
-        # for train, we train the task adapter for the task
-        # for test, we load the weights of the task adapter from the best checkpoint
-        task_adapter_name = config.madx.task_adapter.name
-        model.add_adapter(task_adapter_name, config="seq_bn")
-       
-        if not load_ckpt:
-            # train_adapter freezes the weights of the model 
-            # and the language adapters to prevent them from further finetuning
-            model.train_adapter([task_adapter_name]) 
+    return model
 
-            # active_adapters are the adapters that are used in the forward pass
-            # if we use language adapter, we stack the task adapter on top of the language adapter
-            # https://colab.research.google.com/github/Adapter-Hub/adapter-transformers/blob/master/notebooks/04_Cross_Lingual_Transfer.ipynb
-            if has_lang_adapter:
-                model.active_adapters = adapters.Stack(source_lang, task_adapter_name)
-            else:
-                model.active_adapters = task_adapter_name
-
-    return model    
-
-
-def load_tokenizer(config):
-    return AutoTokenizer.from_pretrained(config.model.hf_path)
- 
 
 # we use the same classifier for xcopa that the authors used in their paper
 # https://arxiv.org/pdf/2005.00333.pdf
@@ -84,23 +71,31 @@ class CopaClassifier(nn.Module):
         x = self.activation(x)
         x = self.fc2(x)
         return x
+
+
+def load_model(config):
+    model = load_model_from_hf(config)
+    
+    if "madx" in config.keys():
+        model = add_adapters(model, config)
+
+    if "copa" in config.trainer.exp_name:
+        classifier = CopaClassifier(
+            input_dim=model.config.hidden_size,
+            hidden_dim=model.config.hidden_size,
+            output_dim=1,
+            dropout_prob=config.model.dropout
+        )
+        return model, classifier
+    else:
+        return model
+
+
+def load_tokenizer(config):
+    return AutoTokenizer.from_pretrained(config.model.hf_path)
     
 
-class CopaModel(nn.Module):
-    def __init__(self, transformer_model, classifier):
-        super(CopaModel, self).__init__()
-        self.transformer = transformer_model
-        self.classifier = classifier
-
-    def forward(self, input_ids, attention_mask, labels):
-        outputs = self.transformer(input_ids=input_ids, attention_mask=attention_mask)
-        pooled_output = outputs.pooler_output
-        logits = self.classifier(pooled_output)
-        return logits
-    
-
-def compute_ckpt_average(config):
-    ckpt_dir = f"{config.data_dir}/{config.model.ckpt_dir}"
+def compute_ckpt_average(ckpt_dir):
     ckpt_files = []
     for filename in os.listdir(ckpt_dir):
         if os.path.isfile(os.path.join(ckpt_dir, filename)):
@@ -108,7 +103,7 @@ def compute_ckpt_average(config):
     
     k = len(ckpt_files)
     average_state_dict = None
-    for ckpt_file in tqdm(ckpt_files, total=k, desc="Loading checkpoints"):
+    for ckpt_file in tqdm(ckpt_files, total=k, desc="Loading checkpoints:"):
         ckpt = torch.load(f"{ckpt_dir}/{ckpt_file}")["state_dict"]
         if average_state_dict is None:
             average_state_dict = ckpt
