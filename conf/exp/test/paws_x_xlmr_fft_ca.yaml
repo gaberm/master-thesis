@@ -4,13 +4,12 @@ defaults:
   - override /dataset:
     - paws_x
   - override /madx: null
-  - override /model: mbert
+  - override /model: xlmr
   - override /trainer: trainer
   
 model:
   num_labels: 2
   load_ckpt: true
   ckpt_averaging: true
-  ckpt_dir: checkpoints/paws_x_mbert_fft/seed_0
 trainer:
-  exp_name: paws_x_mbert_ca
+  exp_name: paws_x_xlmr_fft_ca
