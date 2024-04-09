@@ -10,7 +10,6 @@ from lightning.pytorch.utilities import CombinedLoader
 def prepare_paws_x(dataset):
     prepared_paws_x = dataset.rename_column("label", "labels")
     prepared_paws_x = prepared_paws_x.remove_columns(["id"])
-
     return prepared_paws_x
 
 
@@ -100,7 +99,6 @@ def prepare_xcopa(dataset, lang):
          "sentence2" : choice_lst,
          "labels" : label_lst}
     )
-    
     return prepared_xcopa
 
 
@@ -109,7 +107,6 @@ def prepare_xnli(dataset):
     new_col_names = ["sentence1", "sentence2", "labels"]
     for old_col, new_col in zip(old_col_names, new_col_names):
         dataset = dataset.rename_column(old_col, new_col)
-
     return dataset
 
 
@@ -120,7 +117,6 @@ def tokenize_ds(dataset, tokenizer):
     dataset = dataset.map(tokenize_function, batched=True)
     dataset = dataset.remove_columns(["sentence1", "sentence2"])
     dataset.set_format("torch")
-
     return dataset
 
 

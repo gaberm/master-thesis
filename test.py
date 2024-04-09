@@ -3,9 +3,8 @@ import dotenv
 import lightning.pytorch as pl
 from lightning.pytorch.loggers import WandbLogger
 from src.dataset import get_data_loader
-from src.lightning import get_l_model
-from src.model import load_model
-from src.utils import save_test_results, create_test_csv 
+from src.lightning import load_l_model
+from src.utils import save_test_results, create_result_csv 
 
 dotenv.load_dotenv(override=True)
 
@@ -17,11 +16,9 @@ def main(config):
         
         print(config)
 
-        l_model = get_l_model(config, seed)
-        l_model.model.eval()
+        l_model = load_l_model(config, seed)
 
         # create test data loaders
-        # tokenizer = load_tokenizer(config)
         test_loaders = get_data_loader(config, "test")
         
         wandb_logger = WandbLogger(project=config.wandb.project, log_model="all")
@@ -39,11 +36,9 @@ def main(config):
         for lang, test_loader in zip(config.dataset.test_lang, test_loaders):
             l_model.target_lang = lang
             trainer.test(model=l_model, dataloaders=test_loader)
-        
         save_test_results(l_model, config, seed)
 
-    # create result csv
-    create_test_csv(config.trainer.exp_name)
+    create_result_csv(config.trainer.exp_name)
 
 if __name__ == "__main__":
     main()

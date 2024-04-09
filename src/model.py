@@ -1,9 +1,6 @@
 from transformers import AutoTokenizer, AutoModelForSequenceClassification, AutoModel
 import adapters
 import torch.nn as nn
-import os
-import torch
-from tqdm import tqdm
 
 
 def load_model_from_hf(config):
@@ -93,29 +90,3 @@ def load_model(config):
 
 def load_tokenizer(config):
     return AutoTokenizer.from_pretrained(config.model.hf_path)
-    
-
-def compute_ckpt_average(ckpt_dir):
-    ckpt_files = []
-    for filename in os.listdir(ckpt_dir):
-        if os.path.isfile(os.path.join(ckpt_dir, filename)):
-            ckpt_files.append(filename)
-    
-    k = len(ckpt_files)
-    average_state_dict = None
-    for ckpt_file in tqdm(ckpt_files, total=k, desc="Loading checkpoints:"):
-        ckpt = torch.load(f"{ckpt_dir}/{ckpt_file}")["state_dict"]
-        if average_state_dict is None:
-            average_state_dict = ckpt
-            for key, value in average_state_dict.items():
-                if value.is_floating_point():
-                    average_state_dict[key] = value / k
-        else:
-            for key, value in ckpt.items():
-                if value.is_floating_point():
-                    average_state_dict[key] += value / k
-            del ckpt
-
-    average_state_dict = {k.replace("model.", ""): v for k, v in average_state_dict.items()}
-    
-    return average_state_dict

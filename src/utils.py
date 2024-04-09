@@ -3,6 +3,7 @@ import re
 import shutil
 import torch
 import omegaconf
+from tqdm import tqdm
 import numpy as np
 import pandas as pd
 
@@ -41,7 +42,7 @@ def save_test_results(model, config, seed):
     np.save(f"res/{config.trainer.exp_name}/seed_{seed}", model.result_lst)
     
 
-def create_test_csv(exp_name):
+def create_result_csv(exp_name):
     files = []
     result_dir = f"res/{exp_name}"
     for filename in os.listdir(result_dir):
@@ -70,3 +71,44 @@ def create_test_csv(exp_name):
 
 def compute_val_score(val_score_1, val_score_2, num_samples_1, num_samples_2):
     return (val_score_1 * num_samples_1 + val_score_2 * num_samples_2) / (num_samples_1 + num_samples_2)
+
+
+def compute_ckpt_average(ckpt_dir, device):
+    ckpt_files = []
+    for filename in os.listdir(ckpt_dir):
+        if os.path.isfile(os.path.join(ckpt_dir, filename)):
+            ckpt_files.append(filename)
+    
+    k = len(ckpt_files)
+    average_state_dict = None
+    for ckpt_file in tqdm(ckpt_files, total=k, desc="Loading checkpoints"):
+        ckpt = torch.load(f"{ckpt_dir}/{ckpt_file}", map_location=device)["state_dict"]
+        if average_state_dict is None:
+            average_state_dict = ckpt
+            for key, value in average_state_dict.items():
+                if value.is_floating_point():
+                    average_state_dict[key] = value / k
+        else:
+            for key, value in ckpt.items():
+                if value.is_floating_point():
+                    average_state_dict[key] += value / k
+        del ckpt
+
+    if "copa" in ckpt_dir:
+        enc_state_dict = {
+            k.replace("encoder.", "", 1): v 
+            for k, v in average_state_dict.items() 
+            if "encoder." in k
+        }
+        cls_state_dict = {
+            k.replace("classifier.", ""): v 
+            for k, v in average_state_dict.items() 
+            if "classifier." in k
+        }
+        return enc_state_dict, cls_state_dict
+    else:
+        model_state_dict = {
+            k.replace("model.", ""): v 
+            for k, v in average_state_dict.items()
+        }
+        return model_state_dict
