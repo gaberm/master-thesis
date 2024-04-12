@@ -4,3 +4,4 @@ devices: [4]
 strategy: ddp
 save_top_k: -1
 exp_name: xnli_mbert_tala
+every_n_epochs: Null

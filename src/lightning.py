@@ -33,6 +33,9 @@ class LModel(LightningModule):
             self.has_lang_adapter = False
         
         self.lr = config.params.lr
+        self.weight_decay = config.params.weight_decay
+        self.warmup = config.params.warmup
+        self.decay = 1 - config.params.decay
         self.num_labels = config.model.num_labels
         self.ce_loss = torch.nn.CrossEntropyLoss()
         self.data_dir = config.data_dir
@@ -108,15 +111,15 @@ class LModel(LightningModule):
         self.pred_metric.reset()
 
     def configure_optimizers(self):
-        optimizer = AdamW(self.parameters(), lr=self.lr)
+        optimizer = AdamW(self.parameters(), lr=self.lr, weight_decay=self.weight_decay)
         # we don't use a scheduler for mad-x,
         # because the authors of the mad-x paper don't use one
         if self.task_adapter_name is None:
             scheduler = get_scheduler(
                 "linear",
                 optimizer, 
-                num_warmup_steps=self.trainer.estimated_stepping_batches*0.1, 
-                num_training_steps=self.trainer.estimated_stepping_batches
+                num_warmup_steps=self.trainer.estimated_stepping_batches * self.warmup, 
+                num_training_steps=self.trainer.estimated_stepping_batches * self.decay
             )
             scheduler_dict = {
                 "optimizer": optimizer,
@@ -156,6 +159,9 @@ class LCopaModel(LightningModule):
             self.has_lang_adapter = False
 
         self.lr = config.params.lr
+        self.weight_decay = config.params.weight_decay
+        self.warmup = config.params.warmup
+        self.decay = 1 - config.params.decay
         self.ce_loss = torch.nn.CrossEntropyLoss()
         self.data_dir = config.data_dir
         self.exp_name = config.trainer.exp_name
@@ -293,15 +299,15 @@ class LCopaModel(LightningModule):
         self.pred_metric_binary.reset()
 
     def configure_optimizers(self):
-        optimizer = AdamW(self.parameters(), lr=self.lr)
+        optimizer = AdamW(self.parameters(), lr=self.lr, weight_decay=self.weight_decay)
         # we don't use a scheduler for mad-x,
         # because the authors of the mad-x paper don't use one
         if self.task_adapter_name is None:
             scheduler = get_scheduler(
                 "linear",
                 optimizer, 
-                num_warmup_steps=self.trainer.estimated_stepping_batches*0.1, 
-                num_training_steps=self.trainer.estimated_stepping_batches
+                num_warmup_steps=self.trainer.estimated_stepping_batches * self.warmup, 
+                num_training_steps=self.trainer.estimated_stepping_batches * self.decay
             )
             scheduler_dict = {
                 "optimizer": optimizer,

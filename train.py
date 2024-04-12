@@ -24,7 +24,7 @@ def main(config):
         val_loader = get_data_loader(config, "validation")
         
         # create lightning model and initialize wandb logger
-        l_model = load_l_model(config, seed, idx)
+        l_model = load_l_model(config, seed)
         wandb_logger = WandbLogger(project=config.wandb.project)
 
         ckpt_dir = f"{config.data_dir}/checkpoints/{config.trainer.exp_name}/seed_{seed}"
@@ -38,7 +38,8 @@ def main(config):
             monitor=config.params.pred_metric,
             mode="max",
             filename=f"{{epoch}}-{{step}}-{{{config.params.pred_metric}:.3f}}",
-            save_top_k=config.trainer.save_top_k
+            save_top_k=config.trainer.save_top_k,
+            every_n_epochs=config.trainer.every_n_epochs
         )
         lr_callback = LearningRateMonitor(logging_interval="step")
 
@@ -51,7 +52,8 @@ def main(config):
             devices=config.trainer.devices,
             val_check_interval=0.25,
             callbacks=[checkpoint_callback, lr_callback],
-            use_distributed_sampler=False
+            use_distributed_sampler=False,
+            precision=16
         )
 
         # train the model
