@@ -8,19 +8,12 @@ defaults:
   - override /params: params
   - override /trainer: trainer
   
-dataset:
-  paws_x:
-    train_split: train
-    val_split: validation
-    test_split: validation
 model:
   num_labels: 2
 params:
   lr: 2e-5
   weight_decay: 0.05
-  decay: 0.1
+  warmup: 0.1
 trainer:
   exp_name: paws_x_xlmr_fft
   max_epochs: 10
-  every_n_epochs: 1
-  save_top_k: 1

@@ -12,6 +12,7 @@ madx:
 model:
   num_labels: 2
   load_ckpt: true
+  ckpt_averaging: true
 trainer:
   devices: 1
   exp_name: copa_mbert_ta

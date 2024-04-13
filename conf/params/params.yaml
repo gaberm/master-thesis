@@ -3,9 +3,8 @@ batch_size: 32
 lr: 5e-5
 weight_decay: 0.01
 warmup: 0.05
-decay: 0.0
 pred_metric: accuracy
 uncert_metric: ece # expected calibration error
 average: micro
 source_lang: en
-seeds: [42, 43, 44, 45, 46]
+seeds: [0, 1, 2, 3, 4]

@@ -22,8 +22,6 @@ madx:
 model:
   num_labels: 2
   load_ckpt: true
-params:
-  batch_size: 24
 trainer:
   devices: 1
   exp_name: copa_mbert_tala
