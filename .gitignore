@@ -7,11 +7,6 @@
 /test.ipynb
 /src/__pycache__
 /.DS_Store
-/sweep/.DS_Store
-/src/.DS_Store
-/data/.DS_Store
-/conf/.DS_Store
 /train.log
 /test.log
 train_ddp_process_1.log
-/.vscode

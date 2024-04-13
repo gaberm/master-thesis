@@ -5,7 +5,7 @@ import torch
 import os
 import glob
 from transformers import get_scheduler
-from .utils import compute_val_score, get_device, find_best_ckpt, compute_ckpt_average
+from .utils import weight_score, get_device, find_best_ckpt, compute_ckpt_average
 from .metric import load_metric
 from .model import load_model
 
@@ -35,7 +35,6 @@ class LModel(LightningModule):
         self.lr = config.params.lr
         self.weight_decay = config.params.weight_decay
         self.warmup = config.params.warmup
-        self.decay = 1 - config.params.decay
         self.num_labels = config.model.num_labels
         self.ce_loss = torch.nn.CrossEntropyLoss()
         self.data_dir = config.data_dir
@@ -119,7 +118,7 @@ class LModel(LightningModule):
                 "linear",
                 optimizer, 
                 num_warmup_steps=self.trainer.estimated_stepping_batches * self.warmup, 
-                num_training_steps=self.trainer.estimated_stepping_batches * self.decay
+                num_training_steps=self.trainer.estimated_stepping_batches
             )
             scheduler_dict = {
                 "optimizer": optimizer,
@@ -161,7 +160,6 @@ class LCopaModel(LightningModule):
         self.lr = config.params.lr
         self.weight_decay = config.params.weight_decay
         self.warmup = config.params.warmup
-        self.decay = 1 - config.params.decay
         self.ce_loss = torch.nn.CrossEntropyLoss()
         self.data_dir = config.data_dir
         self.exp_name = config.trainer.exp_name
@@ -239,7 +237,7 @@ class LCopaModel(LightningModule):
                 self.siqa_val_samples += len(new_labels)
     
     def on_validation_epoch_end(self):
-        val_score = compute_val_score(
+        val_score = weight_score(
             self.pred_metric_binary.compute(),
             self.pred_metric_multiclass.compute(),
             self.copa_val_samples,
@@ -307,7 +305,7 @@ class LCopaModel(LightningModule):
                 "linear",
                 optimizer, 
                 num_warmup_steps=self.trainer.estimated_stepping_batches * self.warmup, 
-                num_training_steps=self.trainer.estimated_stepping_batches * self.decay
+                num_training_steps=self.trainer.estimated_stepping_batches
             )
             scheduler_dict = {
                 "optimizer": optimizer,

@@ -69,8 +69,8 @@ def create_result_csv(exp_name):
         pass
 
 
-def compute_val_score(val_score_1, val_score_2, num_samples_1, num_samples_2):
-    return (val_score_1 * num_samples_1 + val_score_2 * num_samples_2) / (num_samples_1 + num_samples_2)
+def weight_score(score_1, score_2, count_1, count_2):
+    return (score_1 * count_1 + score_2 * count_2) / (count_1 + count_2)
 
 
 def compute_ckpt_average(ckpt_dir, device):
