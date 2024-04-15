@@ -4,7 +4,7 @@ import os
 import shutil
 import lightning.pytorch as pl
 from lightning.pytorch.loggers import WandbLogger
-from src.callback import get_callbacks
+from lightning.pytorch.callbacks import LearningRateMonitor, ModelCheckpoint
 from src.dataset import get_data_loader
 from src.lightning import load_l_model
 
@@ -33,6 +33,15 @@ def main(config):
             shutil.rmtree(ckpt_dir)
             print(f"Removed existing checkpoint directory {ckpt_dir} for experiment {config.trainer.exp_name}")
 
+        lr_callback = LearningRateMonitor(logging_interval="step")
+        val_checkpoint = ModelCheckpoint(
+            dirpath=ckpt_dir,
+            monitor=config.params.pred_metric,
+            mode="max",
+            filename=f"{{epoch}}-{{step}}-{{{config.params.pred_metric}:.3f}}",
+            save_top_k=-1
+        )
+
         trainer = pl.Trainer(
             max_epochs=config.trainer.max_epochs,
             logger=wandb_logger, 
@@ -41,7 +50,7 @@ def main(config):
             strategy=config.trainer.strategy,
             devices=config.trainer.devices,
             val_check_interval=0.25,
-            callbacks=get_callbacks(config, ckpt_dir),
+            callbacks=[lr_callback, val_checkpoint],
             use_distributed_sampler=False,
             precision=16
         )

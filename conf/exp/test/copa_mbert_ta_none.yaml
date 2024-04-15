@@ -1,0 +1,18 @@
+# @package _global_
+
+defaults:
+  - override /dataset: xcopa
+  - override /madx: madx
+  - override /params: params
+  - override /trainer: trainer
+
+madx:
+  task_adapter:
+    name: copa
+model:
+  num_labels: 2
+  load_ckpt: true
+  ckpt_averaging: none
+trainer:
+  devices: 1
+  exp_name: copa_mbert_ta_none

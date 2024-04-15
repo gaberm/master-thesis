@@ -1,0 +1,24 @@
+# @package _global_
+
+defaults:
+  - override /madx: madx
+  - override /model: xlmr
+  - override /trainer: trainer
+
+madx:
+  lang_adapter:
+    ar: ar/wiki@ukp
+    de: de/wiki@ukp
+    es: es/wiki@ukp
+    en: en/wiki@ukp
+    hi: hi/wiki@ukp
+    ru: ru/wiki@ukp
+    sw: sw/wiki@ukp
+    tr: tr/wiki@ukp
+    vi: vi/wiki@ukp
+    zh: zh/wiki@ukp
+model:
+  load_ckpt: true
+  ckpt_averaging: none
+trainer:
+  exp_name: xnli_xlmr_tala_none

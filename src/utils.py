@@ -10,14 +10,13 @@ import pandas as pd
 
 def find_best_ckpt(ckpt_dir):
     files = []
-    # get all files in the checkpoint directory
     for filename in os.listdir(ckpt_dir):
         if os.path.isfile(os.path.join(ckpt_dir, filename)):
             files.append(filename)
 
-    # get the ckpt file with the highest prediction score
-    pred_scores = [float(re.findall(r"0.\d{1,3}", file)[0]) for file in files]
-    best_ckpt = f"{ckpt_dir}/{files[pred_scores.index(max(pred_scores))]}"
+    # find the checkpoint with the highest validation score (in the source language)
+    val_scores = [float(re.findall(r"0.\d{1,3}.", file)) for file in files]
+    best_ckpt = f"{ckpt_dir}/{files[val_scores.index(max(val_scores))]}"
     
     return best_ckpt
 
@@ -33,11 +32,9 @@ def get_device(config):
     
 
 def save_test_results(model, config, seed):
-    # try to create a tempory directory to save the results
-    # the directory will be deleted after we have created the csv
     try:
-        os.mkdir(f"res/{config.trainer.exp_name}")
-    except FileExistsError:
+        os.makedirs(f"res/{config.trainer.exp_name}")
+    except OSError:
         pass
     np.save(f"res/{config.trainer.exp_name}/seed_{seed}", model.result_lst)
     
@@ -69,15 +66,25 @@ def create_result_csv(exp_name):
         pass
 
 
-def weight_score(score_1, score_2, count_1, count_2):
-    return (score_1 * count_1 + score_2 * count_2) / (count_1 + count_2)
-
-
-def compute_ckpt_average(ckpt_dir, device):
+def compute_ckpt_average(ckpt_dir, device, ckpt_averaging):
     ckpt_files = []
     for filename in os.listdir(ckpt_dir):
         if os.path.isfile(os.path.join(ckpt_dir, filename)):
             ckpt_files.append(filename)
+
+    # best: take the 5 checkpoints with the highest validation score (in the source language)
+    if ckpt_averaging == "best":
+        val_scores = [float(re.findall(r"0.\d{1,3}.", file)) for file in ckpt_files]
+        idx = np.argsort(val_scores)[-5:]
+        ckpt_files = [ckpt_files[i] for i in idx]
+        print(f"Selected checkpoints: {ckpt_files}")
+    
+    # last: take the last checkpoint of each epoch
+    if ckpt_averaging == "last":
+        val_scores = [float(re.findall(r"0.\d{1,3}.", file)) for file in ckpt_files]
+        idx = [val_scores.index(max(val_scores[(4*i):(4*(i+1))])) + 4*i for i in range(5)]
+        ckpt_files = [ckpt_files[i] for i in idx]
+        print(f"Selected checkpoints: {ckpt_files}")
     
     k = len(ckpt_files)
     average_state_dict = None

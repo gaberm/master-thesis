@@ -2,10 +2,11 @@ import os
 import random
 import pandas as pd
 from datasets import Dataset, load_dataset, load_from_disk
-from torch.utils.data import DataLoader, SequentialSampler, Sampler
+from torch.utils.data import DataLoader, SequentialSampler
 from transformers import DataCollatorWithPadding
 from .model import load_tokenizer
 from lightning.pytorch.utilities import CombinedLoader
+
 
 def prepare_paws_x(dataset):
     prepared_paws_x = dataset.rename_column("label", "labels")
@@ -262,25 +263,11 @@ def get_data_loader(config, split):
         return test_loaders
     
 
-class CopaSampler(Sampler):
-    def __init__(self, data_source, batch_size):
-        self.data_source = data_source
-        self.batch_size = batch_size
-        self.data_size = len(self.data_source)
-
-    def __iter__(self):
-        self.indices = [
-            list(range(i, min(i + self.batch_size, self.data_size)))
-            for i in range(0, self.data_size, self.batch_size) 
-        ]
-        random.shuffle(self.indices)
-        self.indices = [idx for sublist in self.indices for idx in sublist]
-        return iter(self.indices)
-    
-    def __len__(self):
-        return self.data_size
-
 def shuffle_lst(ds_lst: list[str | int], num_labels):
+    # in prepare_coqa and prepare_siqa we duplicate the same question "num_labels" times 
+    # to make each question a binary classification task
+    # shuffle_lst shuffles the dataset in a way that duplicates of the same question are kept in order
+    # the training loop only works if the questions remain in order
     batch_lst = []
     for lst in ds_lst:
         lst = [

@@ -5,7 +5,7 @@ import torch
 import os
 import glob
 from transformers import get_scheduler
-from .utils import weight_score, get_device, find_best_ckpt, compute_ckpt_average
+from .utils import get_device, find_best_ckpt, compute_ckpt_average
 from .metric import load_metric
 from .model import load_model
 
@@ -237,12 +237,11 @@ class LCopaModel(LightningModule):
                 self.siqa_val_samples += len(new_labels)
     
     def on_validation_epoch_end(self):
-        val_score = weight_score(
-            self.pred_metric_binary.compute(),
-            self.pred_metric_multiclass.compute(),
-            self.copa_val_samples,
-            self.siqa_val_samples
-        )
+        total_samples = self.copa_val_samples + self.siqa_val_samples
+        val_score = (
+            self.pred_metric_binary.compute() * self.copa_val_samples + 
+            self.pred_metric_multiclass.compute() * self.siqa_val_samples
+        ) / total_samples
         self.log(f"{self.pred_metric_name}", val_score, prog_bar=True, sync_dist=True)
         self.pred_metric_binary.reset()
         self.pred_metric_multiclass.reset()
@@ -340,44 +339,39 @@ def load_l_model(config, seed):
                 for dir in glob.glob(f"{exp_dir}/seed_*")
             ]
             raise FileNotFoundError(f"Directory {run_dir} not found. Please use the following seeds: {existing_seeds}.")
+
+        best_ckpt = find_best_ckpt(run_dir)
         device = get_device(config)
-        
-        # checkpoint averaging: load lightning model from first checkpoint
-        # replace the self.model's state_dict with the averaged state_dict
-        if config.model.ckpt_averaging:
-            ckpt_file = os.listdir(run_dir)[0]
-            ckpt_path = f"{run_dir}/{ckpt_file}"
+        # load lightning model using the best (most accurate) checkpoint 
+        # based on the source language validation dataset
+        if config.model.ckpt_averaging == "none":
             if load_copa_model:
-                l_model = LCopaModel.load_from_checkpoint(ckpt_path, map_location=device)
+                l_model = LCopaModel.load_from_checkpoint(best_ckpt, map_location=device)
+                l_model.encoder.eval()
+                l_model.classifier.eval()
+            else:
+                l_model = LModel.load_from_checkpoint(best_ckpt, map_location=device)
+                l_model.model.eval()
+            return l_model
+        # checkpoint averaging: replace the self.model's state_dict with the averaged state_dict
+        else:
+            if load_copa_model:
+                l_model = LCopaModel.load_from_checkpoint(best_ckpt, map_location=device)
                 l_model.exp_name = config.trainer.exp_name
-                enc_state_dict, cls_state_dict = compute_ckpt_average(run_dir, device)
+                enc_state_dict, cls_state_dict = compute_ckpt_average(run_dir, device, config.model.ckpt_averaging)
                 l_model.encoder.load_state_dict(enc_state_dict)
                 l_model.classifier.load_state_dict(cls_state_dict)
                 l_model.encoder.eval()
                 l_model.classifier.eval()
                 return l_model
             else:
-                l_model = LModel.load_from_checkpoint(ckpt_path, map_location=device)
+                l_model = LModel.load_from_checkpoint(best_ckpt, map_location=device)
                 l_model.exp_name = config.trainer.exp_name
-                l_model.model.load_state_dict(compute_ckpt_average(run_dir, device))
+                state_dict = compute_ckpt_average(run_dir, device, config.model.ckpt_averaging)
+                l_model.model.load_state_dict(state_dict)
                 l_model.model.eval()
             return l_model 
-        
-        # load lightning model using the best (most accurate) checkpoint 
-        # based on the source language validation dataset
-        else:
-            ckpt_path = find_best_ckpt(run_dir)
-            device = get_device(config)
-            if load_copa_model:
-                l_model = LCopaModel.load_from_checkpoint(ckpt_path, map_location=device)
-                l_model.exp_name = config.trainer.exp_name
-                l_model.encoder.eval()
-                l_model.classifier.eval()
-            else:
-                l_model = LModel.load_from_checkpoint(ckpt_path, map_location=device)
-                l_model.exp_name = config.trainer.exp_name
-                l_model.model.eval()
-            return l_model
+            
     
     # train: load model from scratch
     else:

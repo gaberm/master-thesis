@@ -1,0 +1,15 @@
+# @package _global_
+
+defaults:
+  - override /dataset:
+    - paws_x
+  - override /madx: null
+  - override /model: xlmr
+  - override /trainer: trainer
+  
+model:
+  num_labels: 2
+  load_ckpt: true
+  ckpt_averaging: best
+trainer:
+  exp_name: paws_x_xlmr_fft_best

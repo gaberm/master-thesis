@@ -1,0 +1,12 @@
+# @package _global_
+
+defaults:
+  - override /madx: null
+  - override /model: mbert
+  - override /trainer: trainer
+
+model:
+  load_ckpt: true
+  ckpt_averaging: best
+trainer:
+  exp_name: xnli_mbert_fft_best

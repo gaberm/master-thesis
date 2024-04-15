@@ -7,8 +7,6 @@ defaults:
 
 params:
   lr: 2e-5
-  weight_decay: 0.05
-  warmup: 0.1
 trainer:
   exp_name: xnli_mbert_fft
-  max_epochs: 10
+  

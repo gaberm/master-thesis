@@ -1,8 +1,7 @@
-num_epochs: 2
 batch_size: 32
 lr: 5e-5
-weight_decay: 0.01
-warmup: 0.05
+weight_decay: 0.05
+warmup: 0.1
 pred_metric: accuracy
 uncert_metric: ece # expected calibration error
 average: micro
