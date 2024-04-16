@@ -24,6 +24,7 @@ model:
   num_labels: 2
   load_ckpt: true
   ckpt_averaging: best
+  ckpt_dir: copa_xlmr_tala
 trainer:
   devices: 1
   exp_name: copa_xlmr_tala_best

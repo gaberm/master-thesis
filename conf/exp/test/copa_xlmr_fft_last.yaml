@@ -11,6 +11,7 @@ model:
   num_labels: 2
   load_ckpt: true
   ckpt_averaging: last
+  ckpt_dir: copa_xlmr_fft
 trainer:
   devices: 1
   exp_name: copa_xlmr_fft_last

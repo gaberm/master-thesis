@@ -13,6 +13,7 @@ model:
   num_labels: 2
   load_ckpt: true
   ckpt_averaging: none
+  ckpt_dir: copa_mbert_ta
 trainer:
   devices: 1
   exp_name: copa_mbert_ta_none

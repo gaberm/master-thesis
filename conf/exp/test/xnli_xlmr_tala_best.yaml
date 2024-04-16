@@ -20,5 +20,6 @@ madx:
 model:
   load_ckpt: true
   ckpt_averaging: best
+  ckpt_dir: xnli_xlmr_tala
 trainer:
   exp_name: xnli_xlmr_tala_best

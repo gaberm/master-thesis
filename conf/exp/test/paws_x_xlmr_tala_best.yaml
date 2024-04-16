@@ -11,6 +11,7 @@ model:
   num_labels: 2
   load_ckpt: true
   ckpt_averaging: best
+  ckpt_dir: paws_x_xlmr_tala
 madx:
   lang_adapter:
     de: de/wiki@ukp

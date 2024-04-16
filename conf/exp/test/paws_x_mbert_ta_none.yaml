@@ -11,6 +11,7 @@ model:
   num_labels: 2
   load_ckpt: true
   ckpt_averaging: none
+  ckpt_dir: paws_x_mbert_ta
 madx:
   task_adapter:
     name: paws-x

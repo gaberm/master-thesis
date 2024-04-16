@@ -1,5 +1,5 @@
 max_epochs: 5
 gpu_name: cuda
-devices: [1]
+devices: [5]
 strategy: ddp
 exp_name: xnli_mbert_tala

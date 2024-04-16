@@ -7,5 +7,6 @@ defaults:
 model:
   load_ckpt: true
   ckpt_averaging: best
+  ckpt_dir: xnli_xlmr_ta
 trainer:
   exp_name: xnli_xlmr_ta_best

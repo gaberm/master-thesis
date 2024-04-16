@@ -11,5 +11,6 @@ model:
   num_labels: 2
   load_ckpt: true
   ckpt_averaging: none
+  ckpt_dir: paws_x_xlmr_fft
 trainer:
   exp_name: paws_x_xlmr_fft_none
