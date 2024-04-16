@@ -9,14 +9,14 @@ import pandas as pd
 
 
 def find_best_ckpt(ckpt_dir):
-    files = []
-    for filename in os.listdir(ckpt_dir):
-        if os.path.isfile(os.path.join(ckpt_dir, filename)):
-            files.append(filename)
+    all_ckpts = []
+    for file in os.listdir(ckpt_dir):
+        if os.path.isfile(os.path.join(ckpt_dir, file)):
+            all_ckpts.append(file)
 
     # find the checkpoint with the highest validation score (in the source language)
-    val_scores = [float(re.findall(r"0.\d{1,3}.", file)) for file in files]
-    best_ckpt = f"{ckpt_dir}/{files[val_scores.index(max(val_scores))]}"
+    val_scores = [float(re.findall(r"0\.\d{1,3}", ckpt)[0]) for ckpt in all_ckpts]
+    best_ckpt = f"{ckpt_dir}/{all_ckpts[val_scores.index(max(val_scores))]}"
     
     return best_ckpt
 
@@ -67,29 +67,32 @@ def create_result_csv(exp_name):
 
 
 def compute_ckpt_average(ckpt_dir, device, ckpt_averaging):
-    ckpt_files = []
-    for filename in os.listdir(ckpt_dir):
-        if os.path.isfile(os.path.join(ckpt_dir, filename)):
-            ckpt_files.append(filename)
+    all_ckpts = []
+    for file in os.listdir(ckpt_dir):
+        if os.path.isfile(os.path.join(ckpt_dir, file)):
+            all_ckpts.append(file)
 
     # best: take the 5 checkpoints with the highest validation score (in the source language)
     if ckpt_averaging == "best":
-        val_scores = [float(re.findall(r"0.\d{1,3}.", file)) for file in ckpt_files]
+        val_scores = [float(re.findall(r"0\.\d{1,3}", ckpt)[0]) for ckpt in all_ckpts]
         idx = np.argsort(val_scores)[-5:]
-        ckpt_files = [ckpt_files[i] for i in idx]
-        print(f"Selected checkpoints: {ckpt_files}")
+        final_ckpts = [all_ckpts[i] for i in idx]
     
     # last: take the last checkpoint of each epoch
     if ckpt_averaging == "last":
-        val_scores = [float(re.findall(r"0.\d{1,3}.", file)) for file in ckpt_files]
-        idx = [val_scores.index(max(val_scores[(4*i):(4*(i+1))])) + 4*i for i in range(5)]
-        ckpt_files = [ckpt_files[i] for i in idx]
-        print(f"Selected checkpoints: {ckpt_files}")
+        val_scores = [float(re.findall(r"0\.\d{1,3}", ckpt)[0]) for ckpt in all_ckpts]
+        final_ckpts = []
+        # ckpt files are sorted by step, so we can just iterate through them
+        for i in range(5):
+            epoch_ckpts = [ckpt for ckpt in all_ckpts if f"epoch={i}" in ckpt]
+            step_scores = [int(re.findall(r"step=\d+", ckpt)[0].replace("step=", "")) for ckpt in epoch_ckpts]
+            idx = np.argsort(step_scores)[-1]
+            final_ckpts.append(epoch_ckpts[idx])
     
-    k = len(ckpt_files)
+    k = len(final_ckpts)
     average_state_dict = None
-    for ckpt_file in tqdm(ckpt_files, total=k, desc="Loading checkpoints"):
-        ckpt = torch.load(f"{ckpt_dir}/{ckpt_file}", map_location=device)["state_dict"]
+    for ckpt in tqdm(final_ckpts, total=k, desc="Loading checkpoints"):
+        ckpt = torch.load(f"{ckpt_dir}/{ckpt}", map_location=device)["state_dict"]
         if average_state_dict is None:
             average_state_dict = ckpt
             for key, value in average_state_dict.items():

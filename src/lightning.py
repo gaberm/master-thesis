@@ -325,22 +325,12 @@ def load_l_model(config, seed):
 
     # test: load model from checkpoint
     if config.model.load_ckpt:
-        if config.model.ckpt_averaging:
-            exp = config.trainer.exp_name.replace("_ca", "")
-        else:
-            exp = config.trainer.exp_name
-        exp_dir = f"{config.data_dir}/checkpoints/{exp}"
-        if not os.path.exists(exp_dir):
-            raise FileNotFoundError(f"Checkpoint directory {exp_dir} not found. Please train the model for {config.trainer.exp_name.replace("_ca", "")}.")
-        run_dir = f"{exp_dir}/seed_{seed}"
-        if not os.path.exists(run_dir):
-            existing_seeds = [
-                int(os.path.basename(dir).replace("seed_", "")) 
-                for dir in glob.glob(f"{exp_dir}/seed_*")
-            ]
-            raise FileNotFoundError(f"Directory {run_dir} not found. Please use the following seeds: {existing_seeds}.")
+        exp_dir = f"{config.data_dir}/checkpoints/{config.model.ckpt_dir}"
+        test_dir = f"{exp_dir}/seed_{seed}"
+        if not os.path.exists(test_dir):
+            raise FileNotFoundError(f"Directory {test_dir} not found. Do your seeds match the seeds used during training?")
 
-        best_ckpt = find_best_ckpt(run_dir)
+        best_ckpt = find_best_ckpt(test_dir)
         device = get_device(config)
         # load lightning model using the best (most accurate) checkpoint 
         # based on the source language validation dataset
@@ -358,7 +348,7 @@ def load_l_model(config, seed):
             if load_copa_model:
                 l_model = LCopaModel.load_from_checkpoint(best_ckpt, map_location=device)
                 l_model.exp_name = config.trainer.exp_name
-                enc_state_dict, cls_state_dict = compute_ckpt_average(run_dir, device, config.model.ckpt_averaging)
+                enc_state_dict, cls_state_dict = compute_ckpt_average(test_dir, device, config.model.ckpt_averaging)
                 l_model.encoder.load_state_dict(enc_state_dict)
                 l_model.classifier.load_state_dict(cls_state_dict)
                 l_model.encoder.eval()
@@ -367,7 +357,7 @@ def load_l_model(config, seed):
             else:
                 l_model = LModel.load_from_checkpoint(best_ckpt, map_location=device)
                 l_model.exp_name = config.trainer.exp_name
-                state_dict = compute_ckpt_average(run_dir, device, config.model.ckpt_averaging)
+                state_dict = compute_ckpt_average(test_dir, device, config.model.ckpt_averaging)
                 l_model.model.load_state_dict(state_dict)
                 l_model.model.eval()
             return l_model 
