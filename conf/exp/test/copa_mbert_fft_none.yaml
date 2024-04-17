@@ -13,4 +13,4 @@ model:
   ckpt_dir: copa_mbert_fft
 trainer:
   devices: 1
-  exp_name: copa_mbert_fft
+  exp_name: copa_mbert_fft_none
