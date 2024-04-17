@@ -28,7 +28,7 @@ def main(config):
         wandb_logger = WandbLogger(project=config.wandb.project)
 
         ckpt_dir = f"{config.data_dir}/checkpoints/{config.trainer.exp_name}/seed_{seed}"
-        # check to avoid overwriting of existing checkpoints
+        # remove existing checkpoint directory
         if os.path.exists(ckpt_dir):
             shutil.rmtree(ckpt_dir)
             print(f"Removed existing checkpoint directory {ckpt_dir} for experiment {config.trainer.exp_name}")
