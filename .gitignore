@@ -1,12 +1,10 @@
 # dependencies
-/outputs
-/data
-/__pycache__
-/wandb
 /~
-/test.ipynb
+/outputs
+/res
 /src/__pycache__
-/.DS_Store
-/train.log
-/test.log
+/wandb
+test.ipynb
+test.log
 train_ddp_process_1.log
+train.log
