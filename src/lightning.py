@@ -25,12 +25,15 @@ class LModel(LightningModule):
             self.has_task_adapter = True
             if "lang_adapter" in config.madx.keys():
                 self.has_lang_adapter = True
+                self.type = "tala"
             else:
                 self.has_lang_adapter = False
+                self.type = "ta"
         else:
             self.task_adapter_name = None
             self.has_task_adapter = False
             self.has_lang_adapter = False
+            self.type = "fft"
         
         self.lr = config.params.lr
         self.weight_decay = config.params.weight_decay
@@ -39,6 +42,9 @@ class LModel(LightningModule):
         self.ce_loss = torch.nn.CrossEntropyLoss()
         self.data_dir = config.data_dir
         self.exp_name = config.trainer.exp_name
+        self.task = config.dataset.name
+        self.model_name = config.model.name
+        self.ckpt_avg = ""
         self.result_lst = []
         self.seed = seed
         self.save_hyperparameters()
@@ -93,6 +99,10 @@ class LModel(LightningModule):
         self.log(f"{self.pred_metric_name} {self.target_lang}", pred_score, prog_bar=True)
         self.result_lst.append(
             [self.exp_name,
+             self.task,
+             self.model_name,
+             self.type,
+             self.ckpt_avg,
              self.seed,
              self.target_lang, 
              self.uncert_metric_name,
@@ -100,8 +110,12 @@ class LModel(LightningModule):
         )
         self.result_lst.append(
             [self.exp_name,
+             self.task,
+             self.model_name,
+             self.type,
+             self.ckpt_avg,
              self.seed,
-             self.target_lang,
+             self.target_lang, 
              self.pred_metric_name,
              float(pred_score)]
         )
@@ -150,12 +164,15 @@ class LCopaModel(LightningModule):
             self.has_task_adapter = True
             if "lang_adapter" in config.madx.keys():
                 self.has_lang_adapter = True
+                self.type = "tala"
             else:
                 self.has_lang_adapter = False
+                self.type = "ta"
         else:
             self.task_adapter_name = None
             self.has_task_adapter = False
             self.has_lang_adapter = False
+            self.type = "fft"
 
         self.lr = config.params.lr
         self.weight_decay = config.params.weight_decay
@@ -163,6 +180,9 @@ class LCopaModel(LightningModule):
         self.ce_loss = torch.nn.CrossEntropyLoss()
         self.data_dir = config.data_dir
         self.exp_name = config.trainer.exp_name
+        self.task = config.dataset.name
+        self.model_name = config.model.name
+        self.ckpt_avg = ""
         self.result_lst = []
         self.seed = seed
         self.copa_val_samples = 0
@@ -279,6 +299,10 @@ class LCopaModel(LightningModule):
         self.log(f"{self.pred_metric_name} {self.target_lang}", pred_score, prog_bar=True)
         self.result_lst.append(
             [self.exp_name,
+             self.task,
+             self.model_name,
+             self.task,
+             self.ckpt_avg,
              self.seed,
              self.target_lang, 
              self.uncert_metric_name,
@@ -286,8 +310,12 @@ class LCopaModel(LightningModule):
         )
         self.result_lst.append(
             [self.exp_name,
+             self.task,
+             self.model_name,
+             self.task,
+             self.ckpt_avg,
              self.seed,
-             self.target_lang,
+             self.target_lang, 
              self.pred_metric_name,
              float(pred_score)]
         )
@@ -322,19 +350,18 @@ class LCopaModel(LightningModule):
 
 def load_l_model(config, seed):
     load_copa_model = "copa" in config.trainer.exp_name
-
     # test: load model from checkpoint
     if config.model.load_ckpt:
         exp_dir = f"{config.data_dir}/checkpoints/{config.model.ckpt_dir}"
         test_dir = f"{exp_dir}/seed_{seed}"
         if not os.path.exists(test_dir):
             raise FileNotFoundError(f"Directory {test_dir} not found. Do your seeds match the seeds used during training?")
-
         best_ckpt = find_best_ckpt(test_dir)
         device = get_device(config)
+        
         # load lightning model using the best (most accurate) checkpoint 
         # based on the source language validation dataset
-        if config.model.ckpt_averaging == "none":
+        if config.model.ckpt_avg == "none":
             if load_copa_model:
                 l_model = LCopaModel.load_from_checkpoint(best_ckpt, map_location=device)
                 l_model.encoder.eval()
@@ -342,26 +369,27 @@ def load_l_model(config, seed):
             else:
                 l_model = LModel.load_from_checkpoint(best_ckpt, map_location=device)
                 l_model.model.eval()
+            l_model.exp_name = config.trainer.exp_name
+            l_model.ckpt_avg = "none"
             return l_model
+        
         # checkpoint averaging: replace the self.model's state_dict with the averaged state_dict
         else:
             if load_copa_model:
                 l_model = LCopaModel.load_from_checkpoint(best_ckpt, map_location=device)
-                l_model.exp_name = config.trainer.exp_name
-                enc_state_dict, cls_state_dict = compute_ckpt_average(test_dir, device, config.model.ckpt_averaging)
+                enc_state_dict, cls_state_dict = compute_ckpt_average(test_dir, device, config.model.ckpt_avg)
                 l_model.encoder.load_state_dict(enc_state_dict)
                 l_model.classifier.load_state_dict(cls_state_dict)
                 l_model.encoder.eval()
                 l_model.classifier.eval()
-                return l_model
             else:
                 l_model = LModel.load_from_checkpoint(best_ckpt, map_location=device)
-                l_model.exp_name = config.trainer.exp_name
-                state_dict = compute_ckpt_average(test_dir, device, config.model.ckpt_averaging)
+                state_dict = compute_ckpt_average(test_dir, device, config.model.ckpt_avg)
                 l_model.model.load_state_dict(state_dict)
                 l_model.model.eval()
+            l_model.exp_name = config.trainer.exp_name
+            l_model.ckpt_avg = config.model.ckpt_avg
             return l_model 
-            
     
     # train: load model from scratch
     else:

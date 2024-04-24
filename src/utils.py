@@ -66,20 +66,20 @@ def create_result_csv(exp_name):
         pass
 
 
-def compute_ckpt_average(ckpt_dir, device, ckpt_averaging):
+def compute_ckpt_average(ckpt_dir, device, ckpt_avg):
     all_ckpts = []
     for file in os.listdir(ckpt_dir):
         if os.path.isfile(os.path.join(ckpt_dir, file)):
             all_ckpts.append(file)
 
     # best: take the 5 checkpoints with the highest validation score (in the source language)
-    if ckpt_averaging == "best":
+    if ckpt_avg == "best":
         val_scores = [float(re.findall(r"0\.\d{1,3}", ckpt)[0]) for ckpt in all_ckpts]
         idx = np.argsort(val_scores)[-5:]
         final_ckpts = [all_ckpts[i] for i in idx]
     
     # last: take the last checkpoint of each epoch
-    if ckpt_averaging == "last":
+    if ckpt_avg == "last":
         val_scores = [float(re.findall(r"0\.\d{1,3}", ckpt)[0]) for ckpt in all_ckpts]
         final_ckpts = []
         # ckpt files are sorted by step, so we can just iterate through them

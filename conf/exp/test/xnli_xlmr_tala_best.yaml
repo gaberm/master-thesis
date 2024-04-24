@@ -19,7 +19,7 @@ madx:
     zh: zh/wiki@ukp
 model:
   load_ckpt: true
-  ckpt_averaging: best
+  ckpt_avg: best
   ckpt_dir: xnli_xlmr_tala
 trainer:
   exp_name: xnli_xlmr_tala_best

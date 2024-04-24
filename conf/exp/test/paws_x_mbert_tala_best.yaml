@@ -10,7 +10,7 @@ defaults:
 model:
   num_labels: 2
   load_ckpt: true
-  ckpt_averaging: best
+  ckpt_avg: best
   ckpt_dir: paws_x_mbert_tala
 madx:
   lang_adapter:

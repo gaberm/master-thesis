@@ -13,7 +13,7 @@ madx:
 model:
   num_labels: 2
   load_ckpt: true
-  ckpt_averaging: best
+  ckpt_avg: best
   ckpt_dir: copa_xlmr_ta
 trainer:
   devices: 1

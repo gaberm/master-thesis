@@ -22,7 +22,7 @@ madx:
 model:
   num_labels: 2
   load_ckpt: true
-  ckpt_averaging: none
+  ckpt_avg: none
   ckpt_dir: copa_mbert_tala
 trainer:
   devices: 1
