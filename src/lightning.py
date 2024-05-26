@@ -39,7 +39,8 @@ class LModel(LightningModule):
         self.weight_decay = config.params.weight_decay
         self.warmup = config.params.warmup
         self.num_labels = config.model.num_labels
-        self.ce_loss = torch.nn.CrossEntropyLoss()
+        self.ce_loss = torch.nn.CrossEntropyLoss(label_smoothing=config.params.label_smoothing)
+        self.temperature = 1.0
         self.data_dir = config.data_dir
         self.exp_name = config.trainer.exp_name
         self.task = config.dataset.name
@@ -84,7 +85,7 @@ class LModel(LightningModule):
     def test_step(self, batch, batch_idx):
         batch = {k: v.to(self.device) for k, v in batch.items()}
         outputs = self.model(**batch)
-        logits = outputs.logits
+        logits = outputs.logits / self.temperature
         preds = outputs.logits.argmax(dim=-1)
         probs = torch.softmax(logits, dim=-1)
         if self.num_labels == 2:
@@ -146,9 +147,30 @@ class LModel(LightningModule):
             return scheduler_dict
         else:
             return optimizer
+    
+    def set_temperature(self, valid_loader):
+        logits = []
+        labels = []
+        for batch in valid_loader:
+            batch = {k: v.to(self.device) for k, v in batch.items()}
+            outputs = self.model(**batch)
+            logits.append(outputs.logits)
+            labels.append(batch["labels"])
         
+        nll_loss = torch.nn.NLLLoss()
+        optimizer = torch.optim.LBFGS([self.temperature], lr=0.01, max_iter=50)
 
-class LCopaModel(LightningModule):
+        def eval():
+            optimizer.zero_grad()
+            loss = nll_loss(torch.cat(logits) / self.temperature, torch.cat(labels))
+            loss.backward()
+            return loss
+        optimizer.step(eval)
+
+        print(f"Optimal temperature: {self.temperature:.2f}")
+    
+
+class CopaModel(LightningModule):
     def __init__(self, config, seed):
         super().__init__()
         self.encoder, self.classifier = load_model(config)
@@ -177,7 +199,8 @@ class LCopaModel(LightningModule):
         self.lr = config.params.lr
         self.weight_decay = config.params.weight_decay
         self.warmup = config.params.warmup
-        self.ce_loss = torch.nn.CrossEntropyLoss()
+        self.ce_loss = torch.nn.CrossEntropyLoss(label_smoothing=config.params.label_smoothing)
+        self.temperature = 1.0
         self.data_dir = config.data_dir
         self.exp_name = config.trainer.exp_name
         self.task = config.dataset.name
@@ -196,63 +219,63 @@ class LCopaModel(LightningModule):
         # because we train the model on two datasets with a different number of labels 
         # (copa: 2, social_i_qa: 3) for xcopa, we have to handle the training and inference differently.
         # details can be found in the paper: https://arxiv.org/abs/2005.00333
-        inputs = {}
-        for dataset, data in batch.items():
+        clf_batches = {}
+        for ds_name, ds_batch in batch.items():
             try:
-                inputs[dataset] = {k: v.to(self.device) for k, v in data.items()}
+                ds_batch = {k: v.to(self.device) for k, v in ds_batch.items()}
+                outputs = self.encoder(
+                    ds_batch["input_ids"],
+                    ds_batch["attention_mask"],
+                )
+                clf_batches[ds_name] = {
+                    "logits": self.classifier(outputs.pooler_output),
+                    "labels": ds_batch["labels"],
+                }
             except AttributeError:
                 pass
 
-        classifier_logits = {}
-        for dataset, batch in inputs.items():
-            outputs = self.encoder(
-                batch["input_ids"],
-                batch["attention_mask"],
-            )
-            classifier_logits[dataset] = self.classifier(outputs.pooler_output)
-
         loss = torch.tensor(0.0, device="cuda")
-        for dataset, logits in classifier_logits.items():
+        for dataset, batch in clf_batches.items():
             if dataset == "copa":
-                rows = int(len(logits) / 2)
-                new_logits = logits.view(rows, 2)
-                new_labels = inputs[dataset]["labels"].view(rows, 2).argmax(dim=1)
+                dim1 = int(len(batch["logits"]) / 2)
+                new_logits = batch["logits"].view(dim1, 2)
+                new_labels = batch["labels"].view(dim1, 2).argmax(dim=1)
             if dataset == "siqa":
-                rows = int(len(logits) / 3)
-                new_logits = logits.view(rows, 3)
-                new_labels = inputs[dataset]["labels"].view(rows, 3).argmax(dim=1)
+                dim1 = int(len(batch["logits"]) / 3)
+                new_logits = batch["logits"].view(dim1, 3)
+                new_labels = batch["labels"].view(dim1, 3).argmax(dim=1)
             loss += self.ce_loss(new_logits, new_labels)
         self.log("train_loss", loss)
 
         return loss
     
     def validation_step(self, batch, batch_idx):
-        inputs = {}
-        for dataset, data in batch.items():
+        clf_batches = {}
+        for ds_name, ds_batch in batch.items():
             try:
-                inputs[dataset] = {k: v.to(self.device) for k, v in data.items()}
+                ds_batch = {k: v.to(self.device) for k, v in ds_batch.items()}
+                outputs = self.encoder(
+                    ds_batch["input_ids"],
+                    ds_batch["attention_mask"],
+                )
+                clf_batches[ds_name] = {
+                    "logits": self.classifier(outputs.pooler_output),
+                    "labels": ds_batch["labels"],
+                }
             except AttributeError:
                 pass
 
-        classifier_logits = {}
-        for dataset, batch in inputs.items():
-            outputs = self.encoder(
-                batch["input_ids"],
-                batch["attention_mask"],
-            )
-            classifier_logits[dataset] = self.classifier(outputs.pooler_output)
-
-        for dataset, logits in classifier_logits.items():
-            if dataset == "copa":
-                rows = int(len(logits) / 2)
-                probs = logits.view(rows, 2).softmax(dim=1)[:, 1]
-                new_labels = inputs[dataset]["labels"].view(rows, 2).argmax(dim=1)
+        for ds_name, batch in clf_batches.items():
+            if ds_name == "copa":
+                dim1 = int(len(batch["logits"]) / 2)
+                probs = batch["logits"].view(dim1, 2).softmax(dim=1)[:, 1]
+                new_labels = batch["labels"].view(dim1, 2).argmax(dim=1)
                 self.pred_metric_binary.update(probs, new_labels)
                 self.copa_val_samples += len(new_labels)
-            if dataset == "siqa":
-                rows = int(len(logits) / 3)
-                probs = logits.view(rows, 3).softmax(dim=1)
-                new_labels = inputs[dataset]["labels"].view(rows, 3).argmax(dim=1)
+            if ds_name == "siqa":
+                dim1 = int(len(batch["logits"]) / 3)
+                probs = batch["logits"].view(dim1, 3).softmax(dim=1)[:, 1]
+                new_labels = batch["labels"].view(dim1, 3).argmax(dim=1)
                 self.pred_metric_multiclass.update(probs, new_labels)
                 self.siqa_val_samples += len(new_labels)
     
@@ -285,10 +308,10 @@ class LCopaModel(LightningModule):
                 batch["input_ids"],
                 batch["attention_mask"],
             )
-        logits = self.classifier(outputs.pooler_output)
-        rows = int(len(logits) / 2)
-        probs = logits.view(rows, 2).softmax(dim=1)[:, 1]
-        new_labels = inputs["labels"].view(rows, 2).argmax(dim=1)
+        logits = self.classifier(outputs.pooler_output) / self.temperature
+        dim_1 = int(len(logits) / 2)
+        probs = logits.view(dim_1, 2).softmax(dim=1)[:, 1]
+        new_labels = inputs["labels"].view(dim_1, 2).argmax(dim=1)
         self.pred_metric_binary.update(probs, new_labels)
         self.uncert_metric.update(probs, new_labels)
 
@@ -346,6 +369,53 @@ class LCopaModel(LightningModule):
             return scheduler_dict
         else:
             return optimizer
+
+    def set_temperature(self, valid_loader):
+        data = {}
+        for batch in valid_loader:
+            for ds_name, ds_batch in batch.items():
+                if ds_name not in data:
+                    data[ds_name] = []
+                    data[ds_name].append({k: v.to(self.device) for k, v in ds_batch.items()})
+                else:
+                    data[ds_name].append({k: v.to(self.device) for k, v in ds_batch.items()})
+
+        clf_batches = {}
+        for ds_name, batches in data.items():
+            for batch in batches:
+                with torch.no_grad():
+                    enc_output = self.encoder(
+                        batch["input_ids"],
+                        batch["attention_mask"],
+                    )
+                    clf_batches[ds_name] = {
+                        "logits": self.classifier(enc_output.pooler_output),
+                        "labels": batch["labels"]
+                    }
+
+        new_logits = []
+        new_labels = []
+        for ds_name, batch in clf_batches.items():
+            if ds_name == "copa":
+                dim_1 = int(len(batch["logits"]) / 2)
+                new_logits.append(batch["logits"].view(dim_1, 2))
+                new_labels.append(batch["labels"].view(dim_1, 2).argmax(dim=1))
+            if ds_name == "siqa":
+                dim_1 = int(len(batch["logits"]) / 3)
+                new_logits.append(batch["logits"].view(dim_1, 3))
+                new_labels.append(batch["labels"].view(dim_1, 3).argmax(dim=1))
+        
+        nll_loss = torch.nn.NLLLoss()
+        optimizer = torch.optim.LBFGS([self.temperature], lr=0.01, max_iter=50)
+
+        def eval():
+            optimizer.zero_grad()
+            loss = nll_loss(new_logits / self.temperature, new_labels)
+            loss.backward()
+            return loss
+        optimizer.step(eval)
+
+        print(f"Optimal temperature: {self.temperature:.2f}")
     
 
 def load_l_model(config, seed):
@@ -363,7 +433,7 @@ def load_l_model(config, seed):
         # based on the source language validation dataset
         if config.model.ckpt_avg == "none":
             if load_copa_model:
-                l_model = LCopaModel.load_from_checkpoint(best_ckpt, map_location=device)
+                l_model = CopaModel.load_from_checkpoint(best_ckpt, map_location=device)
                 l_model.encoder.eval()
                 l_model.classifier.eval()
             else:
@@ -376,7 +446,7 @@ def load_l_model(config, seed):
         # checkpoint averaging: replace the self.model's state_dict with the averaged state_dict
         else:
             if load_copa_model:
-                l_model = LCopaModel.load_from_checkpoint(best_ckpt, map_location=device)
+                l_model = CopaModel.load_from_checkpoint(best_ckpt, map_location=device)
                 enc_state_dict, cls_state_dict = compute_ckpt_average(test_dir, device, config.model.ckpt_avg)
                 l_model.encoder.load_state_dict(enc_state_dict)
                 l_model.classifier.load_state_dict(cls_state_dict)
@@ -394,6 +464,6 @@ def load_l_model(config, seed):
     # train: load model from scratch
     else:
         if load_copa_model:
-            return LCopaModel(config, seed)
+            return CopaModel(config, seed)
         else:
             return LModel(config, seed)

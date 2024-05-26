@@ -1,0 +1,17 @@
+# @package _global_
+
+defaults:
+  - override /dataset: copa
+  - override /madx: null
+  - override /params: params
+  - override /trainer: trainer
+
+model:
+  num_labels: 2
+params:
+  batch_size: 8
+  lr: 2e-5
+  label_smoothing: 0.1
+trainer:
+  exp_name: copa_mbert_fft_ls
+  

@@ -12,7 +12,7 @@ def main():
         df = pd.read_csv(f"res/{file}", sep=";", decimal=",")
         final_df = pd.concat([final_df, df], axis=0).reset_index(drop=True)
 
-    final_df.to_csv("all_results.csv", sep=";", decimal=",", index=False)
+    final_df.to_csv("res/all_results.csv", sep=";", decimal=",", index=False)
 
 
 if __name__ == "__main__":

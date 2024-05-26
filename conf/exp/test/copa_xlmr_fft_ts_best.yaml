@@ -1,0 +1,19 @@
+# @package _global_
+
+defaults:
+  - override /dataset: xcopa
+  - override /madx: null
+  - override /model: xlmr
+  - override /params: params
+  - override /trainer: trainer
+
+model:
+  num_labels: 2
+  load_ckpt: true
+  ckpt_avg: best
+  ckpt_dir: copa_xlmr_fft
+params:
+  temp_scaling: True
+trainer:
+  devices: 1
+  exp_name: copa_xlmr_fft_ts_best

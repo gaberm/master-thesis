@@ -1,0 +1,16 @@
+# @package _global_
+
+defaults:
+  - override /dataset: xcopa
+  - override /madx: null
+  - override /params: params
+  - override /trainer: trainer
+
+model:
+  num_labels: 2
+  load_ckpt: true
+  ckpt_avg: last
+  ckpt_dir: copa_mbert_fft_ls
+trainer:
+  devices: 1
+  exp_name: copa_mbert_fft_ls_last

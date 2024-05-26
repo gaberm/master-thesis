@@ -2,6 +2,8 @@ batch_size: 32
 lr: 5e-5
 weight_decay: 0.05
 warmup: 0.1
+label_smoothing: 0.0
+temp_scaling: False
 pred_metric: accuracy
 uncert_metric: ece # expected calibration error
 average: micro

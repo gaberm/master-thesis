@@ -155,7 +155,7 @@ def get_data_loader(config, split):
         data_collator = DataCollatorWithPadding(tokenizer)
 
     if split == "train" or split == "validation":
-        if config.dataset.name == "copa":
+        if config.dataset.name == "copa" or config.dataset.name == "xcopa":
             if split == "train":
                 download_ds("pkavumba/balanced-copa", "en", "train", data_dir)
                 download_ds("social_i_qa", "en", "train", data_dir)
