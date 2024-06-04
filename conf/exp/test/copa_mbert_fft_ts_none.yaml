@@ -12,6 +12,7 @@ model:
   ckpt_avg: none
   ckpt_dir: copa_mbert_fft
 params:
+  batch_size: 8
   temp_scaling: True
 trainer:
   devices: 1

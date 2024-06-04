@@ -13,6 +13,7 @@ model:
   ckpt_avg: best
   ckpt_dir: copa_xlmr_fft
 params:
+  batch_size: 8
   temp_scaling: True
 trainer:
   devices: 1

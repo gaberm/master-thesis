@@ -16,6 +16,7 @@ model:
   ckpt_avg: last
   ckpt_dir: copa_xlmr_ta
 params:
+  batch_size: 8
   temp_scaling: True
 trainer:
   devices: 1

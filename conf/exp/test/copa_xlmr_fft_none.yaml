@@ -12,6 +12,8 @@ model:
   load_ckpt: true
   ckpt_avg: none
   ckpt_dir: copa_xlmr_fft
+params:
+  batch_size: 8
 trainer:
   devices: 1
   exp_name: copa_xlmr_fft_none

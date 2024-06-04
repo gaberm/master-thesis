@@ -11,6 +11,8 @@ model:
   load_ckpt: true
   ckpt_avg: best
   ckpt_dir: copa_mbert_fft_ls
+params:
+  batch_size: 8
 trainer:
   devices: 1
   exp_name: copa_mbert_fft_ls_best

@@ -24,6 +24,8 @@ model:
   load_ckpt: true
   ckpt_avg: none
   ckpt_dir: copa_mbert_tala_ls
+params:
+  batch_size: 8
 trainer:
   devices: 1
   exp_name: copa_mbert_tala_ls_none

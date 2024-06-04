@@ -12,6 +12,8 @@ model:
   ckpt_avg: best
   ckpt_dir: copa_mbert_fft
 params:
+  batch_size: 8
   temp_scaling: True
-trainer:  devices: 1
+trainer:  
+  devices: 1
   exp_name: copa_mbert_fft_ts_best
