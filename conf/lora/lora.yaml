@@ -1,4 +1,0 @@
-task_type: SEQ_CLS
-r: 1
-lora_alpha: 1
-lora_dropout: 0.1
