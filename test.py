@@ -1,5 +1,6 @@
 import hydra
 import dotenv
+import torch
 import lightning.pytorch as pl
 from lightning.pytorch.loggers import WandbLogger
 from src.dataset import get_data_loader
@@ -21,7 +22,7 @@ def main(config):
         # create test data loaders
         test_loaders = get_data_loader(config, "test")
 
-        if config.params.temperature_scaling:
+        if config.params.temp_scaling:
             val_loader = get_data_loader(config, "validation")
             l_model.set_temperature(val_loader)
         
