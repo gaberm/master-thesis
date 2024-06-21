@@ -1,9 +1,9 @@
 # @package _global_
 
 defaults:
-  - override /madx: madx
-  - override /model: xlmr
-  - override /params: params
+- override /madx: madx
+- override /model: xlmr
+- override /params: params
 
 madx:
   lang_adapter:

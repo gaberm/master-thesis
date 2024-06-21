@@ -1,8 +1,8 @@
 # @package _global_
 
 defaults:
-  - override /model: xlmr
-  - override /params: params
+- override /model: xlmr
+- override /params: params
 
 params:
   max_epochs: 2

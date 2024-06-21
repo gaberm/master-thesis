@@ -1,0 +1,16 @@
+# @package _global_
+
+defaults:
+- override /dataset: xstorycloze
+- override /madx: null
+- override /model: xlmr
+- override /params: params
+- override /trainer: trainer
+
+model:
+  num_labels: 2
+params:
+  batch_size: 6
+  lr: 2e-5
+trainer:
+  exp_name: xstorycloze_xlmr_fft

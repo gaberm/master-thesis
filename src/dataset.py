@@ -6,6 +6,7 @@ from torch.utils.data import DataLoader, SequentialSampler
 from transformers import DataCollatorWithPadding
 from .model import load_tokenizer
 from lightning.pytorch.utilities import CombinedLoader
+from sklearn.model_selection import train_test_split
 
 
 def prepare_paws_x(dataset):
@@ -30,9 +31,9 @@ def prepare_copa(dataset):
             question_lst += [question] * 2
             choice_lst += [row["choice1"]] + [row["choice2"]]
             if row["label"] == 0:
-                label_lst += [1] + [0]
+                label_lst += [1, 0]
             else:
-                label_lst += [0] + [1]
+                label_lst += [0, 1]
     
     ds_lst = [question_lst, choice_lst, label_lst]
     question_lst, choice_lst, label_lst = shuffle_lst(ds_lst, 2)
@@ -57,11 +58,11 @@ def prepare_siqa(dataset):
         question_lst += [question] * 3
         choice_lst += [row["answerA"]] + [row["answerB"]] + [row["answerC"]]
         if row["label"] == "1":
-            label_lst += [1] + [0] + [0]
+            label_lst += [1, 0, 0]
         elif row["label"] == "2":
-            label_lst += [0] + [1] + [0]
+            label_lst += [0, 1, 0]
         else:
-            label_lst += [0] + [0] + [1]
+            label_lst += [0, 0, 1]
 
     ds_lst = [question_lst, choice_lst, label_lst]
     question_lst, choice_lst, label_lst = shuffle_lst(ds_lst, 3)
@@ -74,11 +75,36 @@ def prepare_siqa(dataset):
     return prepared_siqa
 
 
+# def prepare_swag(dataset):
+#     startphrase_lst = []
+#     ending_lst = []
+#     label_lst = []
+#     for row in dataset:
+#         startphrase = row["startphrase"] + " What is the right ending?"
+#         startphrase_lst += [startphrase] * 4
+#         ending_lst += [row[f"ending{i}"] for i in range(0, 4)]
+#         if row["label"] == "0":
+#             label_lst += [1, 0, 0, 0]
+#         elif row["label"] == "1":
+#             label_lst += [0, 1, 0, 0]
+#         elif row["label"] == "2":
+#             label_lst += [0, 0, 1, 0]
+#         else:
+#             label_lst += [0, 0, 0, 1]
+
+#     prepared_swag = Dataset.from_dict(
+#         {"sentence1": startphrase_lst,
+#          "sentence2": ending_lst,
+#          "labels": label_lst}
+#     )
+#     return prepared_swag
+
+
 def prepare_xcopa(dataset, lang):
     question_lst = []
     choice_lst = []
     label_lst = []
-    translated_question = pd.read_csv("rsc/translation.csv")
+    translated_question = pd.read_csv("rsc/translated_questions_xcopa.csv")
     for row in dataset:
         question_in_lang = translated_question[translated_question["lang"] == lang][row["question"]].tolist()[0]
         if row["question"] == "cause":
@@ -87,10 +113,7 @@ def prepare_xcopa(dataset, lang):
             question = f"{row['premise']} {question_in_lang}"
         question_lst += [question] * 2
         choice_lst += [row["choice1"]] + [row["choice2"]]
-        if row["label"] == 0:
-            label_lst += [1] + [0]
-        else:
-            label_lst += [0] + [1]
+        label_lst += [1, 0] if row["label"] == 1 else [0, 1]
 
     ds_lst = [question_lst, choice_lst, label_lst]
     question_lst, choice_lst, label_lst = shuffle_lst(ds_lst, 2)
@@ -111,6 +134,26 @@ def prepare_xnli(dataset):
     return dataset
 
 
+def prepare_xstorycloze(dataset, lang):
+    questions_df = pd.read_csv("rsc/translated_questions_xstorycloze.csv")
+    context_lst = []
+    answer_lst = []
+    label_lst = []
+    for row in dataset:
+        question = questions_df[questions_df["lang"] == lang]["question"].tolist()[0]
+        context = [row[f"InputSentence{i}"] for i in range(1, 5)]
+        context_lst += ["".join(context) + f" {question}"] * 2
+        answer_lst += [row["RandomFifthSentenceQuiz1"]] + [row["RandomFifthSentenceQuiz2"]]
+        label_lst += [1, 0] if row["AnswerRightEnding"] == 1 else [0, 1]    
+
+    prepared_xstorycloze = Dataset.from_dict(
+        {"sentence1" : context_lst, 
+         "sentence2" : answer_lst,
+         "labels" : label_lst}
+    )
+    return prepared_xstorycloze
+
+
 def tokenize_ds(dataset, tokenizer):
     def tokenize_function(example):
         return tokenizer(example["sentence1"], example["sentence2"], truncation=True, padding=True) 
@@ -128,6 +171,11 @@ def download_ds(dataset, lang, split, data_dir):
             os.makedirs(f"{data_dir}/datasets/balanced-copa/{lang}/{split}")
         except OSError:
             not_downloaded = False
+    # elif dataset == "allenai/swag":
+    #     try:
+    #         os.makedirs(f"{data_dir}/datasets/swag/en/{split}")
+    #     except OSError:
+    #         not_downloaded = False
     else:
         try:
             os.makedirs(f"{data_dir}/datasets/{dataset}/{lang}/{split}")
@@ -141,6 +189,9 @@ def download_ds(dataset, lang, split, data_dir):
         elif dataset == "social_i_qa":
             ds = load_dataset(dataset, split=split)
             ds.save_to_disk(f"{data_dir}/datasets/{dataset}/en/{split}")
+        # elif dataset == "allenai/swag":
+        #     ds = load_dataset(dataset, split=split)
+        #     ds.save_to_disk(f"{data_dir}/datasets/swag/en/{split}")
         else:
             ds = load_dataset(dataset, lang, split=split)
             ds.save_to_disk(f"{data_dir}/datasets/{dataset}/{lang}/{split}")
@@ -149,13 +200,10 @@ def download_ds(dataset, lang, split, data_dir):
 def get_data_loader(config, split):
     data_dir = config.data_dir
     tokenizer = load_tokenizer(config)
-    if config.dataset.name == "copa" or config.dataset.name == "xcopa": 
-        data_collator = DataCollatorWithPadding(tokenizer)
-    else:
-        data_collator = DataCollatorWithPadding(tokenizer)
+    data_collator = DataCollatorWithPadding(tokenizer)
 
     if split == "train" or split == "validation":
-        if config.dataset.name == "copa" or config.dataset.name == "xcopa":
+        if config.dataset.name == "xcopa":
             if split == "train":
                 download_ds("pkavumba/balanced-copa", "en", "train", data_dir)
                 download_ds("social_i_qa", "en", "train", data_dir)
@@ -218,6 +266,54 @@ def get_data_loader(config, split):
             )
             return data_loader
 
+        if config.dataset.name == "xstorycloze":
+            # convert xstorycloze to a dataset object
+            storycoze = pd.read_csv("rsc/storycloze.csv")
+            train_df, val_df = train_test_split(storycoze, test_size=0.2, random_state=42)
+            if split == "train":
+                # download_ds("allenai/swag", "en", "train", data_dir)
+                # swag = load_from_disk(f"{data_dir}/datasets/swag/en/train")
+                # swag = prepare_swag(swag)
+                # swag = tokenize_ds(swag, tokenizer)
+                storycoze = train_df
+            else:
+                storycoze = val_df
+            storycoze = storycoze.to_dict()
+            storycoze = {k: list(v.values()) for k, v in storycoze.items()}
+            storycoze = Dataset.from_dict(storycoze)
+            
+            storycoze = prepare_xstorycloze(storycoze, "en")
+            storycoze = tokenize_ds(storycoze, tokenizer)
+            # if split == "train":
+                # data_loader = CombinedLoader(
+                #     {"swag": DataLoader(
+                #         swag,
+                #         batch_size=config.params.batch_size*2,
+                #         sampler=SequentialSampler(swag),
+                #         collate_fn=data_collator,
+                #     ),"storycloze": DataLoader(
+                #         storycoze,
+                #         batch_size=config.params.batch_size*4,
+                #         sampler=SequentialSampler(storycoze),
+                #         collate_fn=data_collator,
+                #     )},
+                #     "max_size"
+                # )
+                # _ = iter(data_loader)
+            # else:
+            #     data_loader = DataLoader(
+            #         storycoze,
+            #         batch_size=config.params.batch_size * 2,
+            #         collate_fn=data_collator,
+            #     )
+            data_loader = DataLoader(
+                storycoze,
+                batch_size=config.params.batch_size * 2,
+                collate_fn=data_collator,
+                )
+            return data_loader
+
+
     if split == "test":
         test_loaders = []
         for lang in config.dataset.test_lang:
@@ -256,6 +352,22 @@ def get_data_loader(config, split):
                     paws_x,
                     batch_size=config.params.batch_size,
                     shuffle=True,
+                    collate_fn=data_collator,
+                )
+                test_loaders.append(data_loader)
+
+            if config.dataset.name == "xstorycloze":
+                storycoze = pd.read_csv("rsc/xstorycloze.csv")
+                storycoze = storycoze[storycoze["lang"] == lang]
+                storycoze = storycoze.to_dict()
+                storycoze = {k: list(v.values()) for k, v in storycoze.items()}
+                storycoze = Dataset.from_dict(storycoze)
+                storycoze = prepare_xstorycloze(storycoze, lang)
+                storycoze = tokenize_ds(storycoze, tokenizer)
+                data_loader = DataLoader(
+                    storycoze,
+                    batch_size=config.params.batch_size,
+                    sampler=SequentialSampler(storycoze),
                     collate_fn=data_collator,
                 )
                 test_loaders.append(data_loader)

@@ -1,10 +1,10 @@
 # @package _global_
 
 defaults:
-  - override /dataset: paws_x
-  - override /madx: madx
-  - override /model: mbert
-  - override /params: params
+- override /dataset: paws_x paws_x
+- override /madx: madx
+- override /model: mbert
+- override /params: params
 
 madx:
   task_adapter:

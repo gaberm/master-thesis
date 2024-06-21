@@ -47,12 +47,11 @@ def main(config):
             logger=wandb_logger, 
             default_root_dir=config.data_dir,
             deterministic=True,
-            strategy=config.trainer.strategy,
+            # strategy=config.trainer.strategy,
             devices=config.trainer.devices,
             val_check_interval=0.25,
             callbacks=[lr_callback, val_checkpoint],
             use_distributed_sampler=False,
-            precision=16
         )
 
         # train the model

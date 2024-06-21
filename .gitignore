@@ -4,6 +4,8 @@
 /res
 /src/__pycache__
 /wandb
+/rsc/xstorycloze.csv
+/rsc/storycloze.csv
 test.ipynb
 test.log
 train_ddp_process_1.log

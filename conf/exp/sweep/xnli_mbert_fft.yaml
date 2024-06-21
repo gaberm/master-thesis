@@ -1,8 +1,8 @@
 # @package _global_
 
 defaults:
-  - override /madx: null
-  - override /params: params
+- override /madx: null
+- override /params: params
 
 params:
   max_epochs: 2

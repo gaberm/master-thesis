@@ -4,7 +4,7 @@ import torch.nn as nn
 
 
 def load_model_from_hf(config):
-    if "copa" in config.trainer.exp_name:
+    if config.dataset.name in ["xcopa", "xstorycloze"]:
         model = AutoModel.from_pretrained(config.model.hf_path)
     else:
         model = AutoModelForSequenceClassification.from_pretrained(
@@ -54,9 +54,9 @@ def add_adapters(model, config):
 
 # we use the same classifier for xcopa that the authors used in their paper
 # https://arxiv.org/pdf/2005.00333.pdf
-class CopaClassifier(nn.Module):
+class Classifier(nn.Module):
     def __init__(self, input_dim, hidden_dim, output_dim, dropout_prob):
-        super(CopaClassifier, self).__init__()
+        super(Classifier, self).__init__()
         self.fc1 = nn.Linear(input_dim, hidden_dim)
         self.dropout = nn.Dropout(dropout_prob)
         self.activation = nn.Tanh()
@@ -76,8 +76,8 @@ def load_model(config):
     if "madx" in config.keys():
         model = add_adapters(model, config)
 
-    if "copa" in config.trainer.exp_name:
-        classifier = CopaClassifier(
+    if config.dataset.name in ["xcopa", "xstorycloze"]:
+        classifier = Classifier(
             input_dim=model.config.hidden_size,
             hidden_dim=model.config.hidden_size,
             output_dim=1,
@@ -86,7 +86,6 @@ def load_model(config):
         return model, classifier
     else:
         return model
-
 
 def load_tokenizer(config):
     return AutoTokenizer.from_pretrained(config.model.hf_path)

@@ -1,8 +1,8 @@
 # @package _global_
 
 defaults:
-  - override /params: params
-  - override /trainer: trainer
+- override /params: params
+- override /trainer: trainer
 
 params:
   lr: 1e-4

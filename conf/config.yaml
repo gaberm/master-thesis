@@ -1,15 +1,14 @@
 defaults:
-  - _self_
-  - dataset:
-    - xnli
-  - lora: null
-  - madx: madx
-  - model: mbert
-  - params: params
-  - trainer: trainer
-  - wandb: wandb
-  - override hydra/hydra_logging: colorlog
-  - override hydra/job_logging: colorlog
+- _self_
+- dataset: xnli
+- lora: null
+- madx: madx
+- model: mbert
+- params: params
+- trainer: trainer
+- wandb: wandb
+- override hydra/hydra_logging: colorlog
+- override hydra/job_logging: colorlog
 
 # path to folder to model checkpoints
 data_dir: "/ceph/mgaber/data"

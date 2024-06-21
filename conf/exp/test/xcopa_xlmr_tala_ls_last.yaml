@@ -1,0 +1,31 @@
+# @package _global_
+
+defaults:
+- override /dataset: xcopa
+- override /madx: madx
+- override /model: xlmr
+- override /params: params
+- override /trainer: trainer
+
+madx:
+  lang_adapter:
+    en: en/wiki@ukp
+    et: et/wiki@ukp
+    ht: ht/wiki@ukp
+    id: id/wiki@ukp
+    qu: qu/wiki@ukp
+    sw: sw/wiki@ukp
+    tr: tr/wiki@ukp
+    vi: vi/wiki@ukp
+    zh: zh/wiki@ukp
+  task_adapter:
+    name: xcopa
+model:
+  ckpt_avg: last
+  ckpt_dir: xcopa_xlmr_tala_ls
+  load_ckpt: true
+  num_labels: 2
+params:
+  batch_size: 8
+trainer:
+  exp_name: xcopa_xlmr_tala_ls_last

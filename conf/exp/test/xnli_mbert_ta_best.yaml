@@ -1,8 +1,8 @@
 # @package _global_
 
 defaults:
-  - override /model: mbert
-  - override /trainer: trainer
+- override /model: mbert
+- override /trainer: trainer
 
 model:
   load_ckpt: true

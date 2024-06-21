@@ -1,0 +1,18 @@
+# @package _global_
+
+defaults:
+- override /dataset: xcopa
+- override /madx: null
+- override /model: xlmr
+- override /params: params
+- override /trainer: trainer
+
+model:
+  ckpt_avg: last
+  ckpt_dir: xcopa_xlmr_fft
+  load_ckpt: true
+  num_labels: 2
+params:
+  batch_size: 8
+trainer:
+  exp_name: xcopa_xlmr_fft_last

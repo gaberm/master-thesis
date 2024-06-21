@@ -1,9 +1,9 @@
 # @package _global_
 
 defaults:
-  - override /madx: madx
-  - override /model: mbert
-  - override /trainer: trainer
+- override /madx: madx
+- override /model: mbert
+- override /trainer: trainer
 
 madx:
   lang_adapter:
