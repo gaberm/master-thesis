@@ -13,7 +13,7 @@ dotenv.load_dotenv(".env")
 @hydra.main(config_path="conf", config_name="config", version_base="1.3")
 def main(config):
     # run the experiment for 5 different seeds
-    for seed in config.params.seeds:
+    for seed in [0, 1, 2, 3, 4]:
         # seed everything for reproducibility
         pl.seed_everything(seed, workers=True) 
 
@@ -47,7 +47,7 @@ def main(config):
             logger=wandb_logger, 
             default_root_dir=config.data_dir,
             deterministic=True,
-            # strategy=config.trainer.strategy,
+            strategy=config.trainer.strategy,
             devices=config.trainer.devices,
             val_check_interval=0.25,
             callbacks=[lr_callback, val_checkpoint],

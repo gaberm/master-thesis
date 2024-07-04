@@ -1,11 +1,11 @@
 #!/bin/bash
 
-dir="conf/exp/test/xstorycloze"
+dir="conf/exp/test"
 
 for file in "$dir"/*
     do
     filename=$(basename -- "$file")
     echo "Testing $filename"
-    python test.py +exp=test/xstorycloze/$filename
+    python test.py +exp=test/$filename
     done
-#python merge.py
+python merge.py

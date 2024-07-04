@@ -11,7 +11,7 @@ dotenv.load_dotenv(override=True)
 
 @hydra.main(config_path="conf", config_name="config", version_base="1.3")
 def main(config):
-    for seed in config.params.seeds:
+    for seed in [0, 1, 2, 3, 4]:
         # seed everything for reproducibility
         pl.seed_everything(seed, workers=True) 
         
