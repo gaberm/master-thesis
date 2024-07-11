@@ -10,7 +10,7 @@ from src.lightning import load_l_model
 
 dotenv.load_dotenv(".env")
 
-@hydra.main(config_path="conf", config_name="config", version_base="1.3")
+@hydra.main(config_path="configs", config_name="config", version_base="1.3")
 def main(config):
     # run the experiment for 5 different seeds
     for seed in [0, 1, 2, 3, 4]:

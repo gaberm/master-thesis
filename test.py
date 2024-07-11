@@ -9,7 +9,7 @@ from src.utils import save_test_results, create_result_csv
 
 dotenv.load_dotenv(override=True)
 
-@hydra.main(config_path="conf", config_name="config", version_base="1.3")
+@hydra.main(config_path="configs", config_name="config", version_base="1.3")
 def main(config):
     for seed in [0, 1, 2, 3, 4]:
         # seed everything for reproducibility

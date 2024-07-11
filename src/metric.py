@@ -1,4 +1,5 @@
 from torchmetrics.classification import Accuracy, MulticlassCalibrationError, BinaryCalibrationError
+from src.utils import get_device
 
 def load_metric(config, metric_type, num_labels=None):
     if metric_type == "pred":
@@ -10,7 +11,7 @@ def load_metric(config, metric_type, num_labels=None):
     
     if num_labels is None:
         num_labels = config.model.num_labels
-    device = config.trainer.gpu_name
+    device = get_device(config)
     
     if metric_type == "pred":
         if metric_name == "accuracy":

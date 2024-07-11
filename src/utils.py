@@ -33,15 +33,15 @@ def get_device(config):
 
 def save_test_results(model, config, seed):
     try:
-        os.makedirs(f"res/{config.trainer.exp_name}")
+        os.makedirs(f"results/{config.trainer.exp_name}")
     except OSError:
         pass
-    np.save(f"res/{config.trainer.exp_name}/seed_{seed}", model.result_lst)
+    np.save(f"results/{config.trainer.exp_name}/seed_{seed}", model.result_lst)
     
 
 def create_result_csv(exp_name):
     files = []
-    result_dir = f"res/{exp_name}"
+    result_dir = f"results/{exp_name}"
     for filename in os.listdir(result_dir):
         if os.path.isfile(os.path.join(result_dir, filename)):
             files.append(filename)
@@ -54,7 +54,7 @@ def create_result_csv(exp_name):
         final_df = pd.concat([final_df, df], axis=0).reset_index(drop=True)
     final_df['score'] = final_df['score'].astype(float)
 
-    final_df.to_csv(f"res/{exp_name}.csv", index=False)
+    final_df.to_csv(f"results/csv/{exp_name}.csv", index=False)
 
     # remove all result lists by deleting the result directory
     # try except block to avoid errors if the system runs on multiple threads

@@ -1,11 +1,13 @@
 # dependencies
 /~
 /outputs
-/res
+/results/csv
+/results/latex
+/results/pred
 /src/__pycache__
 /wandb
-/rsc/xstorycloze.csv
-/rsc/storycloze.csv
+/data/xstorycloze.csv
+/data/storycloze.csv
 test.ipynb
 test.log
 train_ddp_process_1.log

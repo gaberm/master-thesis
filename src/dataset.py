@@ -79,7 +79,7 @@ def prepare_xcopa(dataset, lang):
     question_lst = []
     choice_lst = []
     label_lst = []
-    translated_question = pd.read_csv("rsc/translated_questions_xcopa.csv")
+    translated_question = pd.read_csv("data/questions_xcopa.csv")
     for row in dataset:
         question_in_lang = translated_question[translated_question["lang"] == lang][row["question"]].tolist()[0]
         if row["question"] == "cause":
@@ -110,7 +110,7 @@ def prepare_xnli(dataset):
 
 
 def prepare_xstorycloze(dataset, lang):
-    questions_df = pd.read_csv("rsc/translated_questions_xstorycloze.csv")
+    questions_df = pd.read_csv("data/questions_xstorycloze.csv")
     context_lst = []
     answer_lst = []
     label_lst = []
@@ -231,7 +231,7 @@ def get_data_loader(config, split):
             )
 
         elif config.dataset.name == "xstorycloze":
-            storycoze = pd.read_csv("rsc/storycloze.csv")
+            storycoze = pd.read_csv("data/storycloze.csv")
             train_df, val_df = train_test_split(storycoze, test_size=0.2, random_state=42)
             if split == "train":
                 download_ds("social_i_qa", "en", "train", data_dir)
@@ -318,7 +318,7 @@ def get_data_loader(config, split):
                 test_loaders.append(data_loader)
 
             if config.dataset.name == "xstorycloze":
-                storycoze = pd.read_csv("rsc/xstorycloze.csv")
+                storycoze = pd.read_csv("data/xstorycloze.csv")
                 storycoze = storycoze[storycoze["lang"] == lang]
                 storycoze = storycoze.to_dict()
                 storycoze = {k: list(v.values()) for k, v in storycoze.items()}

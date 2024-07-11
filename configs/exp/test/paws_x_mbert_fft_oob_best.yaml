@@ -1,0 +1,15 @@
+# @package _global_
+
+defaults:
+- override /dataset: paws_x
+- override /madx: null
+- override /model: mbert
+- override /trainer: trainer
+  
+model:
+  num_labels: 2
+  load_ckpt: true
+  ckpt_avg: best
+  ckpt_dir: paws_x_mbert_fft
+trainer:
+  exp_name: paws_x_mbert_fft_oob_best

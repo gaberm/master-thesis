@@ -1,0 +1,7 @@
+name: mbert
+hf_path: bert-base-multilingual-cased
+num_labels: 3
+dropout: 0.0
+load_ckpt: false
+ckpt_avg: none
+save_pred: False
