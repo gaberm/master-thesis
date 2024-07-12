@@ -36,7 +36,7 @@ class DefaultModel(LightningModule):
             self.setup = "fft"
         
         if config.params.label_smoothing == 0.0:
-            self.calibration = "none"
+            self.calibration = "oob"
         else:
             self.calibration = "ls"
         
@@ -45,14 +45,15 @@ class DefaultModel(LightningModule):
         self.warmup = config.params.warmup
         self.num_labels = config.model.num_labels
         self.ce_loss = torch.nn.CrossEntropyLoss(label_smoothing=config.params.label_smoothing)
-        self.temperature = torch.nn.Parameter(torch.tensor([1.0], device=self.device), requires_grad=False)
-        # self.temperature = None
+        self.temperature = torch.tensor([1.0], device=self.device)
         self.data_dir = config.data_dir
         self.exp_name = config.trainer.exp_name
         self.task = config.dataset.name
         self.model_name = config.model.name
         self.ckpt_avg = ""
         self.result_lst = []
+        self.save_pred = config.params.save_pred
+        self.pred_lst = []
         self.seed = seed
         self.save_hyperparameters()
 
@@ -91,17 +92,15 @@ class DefaultModel(LightningModule):
     def test_step(self, batch, batch_idx):
         batch = {k: v.to(self.device) for k, v in batch.items()}
         outputs = self.model(**batch)
-        if self.temperature is None:
-            logits = outputs.logits
-        else:
-            logits = outputs.logits / self.temperature
-        # logits = outputs.logits / self.temperature
+        logits = outputs.logits / self.temperature
         preds = outputs.logits.argmax(dim=-1)
         probs = torch.softmax(logits, dim=-1)
         if self.num_labels == 2:
             probs = probs[:, 1]
         self.uncert_metric.update(probs, batch["labels"])
         self.pred_metric.update(preds, batch["labels"])
+        if self.save_pred:
+            self.pred_lst.append([probs, batch["labels"]])
 
     def on_test_epoch_end(self):
         uncert_score = self.uncert_metric.compute()
@@ -135,6 +134,10 @@ class DefaultModel(LightningModule):
         # reset metrics for the next target language
         self.uncert_metric.reset()
         self.pred_metric.reset()
+        if self.save_pred:
+            os.makedirs(f"results/pred/{self.exp_name}/seed_{self.seed}", exist_ok=True)
+            torch.save(self.pred_lst, f"results/pred/{self.exp_name}/seed_{self.seed}/pred_{self.target_lang}")
+            self.pred_lst = []
 
     def configure_optimizers(self):
         optimizer = AdamW(self.parameters(), lr=self.lr, weight_decay=self.weight_decay)
@@ -162,6 +165,7 @@ class DefaultModel(LightningModule):
     
     def set_temperature(self, val_loader):
         self.calibration = "ts"
+        self.temperature = torch.nn.Parameter(torch.tensor([1.5], device=self.device))
 
         if self.has_task_adapter:
             self.model.set_active_adapters(None)
@@ -222,7 +226,7 @@ class TwoDatasetModel(LightningModule):
             self.setup = "fft"
         
         if config.params.label_smoothing == 0.0:
-            self.calibration = "none"
+            self.calibration = "oob"
         else:
             self.calibration = "ls"
 
@@ -230,13 +234,15 @@ class TwoDatasetModel(LightningModule):
         self.weight_decay = config.params.weight_decay
         self.warmup = config.params.warmup
         self.ce_loss = torch.nn.CrossEntropyLoss(label_smoothing=config.params.label_smoothing)
-        self.temperature = torch.nn.Parameter(torch.tensor([1.0], device=self.device), requires_grad=False)
+        self.temperature = torch.tensor([1.0], device=self.device)
         self.data_dir = config.data_dir
         self.exp_name = config.trainer.exp_name
         self.task = config.dataset.name
         self.model_name = config.model.name
         self.ckpt_avg = None
         self.result_lst = []
+        self.save_pred = config.params.save_pred
+        self.pred_lst = []
         self.seed = seed
         self.save_hyperparameters()
 
@@ -271,35 +277,23 @@ class TwoDatasetModel(LightningModule):
         loss = torch.tensor(0.0, device="cuda")
         for ds_name, batch in clf_batches.items():
             if ds_name in ["copa", "storycloze"]:
-                dim1 = int(len(batch["logits"]) / 2)
-                new_logits = batch["logits"].view(dim1, 2)
-                new_labels = batch["labels"].view(dim1, 2).argmax(dim=1)
+                new_logits = batch["logits"].view(-1, 2)
+                new_labels = batch["labels"].view(-1, 2).argmax(dim=1)
             else:
-                dim1 = int(len(batch["logits"]) / 3)
-                new_logits = batch["logits"].view(dim1, 3)
-                new_labels = batch["labels"].view(dim1, 3).argmax(dim=1)
+                new_logits = batch["logits"].view(-1, 3)
+                new_labels = batch["labels"].view(-1, 3).argmax(dim=1)
             loss += self.ce_loss(new_logits, new_labels)
         self.log("train_loss", loss)
 
         return loss
-        # batch = {k: v.to(self.device) for k, v in batch.items()}
-        # enc_outputs = self.encoder(batch["input_ids"], batch["attention_mask"])
-        # logits = self.classifier(enc_outputs.pooler_output)
-        # dim1 = int(len(logits) / 2)
-        # new_logits = logits.view(dim1, 2)
-        # new_labels = batch["labels"].view(dim1, 2).argmax(dim=1)
-        # loss = self.ce_loss(new_logits, new_labels)
-        # self.log("train_loss", loss)
-        # return loss
     
     def validation_step(self, batch, batch_idx):
         batch = {k: v.to(self.device) for k, v in batch.items()}
         with torch.no_grad():
             out_emb = self.encoder(batch["input_ids"], batch["attention_mask"])
             logits = self.classifier(out_emb.pooler_output)
-        dim1 = int(len(logits) / 2)
-        probs = logits.view(dim1, 2).softmax(dim=1)[:, 1]
-        new_labels = batch["labels"].view(dim1, 2).argmax(dim=1)
+        probs = logits.view(-1, 2).softmax(dim=1)[:, 1]
+        new_labels = batch["labels"].view(-1, 2).argmax(dim=1)
         self.pred_metric.update(probs, new_labels)
     
     def on_validation_epoch_end(self):
@@ -324,11 +318,12 @@ class TwoDatasetModel(LightningModule):
             out_emb = self.encoder(batch["input_ids"], batch["attention_mask"])
             logits = self.classifier(out_emb.pooler_output)
         logits = logits / self.temperature
-        dim_1 = int(len(logits) / 2)
-        probs = logits.view(dim_1, 2).softmax(dim=1)[:, 1]
-        new_labels = batch["labels"].view(dim_1, 2).argmax(dim=1)
+        probs = logits.view(-1, 2).softmax(dim=1)[:, 1]
+        new_labels = batch["labels"].view(-1, 2).argmax(dim=1)
         self.pred_metric.update(probs, new_labels)
         self.uncert_metric.update(probs, new_labels)
+        if self.save_pred:
+            self.pred_lst.append([probs, batch["labels"]])
 
     def on_test_epoch_end(self):
         uncert_score = self.uncert_metric.compute()
@@ -361,6 +356,10 @@ class TwoDatasetModel(LightningModule):
         )
         self.uncert_metric.reset()
         self.pred_metric.reset()
+        if self.save_pred:
+            os.makedirs(f"results/pred/{self.exp_name}/seed_{self.seed}", exist_ok=True)
+            torch.save(self.pred_lst, f"results/pred/{self.exp_name}/seed_{self.seed}/pred_{self.target_lang}")
+            self.pred_lst = []
 
     def configure_optimizers(self):
         optimizer = AdamW(self.parameters(), lr=self.lr, weight_decay=self.weight_decay)
@@ -408,9 +407,8 @@ class TwoDatasetModel(LightningModule):
             logit_lst.append(logits)
             label_lst.append(batch["labels"])
 
-        dim_1 = int(len(torch.cat(logit_lst)) / 2)
-        new_logits = torch.cat(logit_lst).view(dim_1, 2)
-        new_labels = torch.cat(label_lst).view(dim_1, 2).argmax(dim=1)
+        new_logits = torch.cat(logit_lst).view(-1, 2)
+        new_labels = torch.cat(label_lst).view(-1, 2).argmax(dim=1)
         
         ce_loss = torch.nn.CrossEntropyLoss()
         optimizer = torch.optim.LBFGS([self.temperature], lr=0.01, max_iter=100)
@@ -442,12 +440,9 @@ def load_l_model(config, seed):
                 l_model = TwoDatasetModel.load_from_checkpoint(best_ckpt, map_location=device)
                 l_model.encoder.eval()
                 l_model.classifier.eval()
-            # elif config.dataset.name == "xcopa":
-            #     l_model = XcopaModel.load_from_checkpoint(best_ckpt, map_location=device)
-            #     l_model.encoder.eval()
-            #     l_model.classifier.eval()
             else:
-                l_model = DefaultModel.load_from_checkpoint(best_ckpt, map_location=device)
+                # l_model = DefaultModel.load_from_checkpoint(best_ckpt, map_location=device)
+                l_model = DefaultModel.load_from_checkpoint(best_ckpt, map_location=device, config=config)
                 l_model.model.eval()
             l_model.exp_name = config.trainer.exp_name
             l_model.ckpt_avg = "none"
