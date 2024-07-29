@@ -1,7 +1,7 @@
 import os
 import random
 import pandas as pd
-from datasets import Dataset, load_dataset, load_from_disk
+from datasets import Dataset, load_dataset, load_from_disk, concatenate_datasets
 from torch.utils.data import DataLoader, SequentialSampler
 from transformers import DataCollatorWithPadding
 from .model import load_tokenizer
@@ -168,11 +168,33 @@ def get_data_loader(config, split):
     data_dir = config.data_dir
     tokenizer = load_tokenizer(config)
     data_collator = DataCollatorWithPadding(tokenizer)
+    if len(config.params.source_lang) == 1:
+        source_lang = config.params.source_lang[0]
+    elif len(config.params.source_lang) == 2:
+        if config.params.source_lang[0] != config.params.source_lang[1]:
+            bilingual_mixup = True
+            source_lang_1 = config.params.source_lang[0]
+            source_lang_2 = config.params.source_lang[1]
+        else:
+            bilingual_mixup = False
+            source_lang = config.params.source_lang[0]
+    else:
+        raise ValueError("Only one or two source languages are supported")
+
 
     if split in ["train", "validation"]:
         if config.dataset.name == "paws_x":
-            download_ds("paws-x", "en", split, data_dir)
-            paws_x = load_from_disk(f"{data_dir}/datasets/paws-x/en/{split}")
+            if bilingual_mixup:
+                download_ds("paws-x", source_lang_1, split, data_dir)
+                download_ds("paws-x", source_lang_2, split, data_dir)
+                dataset_1 = load_from_disk(f"{data_dir}/datasets/paws-x/{source_lang_1}/{split}")
+                dataset_2 = load_from_disk(f"{data_dir}/datasets/paws-x/{source_lang_2}/{split}")
+                dataset_1 = dataset_1.train_test_split(test_size=0.5, seed=42)["train"]
+                dataset_2 = dataset_2.train_test_split(test_size=0.5, seed=42)["train"]
+                paws_x = concatenate_datasets([dataset_1, dataset_2])
+            else:
+                download_ds("paws-x", source_lang, split, data_dir)
+                paws_x = load_from_disk(f"{data_dir}/datasets/paws-x/{source_lang}/{split}")
             paws_x = prepare_paws_x(paws_x)
             paws_x = tokenize_ds(paws_x, tokenizer)
             data_loader = DataLoader(
@@ -183,6 +205,8 @@ def get_data_loader(config, split):
             )
         
         elif config.dataset.name == "xcopa":
+            if bilingual_mixup:
+                raise ValueError("Bilingual mixup is not supported for XCOPA")
             if split == "train":
                 download_ds("social_i_qa", "en", "train", data_dir)
                 download_ds("pkavumba/balanced-copa", "en", "train", data_dir)
@@ -219,8 +243,17 @@ def get_data_loader(config, split):
                 )
         
         elif config.dataset.name == "xnli":
-            download_ds("xnli", "en", split, data_dir)
-            xnli = load_from_disk(f"{data_dir}/datasets/xnli/en/{split}")
+            if bilingual_mixup:
+                download_ds("xnli", source_lang_1, split, data_dir)
+                download_ds("xnli", source_lang_2, split, data_dir)
+                dataset_1 = load_from_disk(f"{data_dir}/datasets/xnli/{source_lang_1}/{split}")
+                dataset_2 = load_from_disk(f"{data_dir}/datasets/xnli/{source_lang_2}/{split}")
+                dataset_1 = dataset_1.train_test_split(test_size=0.5, seed=42)["train"]
+                dataset_2 = dataset_2.train_test_split(test_size=0.5, seed=42)["train"]
+                xnli = concatenate_datasets([dataset_1, dataset_2])
+            else:
+                download_ds("xnli", source_lang, split, data_dir)
+                xnli = load_from_disk(f"{data_dir}/datasets/xnli/{source_lang}/{split}")
             xnli = prepare_xnli(xnli)
             xnli = tokenize_ds(xnli, tokenizer)
             data_loader = DataLoader(
@@ -231,6 +264,8 @@ def get_data_loader(config, split):
             )
 
         elif config.dataset.name == "xstorycloze":
+            if bilingual_mixup:
+                raise ValueError("Bilingual mixup is not supported for XStoryCloze")
             storycoze = pd.read_csv("data/storycloze.csv")
             train_df, val_df = train_test_split(storycoze, test_size=0.2, random_state=42)
             if split == "train":
@@ -277,7 +312,20 @@ def get_data_loader(config, split):
 
     if split == "test":
         test_loaders = []
-        for lang in config.dataset.test_lang:
+        for lang in config.dataset.target_lang:
+            if config.dataset.name == "paws_x":
+                download_ds("paws-x", lang, split, data_dir)
+                paws_x = load_from_disk(f"{data_dir}/datasets/paws-x/{lang}/{split}")
+                paws_x = prepare_paws_x(paws_x)
+                paws_x = tokenize_ds(paws_x, tokenizer)
+                data_loader = DataLoader(
+                    paws_x,
+                    batch_size=config.params.batch_size,
+                    shuffle=True,
+                    collate_fn=data_collator,
+                )
+                test_loaders.append(data_loader)
+                
             if config.dataset.name == "xcopa":
                 download_ds("xcopa", lang, split, data_dir)
                 xcopa = load_from_disk(f"{data_dir}/datasets/xcopa/{lang}/{split}")
@@ -303,19 +351,6 @@ def get_data_loader(config, split):
                     collate_fn=data_collator,
                 )
                 test_loaders.append(data_loader)
-                
-            if config.dataset.name == "paws_x":
-                download_ds("paws-x", lang, split, data_dir)
-                paws_x = load_from_disk(f"{data_dir}/datasets/paws-x/{lang}/{split}")
-                paws_x = prepare_paws_x(paws_x)
-                paws_x = tokenize_ds(paws_x, tokenizer)
-                data_loader = DataLoader(
-                    paws_x,
-                    batch_size=config.params.batch_size,
-                    shuffle=True,
-                    collate_fn=data_collator,
-                )
-                test_loaders.append(data_loader)
 
             if config.dataset.name == "xstorycloze":
                 storycoze = pd.read_csv("data/xstorycloze.csv")
@@ -336,7 +371,7 @@ def get_data_loader(config, split):
         return test_loaders
     
 
-def shuffle_lst(ds_lst: list[str | int], num_labels):
+def shuffle_lst(ds_lst, num_labels):
     # in prepare_coqa and prepare_siqa we duplicate the same question "num_labels" times 
     # to make each question a binary classification task
     # shuffle_lst shuffles the dataset in a way that duplicates of the same question are kept in order

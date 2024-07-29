@@ -40,6 +40,7 @@ def save_test_results(model, config, seed):
     
 
 def create_result_csv(exp_name):
+    mixup = True if "mixup" in exp_name else False
     files = []
     result_dir = f"results/{exp_name}"
     for filename in os.listdir(result_dir):
@@ -47,14 +48,28 @@ def create_result_csv(exp_name):
             files.append(filename)
 
     # we merge the results list of all seeds into one dataframe
-    col_lst = ["exp_name", "task", "model", "setup", "ckpt_avg", "calib", "seed", "target_lang", "metric", "score"]
+    if mixup:
+        col_lst = ["exp_name", "dataset", "model", "setup", "mixup_lang", "target_lang", "seed", "metric", "score"]
+    else:
+        col_lst = ["exp_name", "dataset", "model", "setup", "ckpt_avg", "calib", "seed", "target_lang", "metric", "score"]
     final_df = pd.DataFrame(columns=col_lst)
     for file in files:
         df = pd.DataFrame(np.load(f"{result_dir}/{file}", allow_pickle=True), columns=col_lst)
         final_df = pd.concat([final_df, df], axis=0).reset_index(drop=True)
     final_df['score'] = final_df['score'].astype(float)
 
-    final_df.to_csv(f"results/csv/{exp_name}.csv", index=False)
+    if mixup:
+        try:
+            os.makedirs("results/csv/bilingual_training")
+        except OSError:
+            pass
+        final_df.to_csv(f"results/csv/bilingual_training/{exp_name}.csv", index=False)
+    else:
+        try:
+            os.makedirs("results/csv/monolingual_training")
+        except OSError:
+            pass
+        final_df.to_csv(f"results/csv/monolingual_training/{exp_name}.csv", index=False)
 
     # remove all result lists by deleting the result directory
     # try except block to avoid errors if the system runs on multiple threads
@@ -102,7 +117,7 @@ def compute_ckpt_average(ckpt_dir, device, ckpt_avg):
                     average_state_dict[key] += value / k
         del ckpt
 
-    if "xcopa" or "xstorycloze" in ckpt_dir:
+    if "xcopa" in ckpt_dir or "xsc" in ckpt_dir:
         enc_state_dict = {
             k.replace("encoder.", "", 1): v 
             for k, v in average_state_dict.items() 

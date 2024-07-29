@@ -10,7 +10,7 @@ from .model import load_model
 
 
 class DefaultModel(LightningModule):
-    def __init__(self, config, seed):
+    def __init__(self, config, seed, device):
         super().__init__()
         self.model = load_model(config)
         self.pred_metric = load_metric(config, "pred")
@@ -45,12 +45,16 @@ class DefaultModel(LightningModule):
         self.warmup = config.params.warmup
         self.num_labels = config.model.num_labels
         self.ce_loss = torch.nn.CrossEntropyLoss(label_smoothing=config.params.label_smoothing)
-        self.temperature = torch.tensor([1.0], device=self.device)
+        self.temperature = torch.tensor([1.0], device=device)
         self.data_dir = config.data_dir
         self.exp_name = config.trainer.exp_name
         self.task = config.dataset.name
         self.model_name = config.model.name
-        self.ckpt_avg = ""
+        self.ckpt_avg = config.model.ckpt_avg
+        if len(config.params.source_lang) == 2:
+            self.mixup_lang = config.params.source_lang
+        else:
+            self.mixup_lang = None
         self.result_lst = []
         self.save_pred = config.params.save_pred
         self.pred_lst = []
@@ -100,37 +104,61 @@ class DefaultModel(LightningModule):
         self.uncert_metric.update(probs, batch["labels"])
         self.pred_metric.update(preds, batch["labels"])
         if self.save_pred:
-            self.pred_lst.append([probs, batch["labels"]])
+            self.pred_lst.append([logits, batch["labels"]])
 
     def on_test_epoch_end(self):
         uncert_score = self.uncert_metric.compute()
         pred_score = self.pred_metric.compute()
         self.log(f"{self.uncert_metric_name} {self.target_lang}", uncert_score, prog_bar=True, sync_dist=True)
         self.log(f"{self.pred_metric_name} {self.target_lang}", pred_score, prog_bar=True, sync_dist=True)
-        self.result_lst.append(
-            [self.exp_name,
-             self.task,
-             self.model_name,
-             self.setup,
-             self.ckpt_avg,
-             self.calibration,
-             self.seed,
-             self.target_lang, 
-             self.uncert_metric_name,
-             float(uncert_score)]
-        )
-        self.result_lst.append(
-            [self.exp_name,
-             self.task,
-             self.model_name,
-             self.setup,
-             self.ckpt_avg,
-             self.calibration,
-             self.seed,
-             self.target_lang, 
-             self.pred_metric_name,
-             float(pred_score)]
-        )
+        if self.mixup_lang is not None:
+            self.result_lst.append(
+                [self.exp_name,
+                 self.task,
+                 self.model_name,
+                 self.setup,
+                 self.mixup_lang,
+                 self.target_lang,
+                 self.seed,
+                 self.uncert_metric_name,
+                 float(uncert_score)]
+            )
+            self.result_lst.append(
+                [self.exp_name,
+                 self.task,
+                 self.model_name,
+                 self.setup,
+                 self.mixup_lang,
+                 self.target_lang,
+                 self.seed, 
+                 self.pred_metric_name,
+                 float(pred_score)]
+            )
+        else:
+            self.result_lst.append(
+                [self.exp_name,
+                self.task,
+                self.model_name,
+                self.setup,
+                self.ckpt_avg,
+                self.calibration,
+                self.seed,
+                self.target_lang, 
+                self.uncert_metric_name,
+                float(uncert_score)]
+            )
+            self.result_lst.append(
+                [self.exp_name,
+                self.task,
+                self.model_name,
+                self.setup,
+                self.ckpt_avg,
+                self.calibration,
+                self.seed,
+                self.target_lang, 
+                self.pred_metric_name,
+                float(pred_score)]
+            )
         # reset metrics for the next target language
         self.uncert_metric.reset()
         self.pred_metric.reset()
@@ -200,7 +228,7 @@ class DefaultModel(LightningModule):
 
 
 class TwoDatasetModel(LightningModule):
-    def __init__(self, config, seed):
+    def __init__(self, config, seed, device):
         super().__init__()
         self.encoder, self.classifier = load_model(config)
         self.pred_metric = load_metric(config, "pred", 2)
@@ -234,12 +262,12 @@ class TwoDatasetModel(LightningModule):
         self.weight_decay = config.params.weight_decay
         self.warmup = config.params.warmup
         self.ce_loss = torch.nn.CrossEntropyLoss(label_smoothing=config.params.label_smoothing)
-        self.temperature = torch.tensor([1.0], device=self.device)
+        self.temperature = torch.tensor([1.0], device=device)
         self.data_dir = config.data_dir
         self.exp_name = config.trainer.exp_name
         self.task = config.dataset.name
         self.model_name = config.model.name
-        self.ckpt_avg = None
+        self.ckpt_avg = config.model.ckpt_avg
         self.result_lst = []
         self.save_pred = config.params.save_pred
         self.pred_lst = []
@@ -323,7 +351,7 @@ class TwoDatasetModel(LightningModule):
         self.pred_metric.update(probs, new_labels)
         self.uncert_metric.update(probs, new_labels)
         if self.save_pred:
-            self.pred_lst.append([probs, batch["labels"]])
+            self.pred_lst.append([logits, batch["labels"]])
 
     def on_test_epoch_end(self):
         uncert_score = self.uncert_metric.compute()
@@ -423,52 +451,51 @@ class TwoDatasetModel(LightningModule):
         print(f"Optimal temperature: {self.temperature.item():.2f}")
     
 
-def load_l_model(config, seed):
+def load_l_model(config, seed, from_ckpt=False):
+    device = get_device(config)
+    
     # test: load model from checkpoint
-    if config.model.load_ckpt:
+    if from_ckpt:
         exp_dir = f"{config.data_dir}/checkpoints/{config.model.ckpt_dir}"
         test_dir = f"{exp_dir}/seed_{seed}"
         if not os.path.exists(test_dir):
             raise FileNotFoundError(f"Directory {test_dir} not found. Do your seeds match the seeds used during training?")
         best_ckpt = find_best_ckpt(test_dir)
-        device = get_device(config)
         
         # load lightning model using the best (most accurate) checkpoint 
         # based on the source language validation dataset
         if config.model.ckpt_avg == "none":
             if config.dataset.name in ["xcopa", "xstorycloze"]:
-                l_model = TwoDatasetModel.load_from_checkpoint(best_ckpt, map_location=device)
+                l_model = TwoDatasetModel.load_from_checkpoint(best_ckpt, map_location=device, config=config, device=device)
                 l_model.encoder.eval()
                 l_model.classifier.eval()
             else:
                 # l_model = DefaultModel.load_from_checkpoint(best_ckpt, map_location=device)
-                l_model = DefaultModel.load_from_checkpoint(best_ckpt, map_location=device, config=config)
+                l_model = DefaultModel.load_from_checkpoint(best_ckpt, map_location=device, config=config, device=device)
                 l_model.model.eval()
             l_model.exp_name = config.trainer.exp_name
-            l_model.ckpt_avg = "none"
             return l_model
         
         # checkpoint averaging: replace the self.model's state_dict with the averaged state_dict
         else:
             if config.dataset.name in ["xcopa", "xstorycloze"]:
-                l_model = TwoDatasetModel.load_from_checkpoint(best_ckpt, map_location=device)
+                l_model = TwoDatasetModel.load_from_checkpoint(best_ckpt, map_location=device, config=config, device=device)
                 enc_state_dict, cls_state_dict = compute_ckpt_average(test_dir, device, config.model.ckpt_avg)
                 l_model.encoder.load_state_dict(enc_state_dict)
                 l_model.classifier.load_state_dict(cls_state_dict)
                 l_model.encoder.eval()
                 l_model.classifier.eval()
             else:
-                l_model = DefaultModel.load_from_checkpoint(best_ckpt, map_location=device)
+                l_model = DefaultModel.load_from_checkpoint(best_ckpt, map_location=device, config=config, device=device)
                 state_dict = compute_ckpt_average(test_dir, device, config.model.ckpt_avg)
                 l_model.model.load_state_dict(state_dict)
                 l_model.model.eval()
             l_model.exp_name = config.trainer.exp_name
-            l_model.ckpt_avg = config.model.ckpt_avg
             return l_model 
     
     # train: load model from scratch
     else:
         if config.dataset.name in ["xcopa", "xstorycloze"]:
-            return TwoDatasetModel(config, seed)
+            return TwoDatasetModel(config, seed, device)
         else:
-            return DefaultModel(config, seed)
+            return DefaultModel(config, seed, device)
