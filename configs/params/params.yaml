@@ -7,5 +7,6 @@ temp_scaling: False
 pred_metric: accuracy
 uncert_metric: ece # expected calibration error
 average: micro
-source_lang: en
+source_lang: [en]
 save_pred: False
+overwrite_ckpt: False

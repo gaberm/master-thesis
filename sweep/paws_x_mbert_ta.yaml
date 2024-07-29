@@ -15,4 +15,4 @@ command:
 - ${interpreter}
 - ${program}
 - ${args_no_hyphens}
-- +exp=sweep/paws_x_mbert_ta
+- +sweep=paws_x_mbert_ta

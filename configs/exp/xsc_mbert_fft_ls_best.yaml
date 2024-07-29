@@ -1,0 +1,15 @@
+# @package _global_
+defaults:
+- override /dataset: xstorycloze
+- override /madx: null
+- override /params: params
+- override /trainer: trainer
+- override /params: params
+model:
+  ckpt_avg: best
+  ckpt_dir: xsc_mbert_fft_ls
+  num_labels: 2
+params:
+  batch_size: 6
+trainer:
+  exp_name: xsc_mbert_fft_ls_best

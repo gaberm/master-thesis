@@ -1,0 +1,18 @@
+# @package _global_
+defaults:
+- override /dataset: paws_x
+- override /madx: madx
+- override /model: mbert
+- override /trainer: trainer
+- override /params: params
+madx:
+  task_adapter:
+    name: paws-x
+model:
+  ckpt_avg: best
+  ckpt_dir: paws_x_mbert_ta
+  num_labels: 2
+params:
+  temp_scaling: true
+trainer:
+  exp_name: paws_x_mbert_ta_ts_best

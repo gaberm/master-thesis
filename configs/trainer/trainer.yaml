@@ -1,5 +1,6 @@
-max_epochs: 5
+devices: [6]
+exp_name: 
 gpu_name: cuda
-devices: [2]
+max_epochs: 5
+save_top_k: -1
 strategy: ddp
-exp_name: xnli_mbert_tala

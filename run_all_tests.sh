@@ -1,6 +1,6 @@
 #!/bin/bash
 
-dir="conf/exp/test"
+dir="configs/exp"
 
 for file in "$dir"/*; do
     filename=$(basename -- "$file")

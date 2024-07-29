@@ -1,2 +1,2 @@
 name: xcopa
-test_lang: [et, ht, id, qu, sw, tr, vi, zh]
+target_lang: [et, ht, id, qu, sw, tr, vi, zh]

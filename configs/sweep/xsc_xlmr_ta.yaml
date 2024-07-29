@@ -1,0 +1,19 @@
+# @package _global_
+defaults:
+- override /dataset: xsc
+- override /madx: madx
+- override /model: xlmr
+- override /params: params
+- override /trainer: trainer
+madx:
+  task_adapter:
+    name: xstorycloze
+model:  
+  num_labels: 2
+params:
+  batch_size: 6
+  max_epochs: 2
+trainer:
+  exp_name: sweep_xsc_xlmr_ta
+  save_top_k: 0
+  

@@ -1,0 +1,15 @@
+# @package _global_
+defaults:
+- override /dataset: xcopa
+- override /madx: null
+- override /model: xlmr
+- override /params: params
+- override /trainer: trainer
+model:
+  num_labels: 2
+params:
+  batch_size: 8
+  max_epochs: 2
+trainer:
+  exp_name: sweep_xcopa_xlmr_fft
+  save_top_k: 0

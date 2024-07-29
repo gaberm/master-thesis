@@ -1,0 +1,29 @@
+# @package _global_
+defaults:
+- override /dataset: xcopa
+- override /madx: madx
+- override /params: params
+- override /trainer: trainer
+- override /params: params
+madx:
+  lang_adapter:
+    en: en/wiki@ukp
+    et: et/wiki@ukp
+    ht: ht/wiki@ukp
+    id: id/wiki@ukp
+    qu: qu/wiki@ukp
+    sw: sw/wiki@ukp
+    tr: tr/wiki@ukp
+    vi: vi/wiki@ukp
+    zh: zh/wiki@ukp
+  task_adapter:
+    name: xcopa
+model:
+  ckpt_avg: none
+  ckpt_dir: xcopa_mbert_tala
+  num_labels: 2
+params:
+  batch_size: 8
+  temp_scaling: true
+trainer:
+  exp_name: xcopa_mbert_tala_ts_none

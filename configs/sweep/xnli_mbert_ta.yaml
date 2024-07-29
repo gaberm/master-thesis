@@ -1,0 +1,10 @@
+# @package _global_
+defaults:
+- override /params: params
+- override /trainer: trainer
+params:
+  max_epochs: 2
+trainer:
+  exp_name: sweep_xnli_mbert_ta
+  save_top_k: 0
+

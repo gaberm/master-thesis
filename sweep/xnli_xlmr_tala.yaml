@@ -15,4 +15,4 @@ command:
 - ${interpreter}
 - ${program}
 - ${args_no_hyphens}
-- +exp=sweep/xnli_xlmr_tala
+- +sweep=xnli_xlmr_tala

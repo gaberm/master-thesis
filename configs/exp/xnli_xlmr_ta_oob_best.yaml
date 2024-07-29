@@ -1,0 +1,12 @@
+# @package _global_
+defaults:
+- override /model: xlmr
+- override /trainer: trainer
+- override /params: params
+model:
+  ckpt_avg: best
+  ckpt_dir: xnli_xlmr_ta
+params:
+  lr: 1e-4
+trainer:
+  exp_name: xnli_xlmr_ta_oob_best

@@ -1,0 +1,12 @@
+# @package _global_
+defaults:
+- override /model: mbert
+- override /trainer: trainer
+- override /params: params
+model:
+  ckpt_avg: best
+  ckpt_dir: xnli_mbert_ta
+params:
+  temp_scaling: true
+trainer:
+  exp_name: xnli_mbert_ta_ts_best

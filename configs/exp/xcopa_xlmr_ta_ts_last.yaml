@@ -1,0 +1,20 @@
+# @package _global_
+defaults:
+- override /dataset: xcopa
+- override /madx: madx
+- override /model: xlmr
+- override /params: params
+- override /trainer: trainer
+- override /params: params
+madx:
+  task_adapter:
+    name: xcopa
+model:
+  ckpt_avg: last
+  ckpt_dir: xcopa_xlmr_ta
+  num_labels: 2
+params:
+  batch_size: 8
+  temp_scaling: true
+trainer:
+  exp_name: xcopa_xlmr_ta_ts_last

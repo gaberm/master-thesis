@@ -1,0 +1,14 @@
+# @package _global_
+defaults:
+- override /dataset: paws_x
+- override /madx: null
+- override /model: mbert
+- override /params: params
+- override /trainer: trainer
+model:
+  num_labels: 2
+params:
+  max_epochs: 2
+trainer:
+  exp_name: sweep_paws_x_mbert_fft
+  save_top_k: 0

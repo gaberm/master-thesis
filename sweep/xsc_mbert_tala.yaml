@@ -19,4 +19,4 @@ command:
 - ${interpreter}
 - ${program}
 - ${args_no_hyphens}
-- +exp=sweep/xsc_mbert_tala
+- +sweep=xsc_mbert_tala

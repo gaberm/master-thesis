@@ -17,4 +17,4 @@ command:
 - ${interpreter}
 - ${program}
 - ${args_no_hyphens}
-- +exp=sweep/xcopa_mbert_fft
+- +sweep=xcopa_mbert_fft

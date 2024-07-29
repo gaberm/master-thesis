@@ -1,0 +1,14 @@
+# @package _global_
+defaults:
+- override /madx: null
+- override /model: xlmr
+- override /trainer: trainer
+- override /params: params
+model:
+  ckpt_avg: last
+  ckpt_dir: xnli_xlmr_fft_ls
+params:
+  label_smoothing: 0.1
+  lr: 2e-5
+trainer:
+  exp_name: xnli_xlmr_fft_ls_last

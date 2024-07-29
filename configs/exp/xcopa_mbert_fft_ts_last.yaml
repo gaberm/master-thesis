@@ -1,0 +1,16 @@
+# @package _global_
+defaults:
+- override /dataset: xcopa
+- override /madx: null
+- override /params: params
+- override /trainer: trainer
+- override /params: params
+model:
+  ckpt_avg: last
+  ckpt_dir: xcopa_mbert_fft
+  num_labels: 2
+params:
+  batch_size: 8
+  temp_scaling: true
+trainer:
+  exp_name: xcopa_mbert_fft_ts_last

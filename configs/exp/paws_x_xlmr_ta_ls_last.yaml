@@ -1,0 +1,19 @@
+# @package _global_
+defaults:
+- override /dataset: paws_x
+- override /madx: madx
+- override /model: xlmr
+- override /trainer: trainer
+- override /params: params
+madx:
+  task_adapter:
+    name: paws-x
+model:
+  ckpt_avg: last
+  ckpt_dir: paws_x_xlmr_ta_ls
+  num_labels: 2
+params:
+  label_smoothing: 0.1
+  lr: 1e-4
+trainer:
+  exp_name: paws_x_xlmr_ta_ls_last

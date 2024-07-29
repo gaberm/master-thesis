@@ -1,0 +1,26 @@
+# @package _global_
+defaults:
+- override /madx: madx
+- override /model: xlmr
+- override /trainer: trainer
+- override /params: params
+madx:
+  lang_adapter:
+    ar: ar/wiki@ukp
+    de: de/wiki@ukp
+    en: en/wiki@ukp
+    es: es/wiki@ukp
+    hi: hi/wiki@ukp
+    ru: ru/wiki@ukp
+    sw: sw/wiki@ukp
+    tr: tr/wiki@ukp
+    vi: vi/wiki@ukp
+    zh: zh/wiki@ukp
+model:
+  ckpt_avg: none
+  ckpt_dir: xnli_xlmr_tala_ls
+params:
+  label_smoothing: 0.1
+  lr: 1e-4
+trainer:
+  exp_name: xnli_xlmr_tala_ls_none

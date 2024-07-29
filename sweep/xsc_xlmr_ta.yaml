@@ -19,4 +19,4 @@ command:
 - ${interpreter}
 - ${program}
 - ${args_no_hyphens}
-- +exp=sweep/xsc_xlmr_ta
+- +sweep=xsc_xlmr_ta

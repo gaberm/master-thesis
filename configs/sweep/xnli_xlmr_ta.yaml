@@ -1,0 +1,10 @@
+# @package _global_
+defaults:
+- override /model: xlmr
+- override /params: params
+- override /trainer: trainer
+params:
+  max_epochs: 2
+trainer:
+  exp_name: sweep_xcopa_xlmr_ta
+  save_top_k: 0

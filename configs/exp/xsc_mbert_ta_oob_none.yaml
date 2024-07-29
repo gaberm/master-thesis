@@ -1,0 +1,18 @@
+# @package _global_
+defaults:
+- override /dataset: xstorycloze
+- override /madx: madx
+- override /params: params
+- override /trainer: trainer
+- override /params: params
+madx:
+  task_adapter:
+    name: xstorycloze
+model:
+  ckpt_avg: none
+  ckpt_dir: xsc_mbert_ta
+  num_labels: 2
+params:
+  batch_size: 6
+trainer:
+  exp_name: xsc_mbert_ta_oob_none

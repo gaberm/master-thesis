@@ -1,2 +1,2 @@
 name: paws_x
-test_lang: [de, es, ja, zh]
+target_lang: [de, es, ja, zh]
