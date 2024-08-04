@@ -45,7 +45,7 @@ def add_adapters(model, config):
         # if we use language adapter, we stack the task adapter on top of the language adapter
         # https://colab.research.google.com/github/Adapter-Hub/adapter-transformers/blob/master/notebooks/04_Cross_Lingual_Transfer.ipynb
         if has_lang_adapter:
-            model.active_adapters = adapters.Stack(config.params.source_lang, task_adapter_name)
+            model.active_adapters = adapters.Stack(config.params.source_lang[0], task_adapter_name)
         else:
             model.active_adapters = task_adapter_name
 

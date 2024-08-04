@@ -8,6 +8,7 @@ madx:
   lang_adapter:
     ar: ar/wiki@ukp
     de: de/wiki@ukp
+    el: el/wiki@ukp
     en: en/wiki@ukp
     es: es/wiki@ukp
     hi: hi/wiki@ukp
