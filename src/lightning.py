@@ -51,10 +51,11 @@ class DefaultModel(LightningModule):
         self.task = config.dataset.name
         self.model_name = config.model.name
         self.ckpt_avg = config.model.ckpt_avg
+        self.source_lang = "_".join(config.params.source_lang)
         if len(config.params.source_lang) == 2:
-            self.mixup_lang = config.params.source_lang
+            self.multi_src_ft = True
         else:
-            self.mixup_lang = None
+            self.multi_src_ft = False
         self.result_lst = []
         self.save_pred = config.params.save_pred
         self.pred_lst = []
@@ -111,13 +112,13 @@ class DefaultModel(LightningModule):
         pred_score = self.pred_metric.compute()
         self.log(f"{self.uncert_metric_name} {self.target_lang}", uncert_score, prog_bar=True, sync_dist=True)
         self.log(f"{self.pred_metric_name} {self.target_lang}", pred_score, prog_bar=True, sync_dist=True)
-        if self.mixup_lang is not None:
+        if self.multi_src_ft:
             self.result_lst.append(
                 [self.exp_name,
                  self.task,
                  self.model_name,
                  self.setup,
-                 self.mixup_lang,
+                 self.source_lang,
                  self.target_lang,
                  self.seed,
                  self.uncert_metric_name,
@@ -128,7 +129,7 @@ class DefaultModel(LightningModule):
                  self.task,
                  self.model_name,
                  self.setup,
-                 self.mixup_lang,
+                 self.source_lang,
                  self.target_lang,
                  self.seed, 
                  self.pred_metric_name,
@@ -143,6 +144,7 @@ class DefaultModel(LightningModule):
                 self.ckpt_avg,
                 self.calibration,
                 self.seed,
+                self.source_lang,
                 self.target_lang, 
                 self.uncert_metric_name,
                 float(uncert_score)]
@@ -155,6 +157,7 @@ class DefaultModel(LightningModule):
                 self.ckpt_avg,
                 self.calibration,
                 self.seed,
+                self.source_lang,
                 self.target_lang, 
                 self.pred_metric_name,
                 float(pred_score)]
@@ -268,6 +271,7 @@ class TwoDatasetModel(LightningModule):
         self.task = config.dataset.name
         self.model_name = config.model.name
         self.ckpt_avg = config.model.ckpt_avg
+        self.source_lang = "_".join(config.params.source_lang)
         self.result_lst = []
         self.save_pred = config.params.save_pred
         self.pred_lst = []
@@ -366,6 +370,7 @@ class TwoDatasetModel(LightningModule):
              self.ckpt_avg,
              self.calibration,
              self.seed,
+             self.source_lang,
              self.target_lang, 
              self.uncert_metric_name,
              float(uncert_score)]
@@ -378,6 +383,7 @@ class TwoDatasetModel(LightningModule):
              self.ckpt_avg,
              self.calibration,
              self.seed,
+             self.source_lang,
              self.target_lang, 
              self.pred_metric_name,
              float(pred_score)]

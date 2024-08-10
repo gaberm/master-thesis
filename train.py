@@ -27,11 +27,16 @@ def main(config):
         l_model = load_l_model(config, seed)
         wandb_logger = WandbLogger(project=config.wandb.project)
 
-        ckpt_dir = f"{config.data_dir}/checkpoints/{config.trainer.exp_name}/seed_{seed}"
-        # remove existing checkpoint directory
+        # skip training if checkpoint directory already exists
+        # this is useful since many experiments share the same checkpoints
+        ckpt_dir = f"{config.data_dir}/checkpoints/{config.model.ckpt_dir}/seed_{seed}"
         if os.path.exists(ckpt_dir):
-            shutil.rmtree(ckpt_dir)
-            print(f"Removed existing checkpoint directory {ckpt_dir} for experiment {config.trainer.exp_name}")
+            if config.params.overwrite_ckpt:
+                shutil.rmtree(ckpt_dir)
+                print(f"Removed existing checkpoint directory {ckpt_dir} for experiment {config.trainer.exp_name}")
+            else:
+                print(f"Checkpoint directory {ckpt_dir} already exists for experiment {config.trainer.exp_name}. Skipping training for seed {seed}. Use ++params.overwrite_ckpt=True to overwrite existing checkpoints.")
+                continue
 
         lr_callback = LearningRateMonitor(logging_interval="step")
         val_checkpoint = ModelCheckpoint(
@@ -39,7 +44,7 @@ def main(config):
             monitor=config.params.pred_metric,
             mode="max",
             filename=f"{{epoch}}-{{step}}-{{{config.params.pred_metric}:.3f}}",
-            save_top_k=-1
+            save_top_k=config.trainer.save_top_k,
         )
 
         trainer = pl.Trainer(
@@ -51,7 +56,6 @@ def main(config):
             devices=config.trainer.devices,
             val_check_interval=0.25,
             callbacks=[lr_callback, val_checkpoint],
-            use_distributed_sampler=False,
         )
 
         # train the model

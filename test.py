@@ -1,6 +1,5 @@
 import hydra
 import dotenv
-import torch
 import lightning.pytorch as pl
 from lightning.pytorch.loggers import WandbLogger
 from src.dataset import get_data_loader
@@ -17,7 +16,7 @@ def main(config):
         
         print(config)
 
-        l_model = load_l_model(config, seed)
+        l_model = load_l_model(config, seed, from_ckpt=True)
 
         # create test data loaders
         test_loaders = get_data_loader(config, "test")
@@ -37,7 +36,7 @@ def main(config):
             devices=config.trainer.devices
         )
         
-        for lang, test_loader in zip(config.dataset.test_lang, test_loaders):
+        for lang, test_loader in zip(config.dataset.target_lang, test_loaders):
             l_model.target_lang = lang
             trainer.test(model=l_model, dataloaders=test_loader)
         save_test_results(l_model, config, seed)

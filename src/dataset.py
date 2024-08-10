@@ -169,14 +169,15 @@ def get_data_loader(config, split):
     tokenizer = load_tokenizer(config)
     data_collator = DataCollatorWithPadding(tokenizer)
     if len(config.params.source_lang) == 1:
+        multi_src_ft = False
         source_lang = config.params.source_lang[0]
     elif len(config.params.source_lang) == 2:
         if config.params.source_lang[0] != config.params.source_lang[1]:
-            bilingual_mixup = True
+            multi_src_ft = True
             source_lang_1 = config.params.source_lang[0]
             source_lang_2 = config.params.source_lang[1]
         else:
-            bilingual_mixup = False
+            multi_src_ft = False
             source_lang = config.params.source_lang[0]
     else:
         raise ValueError("Only one or two source languages are supported")
@@ -184,13 +185,13 @@ def get_data_loader(config, split):
 
     if split in ["train", "validation"]:
         if config.dataset.name == "paws_x":
-            if bilingual_mixup:
+            if multi_src_ft:
                 download_ds("paws-x", source_lang_1, split, data_dir)
                 download_ds("paws-x", source_lang_2, split, data_dir)
                 dataset_1 = load_from_disk(f"{data_dir}/datasets/paws-x/{source_lang_1}/{split}")
                 dataset_2 = load_from_disk(f"{data_dir}/datasets/paws-x/{source_lang_2}/{split}")
                 dataset_1 = dataset_1.train_test_split(test_size=0.5, seed=42)["train"]
-                dataset_2 = dataset_2.train_test_split(test_size=0.5, seed=42)["train"]
+                dataset_2 = dataset_2.train_test_split(test_size=0.5, seed=42)["test"]
                 paws_x = concatenate_datasets([dataset_1, dataset_2])
             else:
                 download_ds("paws-x", source_lang, split, data_dir)
@@ -205,8 +206,8 @@ def get_data_loader(config, split):
             )
         
         elif config.dataset.name == "xcopa":
-            if bilingual_mixup:
-                raise ValueError("Bilingual mixup is not supported for XCOPA")
+            if multi_src_ft:
+                raise ValueError("Bilingual finetunging is not supported for XCOPA")
             if split == "train":
                 download_ds("social_i_qa", "en", "train", data_dir)
                 download_ds("pkavumba/balanced-copa", "en", "train", data_dir)
@@ -243,7 +244,7 @@ def get_data_loader(config, split):
                 )
         
         elif config.dataset.name == "xnli":
-            if bilingual_mixup:
+            if multi_src_ft:
                 download_ds("xnli", source_lang_1, split, data_dir)
                 download_ds("xnli", source_lang_2, split, data_dir)
                 dataset_1 = load_from_disk(f"{data_dir}/datasets/xnli/{source_lang_1}/{split}")
@@ -264,8 +265,8 @@ def get_data_loader(config, split):
             )
 
         elif config.dataset.name == "xstorycloze":
-            if bilingual_mixup:
-                raise ValueError("Bilingual mixup is not supported for XStoryCloze")
+            if multi_src_ft:
+                raise ValueError("Bilingual finetuning is not supported for XStoryCloze")
             storycoze = pd.read_csv("data/storycloze.csv")
             train_df, val_df = train_test_split(storycoze, test_size=0.2, random_state=42)
             if split == "train":

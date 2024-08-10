@@ -6,13 +6,13 @@ defaults:
 - override /params: params
 - override /trainer: trainer
 dataset:
-  target_lang: [de, es, fr, ja, ko, zh]
+  target_lang: [de, en, es, fr, ja, ko, zh]
 model:
   ckpt_avg: none
-  ckpt_dir: mixup_en_en_paws_x_mbert_fft
+  ckpt_dir: multi_en_fr_paws_x_mbert_fft
   num_labels: 2
 params:
   lr: 2e-5
-  source_lang: [en, en]
+  source_lang: [en, fr]
 trainer:
-  exp_name: mixup_en_en_paws_x_mbert_fft
+  exp_name: multi_en_fr_paws_x_mbert_fft

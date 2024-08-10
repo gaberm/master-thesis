@@ -40,7 +40,7 @@ def save_test_results(model, config, seed):
     
 
 def create_result_csv(exp_name):
-    mixup = True if "mixup" in exp_name else False
+    multi_src_ft = True if "multi" in exp_name else False
     files = []
     result_dir = f"results/{exp_name}"
     for filename in os.listdir(result_dir):
@@ -48,28 +48,28 @@ def create_result_csv(exp_name):
             files.append(filename)
 
     # we merge the results list of all seeds into one dataframe
-    if mixup:
-        col_lst = ["exp_name", "dataset", "model", "setup", "mixup_lang", "target_lang", "seed", "metric", "score"]
+    if multi_src_ft:
+        col_lst = ["exp_name", "dataset", "model", "setup", "source_lang", "target_lang", "seed", "metric", "score"]
     else:
-        col_lst = ["exp_name", "dataset", "model", "setup", "ckpt_avg", "calib", "seed", "target_lang", "metric", "score"]
+        col_lst = ["exp_name", "dataset", "model", "setup", "ckpt_avg", "calib", "seed", "source_lang", "target_lang", "metric", "score"]
     final_df = pd.DataFrame(columns=col_lst)
     for file in files:
         df = pd.DataFrame(np.load(f"{result_dir}/{file}", allow_pickle=True), columns=col_lst)
         final_df = pd.concat([final_df, df], axis=0).reset_index(drop=True)
     final_df['score'] = final_df['score'].astype(float)
 
-    if mixup:
+    if multi_src_ft:
         try:
-            os.makedirs("results/csv/bilingual_training")
+            os.makedirs("results/multi_src_ft/csv")
         except OSError:
             pass
-        final_df.to_csv(f"results/csv/bilingual_training/{exp_name}.csv", index=False)
+        final_df.to_csv(f"results/multi_src_ft/csv/{exp_name}.csv", index=False)
     else:
         try:
-            os.makedirs("results/csv/monolingual_training")
+            os.makedirs("results/single_src_ft/csv")
         except OSError:
             pass
-        final_df.to_csv(f"results/csv/monolingual_training/{exp_name}.csv", index=False)
+        final_df.to_csv(f"results/single_src_ft/csv/{exp_name}.csv", index=False)
 
     # remove all result lists by deleting the result directory
     # try except block to avoid errors if the system runs on multiple threads
