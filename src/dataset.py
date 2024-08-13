@@ -169,15 +169,15 @@ def get_data_loader(config, split):
     tokenizer = load_tokenizer(config)
     data_collator = DataCollatorWithPadding(tokenizer)
     if len(config.params.source_lang) == 1:
-        multi_src_ft = False
+        mslt = False
         source_lang = config.params.source_lang[0]
     elif len(config.params.source_lang) == 2:
         if config.params.source_lang[0] != config.params.source_lang[1]:
-            multi_src_ft = True
+            mslt = True
             source_lang_1 = config.params.source_lang[0]
             source_lang_2 = config.params.source_lang[1]
         else:
-            multi_src_ft = False
+            mslt = False
             source_lang = config.params.source_lang[0]
     else:
         raise ValueError("Only one or two source languages are supported")
@@ -185,7 +185,7 @@ def get_data_loader(config, split):
 
     if split in ["train", "validation"]:
         if config.dataset.name == "paws_x":
-            if multi_src_ft:
+            if mslt:
                 download_ds("paws-x", source_lang_1, split, data_dir)
                 download_ds("paws-x", source_lang_2, split, data_dir)
                 dataset_1 = load_from_disk(f"{data_dir}/datasets/paws-x/{source_lang_1}/{split}")
@@ -206,7 +206,7 @@ def get_data_loader(config, split):
             )
         
         elif config.dataset.name == "xcopa":
-            if multi_src_ft:
+            if mslt:
                 raise ValueError("Bilingual finetunging is not supported for XCOPA")
             if split == "train":
                 download_ds("social_i_qa", "en", "train", data_dir)
@@ -244,7 +244,7 @@ def get_data_loader(config, split):
                 )
         
         elif config.dataset.name == "xnli":
-            if multi_src_ft:
+            if mslt:
                 download_ds("xnli", source_lang_1, split, data_dir)
                 download_ds("xnli", source_lang_2, split, data_dir)
                 dataset_1 = load_from_disk(f"{data_dir}/datasets/xnli/{source_lang_1}/{split}")
@@ -265,7 +265,7 @@ def get_data_loader(config, split):
             )
 
         elif config.dataset.name == "xstorycloze":
-            if multi_src_ft:
+            if mslt:
                 raise ValueError("Bilingual finetuning is not supported for XStoryCloze")
             storycoze = pd.read_csv("data/storycloze.csv")
             train_df, val_df = train_test_split(storycoze, test_size=0.2, random_state=42)

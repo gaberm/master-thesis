@@ -53,9 +53,9 @@ class DefaultModel(LightningModule):
         self.ckpt_avg = config.model.ckpt_avg
         self.source_lang = "_".join(config.params.source_lang)
         if len(config.params.source_lang) == 2:
-            self.multi_src_ft = True
+            self.mslt = True
         else:
-            self.multi_src_ft = False
+            self.mslt = False
         self.result_lst = []
         self.save_pred = config.params.save_pred
         self.pred_lst = []
@@ -112,7 +112,7 @@ class DefaultModel(LightningModule):
         pred_score = self.pred_metric.compute()
         self.log(f"{self.uncert_metric_name} {self.target_lang}", uncert_score, prog_bar=True, sync_dist=True)
         self.log(f"{self.pred_metric_name} {self.target_lang}", pred_score, prog_bar=True, sync_dist=True)
-        if self.multi_src_ft:
+        if self.mslt:
             self.result_lst.append(
                 [self.exp_name,
                  self.task,

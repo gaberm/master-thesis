@@ -40,7 +40,8 @@ def save_test_results(model, config, seed):
     
 
 def create_result_csv(exp_name):
-    multi_src_ft = True if "multi" in exp_name else False
+    mslt = True if "mslt" in exp_name else False # mslt = multi-source language training
+    schmidt = True if "schmidt" in exp_name else False
     files = []
     result_dir = f"results/{exp_name}"
     for filename in os.listdir(result_dir):
@@ -48,7 +49,7 @@ def create_result_csv(exp_name):
             files.append(filename)
 
     # we merge the results list of all seeds into one dataframe
-    if multi_src_ft:
+    if mslt:
         col_lst = ["exp_name", "dataset", "model", "setup", "source_lang", "target_lang", "seed", "metric", "score"]
     else:
         col_lst = ["exp_name", "dataset", "model", "setup", "ckpt_avg", "calib", "seed", "source_lang", "target_lang", "metric", "score"]
@@ -58,18 +59,24 @@ def create_result_csv(exp_name):
         final_df = pd.concat([final_df, df], axis=0).reset_index(drop=True)
     final_df['score'] = final_df['score'].astype(float)
 
-    if multi_src_ft:
+    if mslt:
         try:
-            os.makedirs("results/multi_src_ft/csv")
+            os.makedirs("results/mslt/csv")
         except OSError:
             pass
-        final_df.to_csv(f"results/multi_src_ft/csv/{exp_name}.csv", index=False)
+        final_df.to_csv(f"results/mslt/csv/{exp_name}.csv", index=False)
+    elif schmidt:
+        try:
+            os.makedirs("results/schmidt/csv")
+        except OSError:
+            pass
+        final_df.to_csv(f"results/schmidt/csv/{exp_name}.csv", index=False)
     else:
         try:
-            os.makedirs("results/single_src_ft/csv")
+            os.makedirs("results/sslt/csv")
         except OSError:
             pass
-        final_df.to_csv(f"results/single_src_ft/csv/{exp_name}.csv", index=False)
+        final_df.to_csv(f"results/sslt/csv/{exp_name}.csv", index=False)
 
     # remove all result lists by deleting the result directory
     # try except block to avoid errors if the system runs on multiple threads

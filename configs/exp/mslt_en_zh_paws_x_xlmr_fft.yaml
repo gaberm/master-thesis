@@ -2,17 +2,17 @@
 defaults:
 - override /dataset: paws_x
 - override /madx: null
-- override /model: mbert
+- override /model: xlmr
 - override /params: params
 - override /trainer: trainer
 dataset:
   target_lang: [de, en, es, fr, ja, ko, zh]
 model:
   ckpt_avg: none
-  ckpt_dir: multi_en_ja_paws_x_mbert_fft
+  ckpt_dir: mslt_en_zh_paws_x_xlmr_fft
   num_labels: 2
 params:
   lr: 2e-5
-  source_lang: [en, ja]
+  source_lang: [en, zh]
 trainer:
-  exp_name: multi_en_ja_paws_x_mbert_fft
+  exp_name: mslt_en_zh_paws_x_xlmr_fft

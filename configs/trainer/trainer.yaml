@@ -1,4 +1,4 @@
-devices: [2]
+devices: [0, 1]
 exp_name: 
 gpu_name: cuda
 max_epochs: 5

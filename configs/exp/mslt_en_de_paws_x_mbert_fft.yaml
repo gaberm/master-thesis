@@ -9,10 +9,10 @@ dataset:
   target_lang: [de, en, es, fr, ja, ko, zh]
 model:
   ckpt_avg: none
-  ckpt_dir: multi_en_fr_paws_x_mbert_fft
+  ckpt_dir: mslt_en_de_paws_x_mbert_fft
   num_labels: 2
 params:
   lr: 2e-5
-  source_lang: [en, fr]
+  source_lang: [en, de]
 trainer:
-  exp_name: multi_en_fr_paws_x_mbert_fft
+  exp_name: mslt_en_de_paws_x_mbert_fft

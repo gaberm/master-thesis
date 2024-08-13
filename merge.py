@@ -2,13 +2,13 @@ import os
 import pandas as pd
 
 def main():
-    for finetuning in ["single_src_ft", "multi_src_ft"]:
+    for finetuning in ["sslt", "mslt", "schmidt"]:
         all_results = []
         for file in os.listdir(f"results/{finetuning}/csv"):
             if os.path.isfile(os.path.join(f"results/{finetuning}/csv", file)):
                 all_results.append(file)
         
-        if finetuning == "multi_src_ft":
+        if finetuning == "mslt":
             final_df = pd.DataFrame(columns=["exp_name", "dataset", "model", "setup", "source_lang", "target_lang", "seed", "metric", "score"])
         else:
             final_df = pd.DataFrame(columns=["exp_name", "dataset", "model", "setup", "ckpt_avg", "calib", "seed", "source_lang", "target_lang", "metric", "score"])
