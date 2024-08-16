@@ -18,7 +18,7 @@ madx:
     vi: vi/wiki@ukp
     zh: zh/wiki@ukp
 model:
-  ckpt_avg: best
+  ca_strategy: best
   ckpt_dir: xnli_mbert_tala
 params:
   temp_scaling: true

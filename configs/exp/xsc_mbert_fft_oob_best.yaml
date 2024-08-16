@@ -6,7 +6,7 @@ defaults:
 - override /trainer: trainer
 - override /params: params
 model:
-  ckpt_avg: best
+  ca_strategy: best
   ckpt_dir: xsc_mbert_fft
   num_labels: 2
 params:

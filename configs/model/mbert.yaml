@@ -3,4 +3,5 @@ hf_path: bert-base-multilingual-cased
 num_labels: 3
 dropout: 0.0
 load_ckpt: false
-ckpt_avg: none
+ca_strategy: none
+ckpts_to_load: 5

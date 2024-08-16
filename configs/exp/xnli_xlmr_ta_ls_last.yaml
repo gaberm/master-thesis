@@ -4,7 +4,7 @@ defaults:
 - override /trainer: trainer
 - override /params: params
 model:
-  ckpt_avg: last
+  ca_strategy: last
   ckpt_dir: xnli_xlmr_ta_ls
 params:
   label_smoothing: 0.1

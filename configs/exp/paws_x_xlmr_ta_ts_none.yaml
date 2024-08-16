@@ -9,7 +9,7 @@ madx:
   task_adapter:
     name: paws-x
 model:
-  ckpt_avg: none
+  ca_strategy: none
   ckpt_dir: paws_x_xlmr_ta
   num_labels: 2
 params:

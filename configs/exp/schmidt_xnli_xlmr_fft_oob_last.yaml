@@ -5,8 +5,9 @@ defaults:
 - override /trainer: trainer
 - override /params: params
 model:
-  ckpt_avg: last
+  ca_strategy: last
   ckpt_dir: schmidt_xnli_xlmr_fft
+  ckpts_to_load: 10
 params:
   lr: 2e-5
 trainer:

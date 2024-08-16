@@ -4,7 +4,7 @@ defaults:
 - override /trainer: trainer
 - override /params: params
 model:
-  ckpt_avg: best
+  ca_strategy: best
   ckpt_dir: xnli_xlmr_ta
 params:
   temp_scaling: true

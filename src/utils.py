@@ -52,7 +52,7 @@ def create_result_csv(exp_name):
     if mslt:
         col_lst = ["exp_name", "dataset", "model", "setup", "source_lang", "target_lang", "seed", "metric", "score"]
     else:
-        col_lst = ["exp_name", "dataset", "model", "setup", "ckpt_avg", "calib", "seed", "source_lang", "target_lang", "metric", "score"]
+        col_lst = ["exp_name", "dataset", "model", "setup", "ca_strategy", "calib", "seed", "source_lang", "target_lang", "metric", "score"]
     final_df = pd.DataFrame(columns=col_lst)
     for file in files:
         df = pd.DataFrame(np.load(f"{result_dir}/{file}", allow_pickle=True), columns=col_lst)
@@ -86,24 +86,25 @@ def create_result_csv(exp_name):
         pass
 
 
-def compute_ckpt_average(ckpt_dir, device, ckpt_avg):
+def compute_ckpt_average(ckpt_dir, device, ca_strategy, ckpts_to_load):
+    n = ckpts_to_load
     all_ckpts = []
     for file in os.listdir(ckpt_dir):
         if os.path.isfile(os.path.join(ckpt_dir, file)):
             all_ckpts.append(file)
 
     # best: take the 5 checkpoints with the highest validation score (in the source language)
-    if ckpt_avg == "best":
+    if ca_strategy == "best":
         val_scores = [float(re.findall(r"0\.\d{1,3}", ckpt)[0]) for ckpt in all_ckpts]
-        idx = np.argsort(val_scores)[-5:]
+        idx = np.argsort(val_scores)[-n:]
         final_ckpts = [all_ckpts[i] for i in idx]
     
     # last: take the last checkpoint of each epoch
-    if ckpt_avg == "last":
+    if ca_strategy == "last":
         val_scores = [float(re.findall(r"0\.\d{1,3}", ckpt)[0]) for ckpt in all_ckpts]
         final_ckpts = []
         # ckpt files are sorted by step, so we can just iterate through them
-        for i in range(5):
+        for i in range(n):
             epoch_ckpts = [ckpt for ckpt in all_ckpts if f"epoch={i}" in ckpt]
             step_scores = [int(re.findall(r"step=\d+", ckpt)[0].replace("step=", "")) for ckpt in epoch_ckpts]
             idx = np.argsort(step_scores)[-1]

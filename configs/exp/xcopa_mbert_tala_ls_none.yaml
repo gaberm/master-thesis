@@ -19,7 +19,7 @@ madx:
   task_adapter:
     name: xcopa
 model:
-  ckpt_avg: none
+  ca_strategy: none
   ckpt_dir: xcopa_mbert_tala_ls
   num_labels: 2
 params:

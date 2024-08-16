@@ -50,7 +50,7 @@ class DefaultModel(LightningModule):
         self.exp_name = config.trainer.exp_name
         self.task = config.dataset.name
         self.model_name = config.model.name
-        self.ckpt_avg = config.model.ckpt_avg
+        self.ca_strategy = config.model.ca_strategy
         self.source_lang = "_".join(config.params.source_lang)
         if len(config.params.source_lang) == 2:
             self.mslt = True
@@ -141,7 +141,7 @@ class DefaultModel(LightningModule):
                 self.task,
                 self.model_name,
                 self.setup,
-                self.ckpt_avg,
+                self.ca_strategy,
                 self.calibration,
                 self.seed,
                 self.source_lang,
@@ -154,7 +154,7 @@ class DefaultModel(LightningModule):
                 self.task,
                 self.model_name,
                 self.setup,
-                self.ckpt_avg,
+                self.ca_strategy,
                 self.calibration,
                 self.seed,
                 self.source_lang,
@@ -270,7 +270,7 @@ class TwoDatasetModel(LightningModule):
         self.exp_name = config.trainer.exp_name
         self.task = config.dataset.name
         self.model_name = config.model.name
-        self.ckpt_avg = config.model.ckpt_avg
+        self.ca_strategy = config.model.ca_strategy
         self.source_lang = "_".join(config.params.source_lang)
         self.result_lst = []
         self.save_pred = config.params.save_pred
@@ -367,7 +367,7 @@ class TwoDatasetModel(LightningModule):
              self.task,
              self.model_name,
              self.setup,
-             self.ckpt_avg,
+             self.ca_strategy,
              self.calibration,
              self.seed,
              self.source_lang,
@@ -380,7 +380,7 @@ class TwoDatasetModel(LightningModule):
              self.task,
              self.model_name,
              self.setup,
-             self.ckpt_avg,
+             self.ca_strategy,
              self.calibration,
              self.seed,
              self.source_lang,
@@ -470,7 +470,7 @@ def load_l_model(config, seed, from_ckpt=False):
         
         # load lightning model using the best (most accurate) checkpoint 
         # based on the source language validation dataset
-        if config.model.ckpt_avg == "none":
+        if config.model.ca_strategy == "none":
             if config.dataset.name in ["xcopa", "xstorycloze"]:
                 l_model = TwoDatasetModel.load_from_checkpoint(best_ckpt, map_location=device, config=config, device=device)
                 l_model.encoder.eval()
@@ -486,14 +486,14 @@ def load_l_model(config, seed, from_ckpt=False):
         else:
             if config.dataset.name in ["xcopa", "xstorycloze"]:
                 l_model = TwoDatasetModel.load_from_checkpoint(best_ckpt, map_location=device, config=config, device=device)
-                enc_state_dict, cls_state_dict = compute_ckpt_average(test_dir, device, config.model.ckpt_avg)
+                enc_state_dict, cls_state_dict = compute_ckpt_average(test_dir, device, config.model.ca_strategy, config.model.ckpts_to_load)
                 l_model.encoder.load_state_dict(enc_state_dict)
                 l_model.classifier.load_state_dict(cls_state_dict)
                 l_model.encoder.eval()
                 l_model.classifier.eval()
             else:
                 l_model = DefaultModel.load_from_checkpoint(best_ckpt, map_location=device, config=config, device=device)
-                state_dict = compute_ckpt_average(test_dir, device, config.model.ckpt_avg)
+                state_dict = compute_ckpt_average(test_dir, device, config.model.ca_strategy, config.model.ckpts_to_load)
                 l_model.model.load_state_dict(state_dict)
                 l_model.model.eval()
             l_model.exp_name = config.trainer.exp_name

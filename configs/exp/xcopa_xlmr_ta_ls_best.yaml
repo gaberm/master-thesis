@@ -10,7 +10,7 @@ madx:
   task_adapter:
     name: xcopa
 model:
-  ckpt_avg: best
+  ca_strategy: best
   ckpt_dir: xcopa_xlmr_ta_ls
   num_labels: 2
 params:

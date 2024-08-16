@@ -18,7 +18,7 @@ madx:
     vi: vi/wiki@ukp
     zh: zh/wiki@ukp
 model:
-  ckpt_avg: last
+  ca_strategy: last
   ckpt_dir: xnli_xlmr_tala_ls
 params:
   label_smoothing: 0.1

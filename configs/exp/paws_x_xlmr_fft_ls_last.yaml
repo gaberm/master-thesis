@@ -6,7 +6,7 @@ defaults:
 - override /trainer: trainer
 - override /params: params
 model:
-  ckpt_avg: last
+  ca_strategy: last
   ckpt_dir: paws_x_xlmr_fft_ls
   num_labels: 2
 params:

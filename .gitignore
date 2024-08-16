@@ -2,7 +2,10 @@
 /~
 /outputs
 /results/mslt/csv
+/results/mslt/full_results
 /results/sslt/csv
+/results/sslt/full_results
+/results/schmidt
 /results/pred
 /results/latex_tables
 /src/__pycache__

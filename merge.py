@@ -11,7 +11,7 @@ def main():
         if finetuning == "mslt":
             final_df = pd.DataFrame(columns=["exp_name", "dataset", "model", "setup", "source_lang", "target_lang", "seed", "metric", "score"])
         else:
-            final_df = pd.DataFrame(columns=["exp_name", "dataset", "model", "setup", "ckpt_avg", "calib", "seed", "source_lang", "target_lang", "metric", "score"])
+            final_df = pd.DataFrame(columns=["exp_name", "dataset", "model", "setup", "ca_strategy", "calib", "seed", "source_lang", "target_lang", "metric", "score"])
         for file in all_results:
             df = pd.read_csv(f"results/{finetuning}/csv/{file}")
             final_df = pd.concat([final_df, df], axis=0).reset_index(drop=True)

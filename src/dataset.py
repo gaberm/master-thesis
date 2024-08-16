@@ -207,7 +207,7 @@ def get_data_loader(config, split):
         
         elif config.dataset.name == "xcopa":
             if mslt:
-                raise ValueError("Bilingual finetunging is not supported for XCOPA")
+                raise ValueError("Multi-source language training is not supported for XCOPA")
             if split == "train":
                 download_ds("social_i_qa", "en", "train", data_dir)
                 download_ds("pkavumba/balanced-copa", "en", "train", data_dir)
@@ -266,7 +266,7 @@ def get_data_loader(config, split):
 
         elif config.dataset.name == "xstorycloze":
             if mslt:
-                raise ValueError("Bilingual finetuning is not supported for XStoryCloze")
+                raise ValueError("Multi-source language training is not supported for XStoryCloze")
             storycoze = pd.read_csv("data/storycloze.csv")
             train_df, val_df = train_test_split(storycoze, test_size=0.2, random_state=42)
             if split == "train":

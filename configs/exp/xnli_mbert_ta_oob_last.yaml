@@ -4,7 +4,7 @@ defaults:
 - override /trainer: trainer
 - override /params: params
 model:
-  ckpt_avg: last
+  ca_strategy: last
   ckpt_dir: xnli_mbert_ta
 params:
   lr: 1e-4

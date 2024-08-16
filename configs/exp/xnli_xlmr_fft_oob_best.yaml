@@ -5,7 +5,7 @@ defaults:
 - override /trainer: trainer
 - override /params: params
 model:
-  ckpt_avg: best
+  ca_strategy: best
   ckpt_dir: xnli_xlmr_fft
 params:
   lr: 2e-5

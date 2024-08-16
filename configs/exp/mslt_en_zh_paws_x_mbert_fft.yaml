@@ -8,7 +8,7 @@ defaults:
 dataset:
   target_lang: [de, en, es, fr, ja, ko, zh]
 model:
-  ckpt_avg: none
+  ca_strategy: none
   ckpt_dir: mslt_en_zh_paws_x_mbert_fft
   num_labels: 2
 params:

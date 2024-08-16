@@ -20,7 +20,7 @@ madx:
   task_adapter:
     name: xstorycloze
 model:
-  ckpt_avg: last
+  ca_strategy: last
   ckpt_dir: xsc_xlmr_tala
   num_labels: 2
 params:
